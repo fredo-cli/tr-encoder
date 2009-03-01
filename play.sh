@@ -1,5 +1,10 @@
 #!/bin/bash
 DEBUG=0
+DISPLAY=0
+OVERWRITE=0
+CROPDETECTION=1
+TRY=""
+
 EXTENTION="org"
 #EXTENTION="VOB"
 
@@ -25,7 +30,7 @@ pink='\e[0;35m'
 PINK='\e[1;35m'
 
 cyan='\e[0;36m'
-CYAN='\e[1;36m'
+cyan='\e[1;36m'
 
 # 37 With
 
@@ -60,16 +65,20 @@ CROP_FRAMES_L=500
 
 MAXSIZE=480
 FPS=12000/1001
+    usage() {
+	echo >&2 "Usage: `basename $0` [-f jpeg|sample|normal] [-d] [file|folder]"
+    }
 
-
-    while getopts "f:dy" option
+    while getopts "f:T:c:DydY" option
     do
 	case "$option" in
-
-	
-	d)      DEBUG=1;;
+	c)	   CROPDETECTION=$OPTARG;;	
+	d)      DISPLAY=1;;	
+	D)      DEBUG=1;;
 	y)      OVERWRITE=1;;
+	Y)      OVERWRITE=2;;
 	f)      OUTPUT_FORMAT="$OPTARG";;
+	T)	   TRY="${OPTARG}-";;
 	[?])    usage
 		exit 1;;
 	esac
@@ -77,9 +86,21 @@ FPS=12000/1001
     shift $(($OPTIND - 1))
 
 
-    usage() {
-	echo >&2 "Usage: `basename $0` [-f jpeg|sample|normal] [-d] [file|folder]"
-    }
+
+
+timeout(){
+command=$1
+# run $command in background, sleep for our timeout then kill the process if it is running
+$command &
+pid=$!
+echo "sleep $2; kill $pid" | at now
+wait $pid &> /dev/null
+if [ $? -eq 143 ]; then
+echo "WARNING - command was terminated - timeout of $2 secs reached ($pid)$?."
+echo
+fi
+}
+
 
     round16 () {
 	echo "("$1" + 8) / 16 * 16" | bc
@@ -131,13 +152,15 @@ ABITERATE_MPLAYER=`mplayer  $INPUT  -frames 1 -identify -quiet -vo null -ao null
 }
 
 
+get_fps_mplayer () {	
 
-get_fps_mplayer () {	      
 # get the FPS from mplayer
 FPS_MPLAYER=`mplayer  $INPUT  -frames 1 -identify -quiet -vo null -ao null  2>&1 |grep  "ID_VIDEO_FPS=" |tail -1`   
 FPS_MPLAYER=${FPS_MPLAYER#ID_VIDEO_FPS=}
 #echo "FPS_MPLAYER=$FPS_MPLAYER"
 }
+
+
 get_duration_mplayer () {	
 # return  DURATION_MPLAYER=0 or DURATION_MPLAYER=345.78
 
@@ -155,8 +178,6 @@ DURATION_MPLAYER=`mplayer  $INPUT  -frames 1 -identify -quiet -vo null -ao null 
 #echo "DURATION_MPLAYER=$DURATION_MPLAYER"
 }
 
-ID_LENGTH=198.84
-
 
 get_general_infos () {	      
 	      GENERAL_INFOS=""
@@ -167,7 +188,7 @@ get_general_infos () {
 	      VIDEO_COUNT=0
 	      VIDEO_COUNT=0
 	      
-	      echo -e "\\n${BLUE}# General informations${NC} \\n"
+	      echo -e "\\n${BLUE}# General informations${NC}"
 
 	     # get some general info about the video
 	      GENERAL_INFOS=`mediainfo "--Inform=General;FORMAT='%Format%' FILE_SIZE=%FileSize% DURATION=%Duration% BITERATE=%OverallBitRate% VIDEO_COUNT=%VideoCount% AUDIO_COUNT=%AudioCount%" ${INPUT}`
@@ -178,6 +199,77 @@ get_general_infos () {
 	      # display the file name and the size
 	      
 	      echo -e "$INPUT\\t` echo "$FILE_SIZE / 1024 /1024 "| bc `MB\\n"
+		 
+		 
+		 
+		 
+		 
+		 # check if the video codec is supPorted by ffmpeg
+		 
+		FFMPEG_TEST=`ffmpeg -i "$INPUT" -sameq -vframes 1 -y "${DIRECTORY}/${SUBDIR}/test.jpg" 2>&1 `   
+		#echo "$FFMPEG_TEST"
+		
+		 FFMPEG_TAIL="`echo "$FFMPEG_TEST"|tail  -n 1   `"	
+		 FFMPEG_HEAD="`echo "$FFMPEG_TEST"| head -25 `"
+		 FFMPEG_YES=`echo "$FFMPEG_TAIL"|grep -o "^video:[1-9][0-9]*kB" `
+				if [[ ! -z $FFMPEG_YES ]]
+				then
+				echo -e "${GREEN}Video codec supported by ffmpeg${NC} "
+				#echo $FFMPEG_YES
+				else
+				
+				ERROR="ERROR: Video codec not supported by ffmpeg"
+
+						if [[ $DEBUG == 1 ]]
+						then
+
+						echo "$FFMPEG_HEAD"
+						fi 
+
+				echo -e "${RED}${ERROR}${NC}\\n${FFMPEG_TAIL}"
+				echo -e ${ERROR} ${FFMPEG_HEAD}  >> ${DIRECTORY}/${OUTPUT}.err    
+				
+				
+				fi
+				
+				
+				
+		 
+		 # check if the video codec is supPorted by ffmpeg
+		 
+		FFMPEG_TEST=`ffmpeg -i "$INPUT" -t 1 -ac 2 -y "${DIRECTORY}/${SUBDIR}/test.mp3" 2>&1 `   
+		#echo "$FFMPEG_TEST"
+		
+		 FFMPEG_TAIL="`echo "$FFMPEG_TEST"|tail  -n 1   `"	
+		 #echo $FFMPEG_TAIL
+		 FFMPEG_HEAD="`echo "$FFMPEG_TEST"| head -25 `"
+		 FFMPEG_YES=`echo "$FFMPEG_TAIL"|grep -o " audio:[1-9][0-9]*kB" `
+				if [[ ! -z $FFMPEG_YES ]]
+				then
+				echo -e "${GREEN}Audio codec supported by ffmpeg${NC} "
+				#echo $FFMPEG_YES
+				else
+				
+				ERROR="ERROR: Audio codec not supported by ffmpeg"
+
+						if [[ $DEBUG == 1 ]]
+						then
+
+						echo "$FFMPEG_HEAD"
+						fi 
+
+				echo -e "${RED}${ERROR}${NC}\\n${FFMPEG_TAIL}"
+				echo -e ${ERROR} ${FFMPEG_HEAD}  >> ${DIRECTORY}/${OUTPUT}.err    
+				
+				
+				fi
+				
+				
+				
+				
+				
+				
+
 
 
 
@@ -190,6 +282,9 @@ get_general_infos () {
 	      else
 	      echo -e "FORMAT=${YELLOW}$FORMAT${NC}"
 	      fi
+
+
+
 
 
 	      # check the duration of the video	 
@@ -220,7 +315,7 @@ get_general_infos () {
 
 
 	      
-	      # Get the general bitrate by calculation (test) 
+	      # Get the general bitrate by calculation
 	      
 	      BITERATE_CALC=$(echo "scale=10;$FILE_SIZE * 8 / ($DURATION/1000)"|bc)
 	      BITERATE_CALC=${BITERATE_CALC%.*}
@@ -311,7 +406,7 @@ get_video_infos () {
 	      VIDEO_INFOS=`mediainfo "--Inform=Video;FPS_MODE=%FrameRate_Mode% VCODEC='%Codec%' VDURATION=%Duration% VBITERATE=%BitRate% FPS=%FrameRate% DELAY=%Delay% ASPECT=%DisplayAspectRatio% INTERLACED=%ScanType% WIDTH=%Width% HEIGHT=%Height%  VFORMAT='%Format%' PAR=%PixelAspectRatio%  " ${INPUT}`
 	      #echo $VIDEO_INFOS
 	      eval $VIDEO_INFOS
-	      echo -e "\\n${CYAN}# Video informations${NC}\\n"
+	      echo -e "\\n${cyan}# Video informations${NC}"
 	      
 	      
 	      # Check the FPS (Frame Rate)
@@ -364,29 +459,55 @@ get_video_infos () {
 		  #[[ $FF_FPS == 23  ]] && FF_FPS=24
 		  fi	        
 	      
-	      # check the  VCODEC
-
-	      if [[ ! -z ` grep  "^${VCODEC}$" ./config/VCODECS ` ]]
-	      then
-	      echo -e -n "VCODEC=${GREEN}$VCODEC${NC}\\t"
-	      else
-	      echo -e -n "VCODEC=${YELLOW}$VCODEC${NC}\\t"
-	      fi
-      	      # check the  VFORMAT
+		 
+		 
+		 
+		  # check the  VFORMAT
 
 	      if [[ ! -z ` grep  "^${VFORMAT}$" ./config/VFORMATS ` ]]
 	      then
-	      echo -e "${GREEN}$VFORMAT${NC}"
+	      echo -e "VFORMAT=${GREEN}$VFORMAT${NC}"
 	      else
-	      echo -e "${YELLOW}$VFORMAT${NC}"
+	      echo -e "VFORMAT=${YELLOW}$VFORMAT${NC}"
 	      fi
+		 		 
+		 
+		 
+	      # check the  VCODEC
+		 
+		 VCODEC_INFOS=`grep "^${VCODEC}|*" ./config/VCODECS `
+
+	      if [[ ! -z $VCODEC_INFOS ]]
+	      then
+			   # Checkc the codec compatibility
+			   VCODEC_COMP=`echo "$VCODEC_INFOS" | awk -F "|" '{ print $2 }' `
+
+			   VCODEC_TEXT=`echo "$VCODEC_INFOS" | awk -F "|" '{ print $3 }' `
+			   
+			   case $VCODEC_COMP in
+			   1)echo -e  "VCODEC=${GREEN}${VCODEC} ${NC}\\t$VCODEC_TEXT";;
+			   2)echo -e  "VCODEC=${YELLOW}${VCODEC} ${NC}\\t$VCODEC_TEXT";;
+			   3)echo -e  "VCODEC=${PINK}${VCODEC} ${NC}\\t$VCODEC_TEXT";;
+			   4)echo -e  "VCODEC=${RED}${VCODEC} ${NC}\\t$VCODEC_TEXT";;
+			   esac
+		 
+	      
+	      else
+		 # codec not defined
+	      echo -e "VCODEC=${YELLOW}${VCODEC}${NC}\\tCodec undefined!"
+	      fi
+		 
+		 
+		 
+		 
+
 
 
 
 	      # check the size
 	      
 	      SIZE="${WIDTH}x${HEIGHT}"
-	      SIZE_INFOS=`grep  "^${SIZE}," ./config/SIZES.csv`
+	      SIZE_INFOS=`grep  "^${SIZE}," ./config/SIZES`
 	      #echo $SIZE_INFOS
 	      if [[ ! -z $SIZE_INFOS  ]]
 	      then
@@ -452,7 +573,7 @@ get_video_infos () {
 			 fi  
 	      fi
 		 
-		# Get the aspect ratio or DAR (cropdetection mplayer)
+		# Get the aspect ratio or DAR (mplayer)
 	      
 	      DAR=`mplayer  $INPUT  -frames 1 -identify -quiet -vo null -ao null 2>&1 | grep Movie-Aspect | grep -v undefined`
 	      DAR=${DAR#Movie-Aspect is }
@@ -516,7 +637,6 @@ get_video_infos () {
 
 	      if [[ ! -z $DELAY ]]
 	      then
-	      NOTICE="DELAY=$DELAY"
 	      echo -e "DELAY=${YELLOW}$DELAY${NC}"
 	      fi     
 	      
@@ -526,9 +646,8 @@ get_video_infos () {
 	      
 	      if [[ $INTERLACED == "Interlaced" ]]
 	      then
-	      NOTICE="INTERLACED=$INTERLACED"
 	      DEINTERLACE=" -deinterlace "
-	      echo -e "${YELLOW}$NOTICE${NC}"
+	      echo -e "INTERLACED=${YELLOW}$INTERLACED${NC}"
 	      fi
 	      
 	      
@@ -537,7 +656,7 @@ get_video_infos () {
 get_extra_infos () {	 
 	      # check the BPF of the video (test)
 	      
-	      echo -e "\\n${CYAN}# Extra informations${NC}\\n"
+	      echo -e "\\n${cyan}# Extra informations${NC}\\n"
 	      
 	      NB_FRAMES=$(mediainfo "--Inform=Video;%FrameCount%" ${INPUT})
 	      STREAMSIZE=$(mediainfo "--Inform=Video;%StreamSize%" ${INPUT})
@@ -587,7 +706,7 @@ get_audio_infos () {
 	      AR=0
 	      CHANNELS=0
 	      
-	      echo -e "\\n${CYAN}# Audio informations${NC}\\n"
+	      echo -e "\\n${cyan}# Audio informations${NC}"
 	      
 	      AUDIO_INFOS=`mediainfo "--Inform=Audio;ACODEC='%Codec%' AR=%SamplingRate% ABITERATE2=%BitRate_Nominal% ADURATION=%Duration% CHANNELS=%Channel(s)% AFORMAT='%Format%' ABITERATE=%BitRate% " ${INPUT}`
 	      #echo $AUDIO_INFOS	     
@@ -596,25 +715,49 @@ get_audio_infos () {
 	      
 
 	      
-		 # check the  ACODEC
-
-	      if [[ ! -z ` grep  "^${ACODEC}$" ./config/ACODECS ` ]]
-	      then
-	      echo -e -n "ACODEC=${GREEN}$ACODEC${NC}"
-	      else
-	      echo -e -n "ACODEC=${YELLOW}$ACODEC${NC}"
-	      fi
+# 		 # check the  ACODEC
+# 
+# 	      if [[ ! -z ` grep  "^${ACODEC}$" ./config/ACODECS ` ]]
+# 	      then
+# 	      echo -e -n "ACODEC=${GREEN}$ACODEC${NC}"
+# 	      else
+# 	      echo -e -n "ACODEC=${YELLOW}$ACODEC${NC}"
+# 	      fi
 		 
 		 
 		 # check the  AFORMAT
 
 	      if [[ ! -z ` grep  "^${AFORMAT}$" ./config/AFORMATS ` ]]
 	      then
-	      echo -e "\\t${GREEN}$AFORMAT${NC}"
+	      echo -e "AFORMAT=${GREEN}$AFORMAT${NC}"
 	      else
-	      echo -e "\\t${YELLOW}$AFORMAT${NC}"
+	      echo -e "AFORMAT=${YELLOW}$AFORMAT${NC}"
 	      fi
 		 
+		
+		
+		# check the  ACODEC
+		 
+		 ACODEC_INFOS=`grep "^${ACODEC}|*" ./config/ACODECS `
+
+	      if [[ ! -z $ACODEC_INFOS ]]
+	      then
+			   # Checkc the codec compatibility
+			   ACODEC_COMP=`echo "$ACODEC_INFOS" | awk -F "|" '{ print $2 }' `
+			   ACODEC_TEXT=`echo "$ACODEC_INFOS" | awk -F "|" '{ print $3 }' `
+			   
+			   case $ACODEC_COMP in
+			   1)echo -e  "ACODEC=${GREEN}${ACODEC} ${NC}\\t$ACODEC_TEXT";;
+			   2)echo -e  "ACODEC=${YELLOW}${ACODEC} ${NC}\\t$ACODEC_TEXT";;
+			   3)echo -e  "ACODEC=${PINK}${ACODEC} ${NC}\\t$ACODEC_TEXT";;
+			   4)echo -e  "ACODEC=${RED}${ACODEC} ${NC}\\t$ACODEC_TEXT";;
+			   esac
+		 
+	      
+	      else
+		 # codec not defined
+	      echo -e -n "ACODEC=${YELLOW}${ACODEC}${NC}\\tCodec undefined!"
+	      fi
 	      
 		  # Check the ABITERATE
 		  ABITERATE_NOTICE=""
@@ -730,33 +873,33 @@ get_audio_infos () {
 cropdetection () {
 
     
-    
-    
-	      if [[ -n $1 ]]
-	      then
-	      echo -e "\\n${CYAN}# Crop detction on $1 frames${NC}\\n"
-	      NEW_CROPFRAMES=$1
-	      else
-	      echo -e "\\n${CYAN}# Crop detction on $CROP_FRAMES_S frames (default)${NC}\\n"
-	      NEW_CROPFRAMES=$CROP_FRAMES_S
-	      fi
-	      
-		 # detection problem with VFORMAT=hdv3
-		 if [[ $VFORMAT = "hdv3" ]]
+		 if [[ $OVERWRITE != 1  ]]
 		 then
+    
+				if [[ -n $1 ]]
+				then
+				CROPFRAMES_TMP=$1
+				CROPSTART_TMP=0
+				echo -e "\\n${cyan}# Crop from -ss $CROPSTART_TMP detction on $1 frames${NC}"
+
+				else
+
+				CROPFRAMES_TMP=$CROP_FRAMES_S
+				CROPSTART_TMP=$CROPSTART
+				echo -e "\\n${cyan}# Crop detction from -ss $CROPSTART_TMP  on $CROP_FRAMES_S frames${NC}"
+				
+				fi
 		 
-		 NEW_CROPFRAMES=`echo "$NEW_CROPFRAMES*2"|bc`
-		 CROPSTART=0
-		 echo "$VFORMAT: New parameters needed [$CROPSTART:$NEW_CROPFRAMES]"
-		 fi
 		 
-	      # Run mplayer to get somme parameters of the video.
-	      CROPDETECTION_CMD="mplayer \"$INPUT\" -ss $CROPSTART -frames $NEW_CROPFRAMES -vf cropdetect -ac dummy -quiet -vo null -ao null > ${DIRECTORY}/${SUBDIR}/${OUTPUT}.crop 2>&1"
-		 eval $CROPDETECTION_CMD 
-	      if [[  $DEBUG -eq 1 ]]
-	      then
-	      cat "${DIRECTORY}/${SUBDIR}/${OUTPUT}.crop" |tail -n 10
-	      fi
+				# Run mplayer to get somme parameters of the video.
+				CROPDETECTION_CMD="mplayer \"$INPUT\" -ss $CROPSTART_TMP -frames $CROPFRAMES_TMP -vf cropdetect -ac dummy -quiet -vo null -ao null > ${DIRECTORY}/${SUBDIR}/${OUTPUT}.crop 2>&1"
+				eval $CROPDETECTION_CMD 
+				if [[  $DEBUG -eq 1 ]]
+				then
+				cat "${DIRECTORY}/${SUBDIR}/${OUTPUT}.crop" |tail -n 10
+				fi
+				
+		fi
 	      
 		# Get the output of -vf cropdetect.
 
@@ -773,7 +916,7 @@ cropdetection () {
 				CROPLEFT=`echo $CROP|awk -F ':' '{print $3 }'`
 				echo  "CROPLEFT=$CROPLEFT"
 
-				if [ $CROPLEFT -gt 7 ]
+				if [ $CROPLEFT -gt 0 ]
 				then
 				FF_CROP_WIDTH=" -cropleft $CROPLEFT"
 				fi
@@ -783,7 +926,7 @@ cropdetection () {
 				CROPRIGHT=`echo "$WIDTH - $CROPRIGHT - $CROPLEFT"|bc`
 				echo  "CROPRIGHT=$CROPRIGHT"
 
-				if [ $CROPRIGHT -gt 7 ]
+				if [ $CROPRIGHT -gt 0 ]
 				then
 				FF_CROP_WIDTH="$FF_CROP_WIDTH -cropright $CROPRIGHT"
 				fi
@@ -793,7 +936,7 @@ cropdetection () {
 				CROPTOP=`echo $CROP|awk -F ':' '{print $4 }'`
 				echo  "CROPTOP=$CROPTOP"
 
-				if [ $CROPTOP -gt 15 ]
+				if [ $CROPTOP -gt 0 ]
 				then
 				FF_CROP_HEIGHT=" -croptop $CROPTOP"
 				fi
@@ -803,14 +946,30 @@ cropdetection () {
 				CROPBOTTOM=`echo "$HEIGHT - $CROPBOTTOM - $CROPTOP"|bc`
 				echo  "CROPBOTTOM=$CROPBOTTOM"
 
-				if [ $CROPBOTTOM -gt 15 ]
+				if [ $CROPBOTTOM -gt 0 ]
 				then
 				FF_CROP_HEIGHT="$FF_CROP_HEIGHT -cropbottom $CROPBOTTOM"
 				fi
 		 
 				#  CROP_RATIO = DAR of the video after cropping
 				CROP_RATIO=`echo "scale=3;($WIDTH - $CROPLEFT - $CROPRIGHT)/($HEIGHT - $CROPTOP - $CROPBOTTOM)"|bc`
-				echo "CROP_RATIO=$CROP_RATIO"
+				echo -e "CROP_RATIO=${cyan}$CROP_RATIO${NC}"
+				
+				
+						 
+
+				CROPHEIGHT=`echo "$CROPTOP+$CROPBOTTOM"|bc`
+				#echo "CROPHEIGHT=$CROPHEIGHT"
+				CROPHEIGHT_AV=`echo "$CROPHEIGHT / 2"|bc`
+				
+				CROPWIDTH=`echo "$CROPLEFT+$CROPRIGHT"|bc`
+				#echo "CROPWIDTH=$CROPWIDTH"
+				CROPWIDTH_AV=`echo "$CROPWIDTH / 2"|bc`
+				  
+	  
+				echo -e "CROPWIDTH_AV=${cyan}$CROPWIDTH_AV${NC}"
+				echo -e "CROPHEIGHT_AV=${cyan}$CROPHEIGHT_AV${NC}"
+
 				
 		# detection failled once, try one more time with CROPSTART = 0		
 		elif [[ -z $CROP && $CROPSTART != 0 && $CROPDETECTION_2PASS != 1 ]]	
@@ -833,7 +992,27 @@ cropdetection () {
 	      fi
 	      
 	     }
-    
+
+resample_audio(){
+ file ${DIRECTORY}/${SUBDIR}/${OUTPUT}.wav | grep -qs 'PCM, 8 bit'
+ if [ $? = 0 ]; then
+    SOX_B="-b -u"
+    SOX_W="-w"
+
+ echo "sox: resampling PCM, 8 bi to PCM, 16 bit" 
+ 
+ echo "sox $SOX_B ${DIRECTORY}/${SUBDIR}/${OUTPUT}.wav -r 48000 $SOX_W ${DIRECTORY}/${SUBDIR}/resample.wav resample "
+ if sox $SOX_B ${DIRECTORY}/${SUBDIR}/${OUTPUT}.wav -r 48000 $SOX_W ${DIRECTORY}/${SUBDIR}/resample.wav resample  ; then
+    mv -f ${DIRECTORY}/${SUBDIR}/resample.wav ${DIRECTORY}/${SUBDIR}/${OUTPUT}.wav
+     echo "sox: resampling done" 
+ fi
+fi
+}
+
+resample_video(){
+mplayer $INPUT -ass -embeddedfonts -sid 0 -aid 1 -vf eq2=0.9:1:0:1.02 -vo yuv4mpeg:file=${DIRECTORY}/${SUBDIR}/${OUTPUT}.yuv   -noframedrop -ao null -really-quiet < /dev/null & 
+}
+
 encode () {
 	      INPUT=$1
 
@@ -880,6 +1059,7 @@ encode () {
 	      fi
 	      
 
+
      
 	      ### General informations 
 	    
@@ -912,10 +1092,182 @@ encode () {
 	      
 	
 	
+	pal-dar133 (){
+	
+	
+	      # resize
+	      NEW_HEIGHT=$(echo "$WIDTH / 1.777" | bc )     
+	      NEW_HEIGHT=`round2 $NEW_HEIGHT`
+	      NEW_WIDTH=`round2 $WIDTH`
+	      NEW_SIZE="${NEW_WIDTH}x${NEW_HEIGHT}"
+		 echo -e "${cyan}Resize: $SIZE -> $NEW_SIZE${NC}"
+	      
+
+		 
+
+		 
+				CROP_PRESET=`grep  "^${TRY}1.25|${WIDTH}x${HEIGHT}|1.33|$CROPWIDTH_AV|$CROPHEIGHT_AV|.*" ./config/CROPS `
+				echo $CROP_PRESET
+				
+				
+		 
+# 				if [[  ! -z $CROP_PRESET ]]
+# 				then
+				
+				# Width
+				
+				FF_CROP_WIDTH=`echo $CROP_PRESET |awk -F "|" '{ print $7 }'`
+				if [[ ! -z $FF_CROP_WIDTH ]]
+				then
+				
+				# change to the preset values
+				FF_CROP_WIDTH=`eval echo "$FF_CROP_WIDTH"`
+				echo -e "${cyan}Cropping W: $FF_CROP_WIDTH ${NC}\\t(preset)"				
+				else
+				
+				# keep the cropping detected values
+				FF_CROP_WIDTH="-cropleft $CROPLEFT -cropright $CROPRIGHT "
+				echo -e "${cyan}Cropping W: $FF_CROP_WIDTH ${NC}\\t(crop detection)"
+				
+				fi
+				
+				
+				# Height
+				
+				FF_CROP_HEIGHT=`echo $CROP_PRESET |awk -F "|" '{ print $6 }'`
+				if [[ ! -z $FF_CROP_HEIGHT ]]
+				then
+				
+			     # change to the preset values
+				FF_CROP_HEIGHT=`eval echo "$FF_CROP_HEIGHT"`
+				echo -e "${cyan}Cropping H: $FF_CROP_HEIGHT ${NC}\\t(preset)"
+				
+				else
+				
+				# change to the standart values
+				CUT=`echo " $HEIGHT / 8 "|bc ` 
+				CROPTOP=$CUT
+				CROPBOTTOM=$CUT
+				FF_CROP_HEIGHT="-croptop $CROPTOP -cropbottom $CROPBOTTOM "
+				echo -e "${cyan}Cropping H: $FF_CROP_HEIGHT${NC}\\t(standart)"
+				
+				fi
+				
+				
+				
+				# Height
+				
+				
+				
+				DISTORTION=`echo $CROP_PRESET |awk -F "|" '{ print $8 }'`
+				if [[ ! -z $DISTORTION ]]
+				then	
+				
+				# change to the preset values
+				echo -e "${cyan}Distortion: $DISTORTION ${NC}\\t(preset)"
+				
+				else
+				
+	               # stantart    
+				DISTORTION="/1.066" # PAR 16:15 = 1.0666666
+				echo -e "${cyan}Distortion: $DISTORTION${NC}\\t(standart)"				
+				
+				fi
+				
+				
+	      
+	      echo -e "${cyan}Padding: no${NC}"
 	
 	
 	
+	}
 	
+	
+	 pal-dar177(){
+	 # resize
+	      NEW_WIDTH=`echo " $HEIGHT *  1.77 / 1"| bc ` 
+	      NEW_WIDTH=`floor2 $NEW_WIDTH`
+	      NEW_HEIGHT=`floor2 $HEIGHT`
+	      NEW_SIZE="${NEW_WIDTH}x${NEW_HEIGHT}"
+		 echo -e "${cyan}Resize: $SIZE -> $NEW_SIZE${NC}"
+		 
+
+		 
+		 
+				CROP_PRESET=`grep  "^${TRY}1.25|${WIDTH}x${HEIGHT}|1.77|$CROPWIDTH_AV|$CROPHEIGHT_AV|.*" ./config/CROPS `
+				echo $CROP_PRESET
+				
+				
+		 
+# 				if [[  ! -z $CROP_PRESET ]]
+# 				then
+				
+				# Width
+				
+				FF_CROP_WIDTH=`echo $CROP_PRESET |awk -F "|" '{ print $7 }'`
+				if [[ ! -z $FF_CROP_WIDTH ]]
+				then
+				
+				# change to the preset values
+				FF_CROP_WIDTH=`eval echo "$FF_CROP_WIDTH"`
+				echo -e "${cyan}Cropping W: $FF_CROP_WIDTH ${NC}\\t(preset)"				
+				else
+				
+				# keep the cropping detected values
+				FF_CROP_WIDTH="-cropleft $CROPLEFT -cropright $CROPRIGHT "
+				echo -e "${cyan}Cropping W: $FF_CROP_WIDTH ${NC}\\t(crop detection)"
+				
+				fi
+				
+				
+				# Height
+				
+				FF_CROP_HEIGHT=`echo $CROP_PRESET |awk -F "|" '{ print $6 }'`
+				if [[ ! -z $FF_CROP_HEIGHT ]]
+				then
+				
+			     # change to the preset values
+				FF_CROP_HEIGHT=`eval echo "$FF_CROP_HEIGHT"`
+				echo -e "${cyan}Cropping H: $FF_CROP_HEIGHT ${NC}\\t(preset)"
+				
+				else
+				
+				# change to the standart values
+# 				CUT=`echo " $HEIGHT / 8 "|bc ` 
+				CROPTOP=0
+				CROPBOTTOM=0
+				FF_CROP_HEIGHT="-croptop 0 -cropbottom 0 "
+				echo -e "${cyan}Cropping H: $FF_CROP_HEIGHT${NC}\\t(standart)"
+				
+				fi
+				
+				
+				
+				# Height
+				
+				
+				
+				DISTORTION=`echo $CROP_PRESET |awk -F "|" '{ print $8 }'`
+				if [[ ! -z $DISTORTION ]]
+				then	
+				
+				# change to the preset values
+				echo -e "${cyan}Distortion: $DISTORTION ${NC}\\t(preset)"
+				
+				else
+				
+	               # stantart    
+				DISTORTION="/1.422 " 
+				echo -e "${cyan}Distortion: $DISTORTION${NC}\\t(standart)"				
+				
+				fi
+		 
+	 
+		 #no  padding
+	      echo -e "${cyan}Padding: no${NC}"
+
+	 
+	 }
 	
 	
 	
@@ -931,11 +1283,21 @@ encode () {
 
 		DETECTED_FORMAT=""
 		
-	      # 1.25
+		
+		
+		
+	      # pal DAR 1.25
+		 
+		 
+		 
+		 
 	      if [[ ( $RATIO  > 1.23 && $RATIO < 1.27 ) && (-z $DAR || $DAR  == 1.25 ) ]]
 	      then
+# 		 mv $INPUT /home/fredo/tr-encoder/pal/p/${OUTPUT}.org
+#  		 continue
+		 
 		 DETECTED_FORMAT="1.25"
-		 echo -e "\\n${CYAN}Format: $DETECTED_FORMAT ( pal reencoded !)${NC}"
+		 echo -e "\\n${RED}Format: $DETECTED_FORMAT ( pal reencoded !)${NC}"
 
 	      # resize
 	      NEW_WIDTH=`floor2 $WIDTH`
@@ -947,66 +1309,186 @@ encode () {
 	      cropdetection $CROP_FRAMES_L
 
 	      # cut the top and the button
-	      CUT=`echo "( $HEIGHT - $NEW_HEIGHT ) / 2 "|bc ` 
-	      CUT=`floor2 $CUT`  
+	      CUT=`echo " $HEIGHT  / 8 "|bc ` 
+
+
 
 	      # check crop to cut or not the bottom and the top
 		 
 		 
-		 # small black border or none (4/3 or DAR 4/3)
-	      if [[  $CROPTOP < `echo $CUT / 2 |bc`    &&  $CROPBOTTOM  < `echo $CUT / 2 |bc` ]]
-	      then
+				# small black border or none (4/3 or DAR 4/3)
+				
+				if [[  $CROPTOP -lt `echo $HEIGHT / 16 |bc`    &&  $CROPBOTTOM  -lt `echo $HEIGHT / 16 |bc` ]]
+				then
+				
+				echo -e "\\nSmall black border less than `echo $HEIGHT / 16 |bc`" 
+				echo    "1/  pal DAR 1.77" 
+				echo    "2/  pal DAR 1.33 (if the  crop detection didn't work)"
+				
 
-		 echo -e "\\nSmall black border less than `echo $CUT / 2 |bc`"
-		 echo    "The video can be a pal DAR 1.77 or a pal DAR 1.33"
-		 echo -e "The video going to be encode like a pal DAR 1.77\\n"
-		 
-	      echo -e "${CYAN}no cutting: $FF_CROP_HEIGHT${NC}"
-		 CROPTOP=0
-	      CROPBOTTOM=0
-	      FF_CROP_HEIGHT="" 
-		 
-		 # distortion 
-	      DISTORTION=" / 1.41 "
-		 echo -e "${CYAN}Distortion: $DISTORTION${NC}"
-		 
-		 # medium black boder
-		 elif [[ $CROPTOP  -lt $CUT  &&  $CROPBOTTOM -lt $CUT   ]]
-	      then
-		 
-		 echo -e "\\nMedium black border less than $CUT "
-		 echo    "The video can be a pal DAR 1.77 with a image 2.35 (detection 80)"
-		 echo -e "The video going to be encode like a pal DAR 1.77\\n"
-		 CROPTOP=0
-	      CROPBOTTOM=0
-		 FF_CROP_HEIGHT=""
-	      echo -e "${CYAN}no cutting: $FF_CROP_HEIGHT${NC}"
-		 
-		 # distortion 
-	      DISTORTION=" / 1.41 "
-		 echo -e "${CYAN}Distortion: $DISTORTION${NC}"
-		 
-		 # large black border cinemascope = 136 | 16/9=  |pal DAR 1.77 = 80 -> dont cut just strech the image
-	      else
-		 
-		 echo -e "\\nLarge Black border more than $CUT "
-		 echo    "The video can be a 1.77 or 2.35 (detection 90-120 )"
-		 echo -e "The video going to be encode like a 1.77\\n"
-	      CROPTOP=$CUT
-	      CROPBOTTOM=$CUT
-	      FF_CROP_HEIGHT="-croptop $CUT -cropbottom $CUT "
+				
+				# remove very small black border on the top and bottom (optional)
+				
+				if [[ $CROPHEIGHT_AV  -lt `echo "$HEIGHT * 0.3 * 2 / 2" |bc` ]]
+				then
+				FF_CROP_HEIGHT="-croptop $CROPTOP -cropbottom $CROPBOTTOM "
+				echo -e "${cyan}Cropping H:\\t$FF_CROP_HEIGHT${NC}"
+				else
+				CROPTOP=0
+				CROPBOTTOM=0
+				FF_CROP_HEIGHT="" 
+				echo -e "${cyan}Cropping H:\\t no${NC}"
+				fi
+				
+				# remove very small black border on the left and right (optional)
+							   
+				if [[ $CROPWIDTH_AV  -lt `echo "$WIDTH * 0.03 / 1" |bc` ]]
+				then
+				FF_CROP_WIDTH="-cropleft $CROPLEFT -cropright $CROPRIGHT "
+				echo -e "${cyan}Cropping W:$FF_CROP_WIDTH${NC}"
+				else
+				CROPLEFT=0
+				CROPRIGHT=0
+				FF_CROP_WIDTH="" 
+				echo -e "${cyan}Cropping W:\\t no${NC}"
+				fi
+				
 
-		 echo -e "${CYAN}Cutting:$FF_CROP_HEIGHT${NC}"
+				
+				
+				# distortion 
+				DISTORTION="/1.422 "
+				echo -e "${cyan}Distortion: $DISTORTION${NC}"				
+		 
+				# Padding: no
+				echo -e "${cyan}Padding: no${NC}"
+				
+				
+				
+				
+				# medium black boder < 64 88 >
+
+				
+				elif [[ $CROPHEIGHT_AV -ge `echo "$HEIGHT * 0.111 / 1" |bc` && $CROPHEIGHT_AV  -le `echo "$HEIGHT * 0.155 / 1"|bc`   ]]
+				then
+				
+				echo -e "\\nMedium black border less than `echo "$HEIGHT * 0.155 / 1"|bc` AND more than `echo "$HEIGHT * 0.111 / 1"|bc` "
+
+				echo    "1/ pal DAR 1.33 with a image 1.77 "
+				echo    "2/ pal DAR 1.77 with a image 2.35 "
+				
+				
+				CHOICE=0
+				read -t 5 CHOICE
+				echo $CHOICE
+				
+				case $CHOICE in
+				1)pal-dar133;;
+				2)pal-dar177;;
+				*)pal-dar133;;
+				esac
+				
+# 				# remove very small black border on the left and right (optional)
+# 							   
+# 				if [[ $CROPWIDTH_AV  -lt `echo "$WIDTH * 0.03 / 1" |bc` ]]
+# 				then
+# 				FF_CROP_WIDTH="-cropleft $CROPLEFT -cropright $CROPRIGHT "
+# 				echo -e "${cyan}Cropping W:\\t$FF_CROP_WIDTH${NC}"
+# 				else
+# 				CROPLEFT=0
+# 				CROPRIGHT=0
+# 				FF_CROP_WIDTH="" 
+# 				echo -e "${cyan}Cropping W:\\t no${NC}"
+# 				fi
+# 				
+# 				
+# 				# cut the heigt standart = 72
+# 				
+# 				CROPTOP=0
+# 				CROPBOTTOM=0
+# 				FF_CROP_HEIGHT="-croptop $CROPTOP -cropbottom $CROPBOTTOM "
+# 
+# 				echo -e "${cyan}Cropping H:\\t$FF_CROP_HEIGHT${NC}"
+# 				
+# 				# distortion 
+# 				DISTORTION="/1.422 "
+# 				echo -e "${cyan}Distortion: $DISTORTION${NC}"
+# 				
+# 				# calculate the ratio afer cropping
+# 				
+# 				RATIO_AFTER_CROPPING=`echo "scale=3;(($WIDTH - $CROPLEFT - $CROPRIGHT)/($HEIGHT - $CROPTOP - $CROPBOTTOM))*${DISTORTION#/}"|bc`
+# 				echo $RATIO_AFTER_CROPPING
+# 			
+# 		 
+# 				# Padding: no
+# 				echo -e "${cyan}Padding: no${NC}"
+				
+				
+				
+				
+				
+				
+				# large black border cinemascope = 136 | 16/9=  |pal DAR 1.77 = 80 -> dont cut just strech the image
+				else
+				
+				echo -e "\\nLarge Black border more than `echo "$HEIGHT * 0.155 / 1"|bc` "
+				echo    "1/  pal DAR 1.33"
+				echo    "2/  pal DAR 1.77"				
+				
+				CHOICE=0
+				read -t 5 CHOICE
+				echo $CHOICE
+				
+				case $CHOICE in
+				1)pal-dar133;;
+				2)pal-dar177;;
+				*)pal-dar133;;
+				esac
+		
+				
+				
+# 				# remove very small black border on the left and right (optional)
+# 							   
+# 				if [[ $CROPWIDTH_AV  -lt `echo "$WIDTH * 0.03 / 1" |bc` ]]
+# 				then
+# 				FF_CROP_WIDTH="-cropleft $CROPLEFT -cropright $CROPRIGHT "
+# 				echo -e "${cyan}Cropping W:\\t$FF_CROP_WIDTH${NC}"
+# 				else
+# 				CROPLEFT=0
+# 				CROPRIGHT=0
+# 				FF_CROP_WIDTH="" 
+# 				echo -e "${cyan}Cropping W:\\t no${NC}"
+# 				fi
+# 				
+# 				
+# 				# cut the heigt standart = 72
+# 				
+# 				CROPTOP=$CUT
+# 				CROPBOTTOM=$CUT
+# 				FF_CROP_HEIGHT="-croptop $CUT -cropbottom $CUT "
+# 
+# 				echo -e "${cyan}Cropping h:\\t$FF_CROP_HEIGHT${NC}"
+# 				
+# 				
+# 				
+# 				# distortion 
+# 				DISTORTION="/1.066 "
+# 				echo -e "${cyan}Distortion: $DISTORTION${NC}"	
+# 				
+# 				# calculate the ratio afer cropping
+# 				
+# 				RATIO_AFTER_CROPPING=`echo "scale=3;($WIDTH - $CROPLEFT -$CROPRIGHT)/($HEIGHT - $CROPTOP -$CROPBOTTOM)*${DISTORTION#/}"|bc`
+# 				echo $RATIO_AFTER_CROPPING
+# 		 
+# 				# Padding: no
+# 				echo -e "${cyan}Padding: no${NC}"
+				fi
+				
+				
+				
+
+
 	      fi
-		 
-		 # Padding: no
-		 echo -e "${CYAN}Padding: no${NC}"
-
-	      fi
-
-
-
-
 
 
 
@@ -1015,145 +1497,52 @@ encode () {
 
 	      # PAL DAR 1.33
 		 
-		 
 	      if [[ $RATIO == 1.25 && $DAR == 1.33 ]]
 	      then
-		 
-		 DETECTED_FORMAT="PAL DAR 1.33"
-		 echo -e "\\n${CYAN}Format: $DETECTED_FORMAT${NC}"
-
-	      # resize
-	      NEW_HEIGHT=$(echo "$WIDTH / 1.777" | bc )     
-	      NEW_HEIGHT=`round2 $NEW_HEIGHT`
-	      NEW_WIDTH=`round2 $WIDTH`
-	      NEW_SIZE="${NEW_WIDTH}x${NEW_HEIGHT}"
-		 echo -e "${CYAN}Resize: $SIZE -> $NEW_SIZE${NC}"
-	      
-		 # get a  cropdetection only for the width
+	      # get a  cropdetection 
 	      cropdetection $CROP_FRAMES_L
 		 
-		 
-		 
-		 		 
-		 # test
-		 
-
-		  CROPHEIGHT=`echo "$CROPTOP+$CROPBOTTOM"|bc`
-		  echo "CROPHEIGHT=$CROPHEIGHT"
-		  CROPHEIGHT_AV=`echo "$CROPHEIGHT / 2"|bc`
-		  
-		  CROPWIDTH=`echo "$CROPLEFT+$CROPRIGHT"|bc`
-		  echo "CROPWIDTH=$CROPWIDTH"
-		  CROPWIDTH_AV=`echo "$CROPWIDTH / 2"|bc`
-		  
-		 echo -e "${PINK}"		  
-		 echo "CROPWIDTH_AV=$CROPWIDTH_AV" 
-		 echo "CROPHEIGHT_AV=$CROPHEIGHT_AV"
-		 echo -e "${NC}"
-		 
-		 echo "$CROPWIDTH_AV|$CROPHEIGHT_AV" >> ./config/crop13.txt
-		 
-		 CROP_PRESSET=`grep  "^1.25|${WIDTH}x${HEIGHT}|1.33|$CROPWIDTH_AV|$CROPHEIGHT_AV|.*" ./config/CROPS `
-		 echo $CROP_PRESSET
-		 
-				if [[  ! -z $CROP_PRESSET ]]
-				then
-			
-				# keep the cropping on the width
-				echo -e "${CYAN}Cropping H: $FF_CROP_WIDTH ${NC}"
-				
-				# change the  FF_CROP_HEIGHT value to the preset value
-				FF_CROP_HEIGHT=`echo $CROP_PRESSET |awk -F "|" '{ print $6 }'`
-				echo -e "${CYAN}Cropping W: $FF_CROP_HEIGHT ${NC}\\t(presset)"
-			   
-			   
-				
-				
-				else
-				# keep the cropping on the width
-				echo -e "${CYAN}Cropping W: $FF_CROP_WIDTH${NC}"
-				
-				# Cutting on the top
-				CUT=`echo "scale=3;(( $HEIGHT - $NEW_HEIGHT )/ 1.06) / 2"|bc ` 
-				CUT=`floor2 $CUT` 
-				CROPTOP=$CUT
-				CROPBOTTOM=$CUT
-				FF_CROP_HEIGHT="-croptop $CROPTOP -cropbottom $CROPBOTTOM "
-				echo -e "${CYAN}Cutting H: $FF_CROP_HEIGHT${NC}"
-				fi
-	      
-	      DISTORTION=" / 1.06 " # PAR 16:15 = 1.0666666
-	      
-	      echo -e "${CYAN}Padding: no${NC}"
-
-	      echo -e "${CYAN}Distortion: $DISTORTION${NC}"
-	      
-		 echo -e "${NC}"
+		 DETECTED_FORMAT="PAL DAR 1.33"
+		 echo -e "\\n${pink}Format: $DETECTED_FORMAT${NC}"
+		
+		 pal-dar133
 	      fi
+
+
+
+
 
 	      # 1.25 DAR 1.77
+		 
 	      if [[ $RATIO == 1.25 && $DAR == 1.77 ]]
 	      then
-		 DETECTED_FORMAT="PAL DAR 1.77"
-		 echo -e "\\n${CYAN}Format: $DETECTED_FORMAT${NC}"
-
-	      # resize
-	      NEW_WIDTH=`echo " $HEIGHT * ( $DAR * 100 ) / 100"| bc ` 
-	      NEW_WIDTH=`floor2 $NEW_WIDTH`
-	      NEW_HEIGHT=`floor2 $HEIGHT`
-	      NEW_SIZE="${NEW_WIDTH}x${NEW_HEIGHT}"
-		 echo -e "${CYAN}Resize: $SIZE -> $NEW_SIZE${NC}"
-		 
-		# get a  cropdetection only for the width
+	 
+		 # get a  cropdetection
 	      cropdetection $CROP_FRAMES_S
 		 
-		 
-		 # test
-		 
+		 DETECTED_FORMAT="PAL DAR 1.77"
+		 echo -e "\\n${pink}Format: $DETECTED_FORMAT${NC}"
 
-		  CROPHEIGHT=`echo "$CROPTOP+$CROPBOTTOM"|bc`
-		  echo "CROPHEIGHT=$CROPHEIGHT"
-		  CROPHEIGHT_AV=`echo "$CROPHEIGHT / 2"|bc`
-		  
-		  CROPWIDTH=`echo "$CROPLEFT+$CROPRIGHT"|bc`
-		  echo "CROPWIDTH=$CROPWIDTH"
-		  CROPWIDTH_AV=`echo "$CROPWIDTH / 2"|bc`
-		  
-		 echo -e "${PINK}"		  
-		 echo "CROPWIDTH_AV=$CROPWIDTH_AV" 
-		 echo "CROPHEIGHT_AV=$CROPHEIGHT_AV"
-		 echo -e "${NC}"
-		 
-		 echo "$CROPWIDTH_AV|$CROPHEIGHT_AV" >> ./config/crop17.txt
-
-		 
-		 
-		 
-		 
-		 
-		 
-		 
-	      
-	      # no cropping
-		 
-	      echo -e "${CYAN}no croping${NC}"
-	      CROPTOP=0
-	      CROPBOTTOM=0
-	      FF_CROP_HEIGHT=""
-	      
-		 # distortion 
-	      DISTORTION=" / 1.41 "
-		 echo -e "${CYAN}Distortion: $DISTORTION${NC}"
-		 
-		 #no  padding
-	      echo -e "${CYAN}Padding: no${NC}"
-
+		 pal-dar177	      
 	      fi
-
+		 
+		 
+		 
+		 
+		 
+		 
 	      # 1.25 DAR 2.21
+		 
+		 
+		 
+		 
+		 
 	      if [[ $RATIO == 1.25 && $DAR == 2.21 ]]
 	      then
 
+		 DETECTED_FORMAT="PAL DAR 2.21"
+		 echo -e "\\n${pink}Format: $DETECTED_FORMAT${NC}"
+		 
 	      # resize
 	      NEW_WIDTH=`echo " $HEIGHT * ( $DAR * 100 ) / 100"| bc ` 
 	      NEW_WIDTH=`round16 $NEW_WIDTH`
@@ -1170,7 +1559,7 @@ encode () {
 	      # the resize need to be change to the original size of the video
 	      NEW_HEIGHT=$HEIGHT
 	      
-	      # no cropping
+	      # Cropping: no
 	      CROPLEFT=0              
 	      CROPRIGHT=0
 	      FF_CROP_WIDTH=""
@@ -1182,7 +1571,7 @@ encode () {
 	      echo "
 	      format: pal DAR 2.21
 	      padding: $FF_PAD
-	      no cropping
+	      Cropping: no
 	      resize $SIZE ($RATIO) -> ${NEW_WIDTH}x[${HEIGHT} + $PAD + $PAD] $NEW_SIZE] -> (`echo "scale=2;${NEW_WIDTH}/${NEW_HEIGHT}"|bc`)
 	      "
 	      		 echo -e "${NC}"
@@ -1214,14 +1603,14 @@ encode () {
 	      if [[ ( $RATIO  > 1.30 && $RATIO < 1.36 ) && (-z $DAR || $DAR == 1.33 ) ]]
 	      then
 		 DETECTED_FORMAT="4/3"
-		 echo -e "\\n${CYAN}Format: $DETECTED_FORMAT${NC}"
+		 echo -e "\\n${cyan}Format: $DETECTED_FORMAT${NC}"
 	 
 	      # resize
 	      NEW_WIDTH=`floor2 $WIDTH`
 	      NEW_HEIGHT=`echo "$WIDTH / 1.777"| bc ` 
 	      NEW_HEIGHT=`floor2 $NEW_HEIGHT`
 	      NEW_SIZE="${NEW_WIDTH}x${NEW_HEIGHT}"
-		 echo -e "${CYAN}Resize: $SIZE -> $NEW_SIZE${NC}"
+		 echo -e "${cyan}Resize: $SIZE -> $NEW_SIZE${NC}"
 		 
  
 	      # Cutting the top and the bottom 
@@ -1231,7 +1620,7 @@ encode () {
 		 CROPTOP=$CUT
 	      CROPBOTTOM=$CUT
 	      FF_CROP_HEIGHT="-croptop $CUT -cropbottom $CUT "
-		 echo -e "${CYAN}Cutting: $FF_CROP_HEIGHT${NC}"
+		 echo -e "${cyan}Cutting: $FF_CROP_HEIGHT${NC}"
 
 	      fi
 		 
@@ -1241,18 +1630,18 @@ encode () {
 		 if [[ ( $RATIO  > 1.30 && $RATIO < 1.36 ) && $DAR == 1.77  ]]
 		 then
 		 DETECTED_FORMAT="4/3 DAR 16/9"
-		 echo -e "\\n${CYAN}Format: $DETECTED_FORMAT${NC}"
+		 echo -e "\\n${cyan}Format: $DETECTED_FORMAT${NC}"
 	 
 	      # resize
 	      NEW_WIDTH=`floor2 $WIDTH`
 	      NEW_HEIGHT=`echo "$WIDTH / 1.777"| bc ` 
 	      NEW_HEIGHT=`floor2 $NEW_HEIGHT`
 	      NEW_SIZE="${NEW_WIDTH}x${NEW_HEIGHT}"
-		 echo "${CYAN}Resize $SIZE -> $NEW_SIZE${NC}"
+		 echo "${cyan}Resize $SIZE -> $NEW_SIZE${NC}"
 		 
-	      # no croping
+	      # Cropping: no
 		 
-	      echo -e "${CYAN}no cropping${NC}"		 
+	      echo -e "${cyan}Cropping: no${NC}"		 
 	      CROPLEFT=0              
 	      CROPRIGHT=0
 	      FF_CROP_WIDTH=""
@@ -1260,7 +1649,7 @@ encode () {
 	      CROPBOTTOM=0
 	      FF_CROP_HEIGHT=""
 		 
-	      echo -e "${CYAN}Padding: no${NC}"
+	      echo -e "${cyan}Padding: no${NC}"
 		
 	      
 	      fi
@@ -1269,39 +1658,89 @@ encode () {
 	      
 	      
 	      # 1.77
-	      if [[ $RATIO > 1.6 && $RATIO < 2 ]] 
+	      if [[ $RATIO > 1.60 && $RATIO < 1.99 ]] 
 	      then
 		 DETECTED_FORMAT="16/9"
-		 echo -e "\\n${CYAN}Format:$DETECTED_FORMAT ${NC}"
+		 echo -e "\\n${cyan}Format:$DETECTED_FORMAT ${NC}"
 
 		  
 	      # round 2
 	      NEW_WIDTH=`round2 $WIDTH`
 	      NEW_HEIGHT=`round2 $HEIGHT`
 	      NEW_SIZE="${NEW_WIDTH}x${NEW_HEIGHT}"
-		 echo -e "${CYAN}Round $SIZE -> $NEW_SIZE ${NC}"
+		 echo -e "${cyan}Round: $SIZE -> $NEW_SIZE ${NC}"
 		 
-	      # no croping
-		 echo -e "${CYAN}no cropping${NC}"
-	      CROPLEFT=0              
-	      CROPRIGHT=0
-	      FF_CROP_WIDTH=""
-	      CROPTOP=0
-	      CROPBOTTOM=0
-	      FF_CROP_HEIGHT=""
 		 
-		 # Padding: no
-	      echo -e "${CYAN}Padding: no${NC}"
+		 
+				# cropping
+		 
+		 
+				# normal (no detection)
+				if [[ $CROPDETECTION  == 1 ]]
+				then
+				
+				# Cropping H: no
+				echo -e "${cyan}Cropping W: no${NC}"
+				CROPLEFT=0              
+				CROPRIGHT=0
+				FF_CROP_WIDTH=""
+				
+				# Cropping H: no
+				echo -e "${cyan}Cropping H: no${NC}"
+				CROPTOP=0
+				CROPBOTTOM=0
+				FF_CROP_HEIGHT=""
+				
+				else 
+				
+						# make a crop detection 
+						cropdetection $CROP_FRAMES_S
+						
+						# detection H (level detection 2)
 
-		 		 
-		fi
+						if [[ $CROPDETECTION  -gt 1 && $CROPHEIGHT_AV  -lt `echo "$HEIGHT * 0.03 * 2 / 2" |bc` ]]
+						then
+						FF_CROP_HEIGHT="-croptop $CROPTOP -cropbottom $CROPBOTTOM "
+						echo -e "${cyan}Cropping H:$FF_CROP_HEIGHT${NC}"
+						else
+						CROPTOP=0
+						CROPBOTTOM=0
+						FF_CROP_HEIGHT="" 
+						echo -e "${cyan}Cropping H: no${NC}"
+						fi
+
+		  
+				
+						# detection W (level detection 2 and 3)
+						   
+						if [[  $CROPDETECTION  -gt 2 && $CROPWIDTH_AV  -lt `echo "$WIDTH * 0.03 * 2 / 2" |bc` ]]
+						then
+						FF_CROP_WIDTH="-cropleft $CROPLEFT -cropright $CROPRIGHT "
+						echo -e "${cyan}Cropping W:$FF_CROP_WIDTH${NC}"
+						else
+						CROPLEFT=0
+						CROPRIGHT=0
+						FF_CROP_WIDTH="" 
+						echo -e "${cyan}Cropping W: no${NC}"
+						fi
+
+							
+			   fi
+
+				
+				
+		# Padding: no
+		echo -e "${cyan}Padding: no${NC}"
+
+		fi				
+				
 
 
 	      # 2.35
-	      if [[ $RATIO >  1.9 && $RATIO < 2.5 ]] 
+	      if [[ $RATIO >  1.99 && $RATIO < 2.51 ]] 
 	      then
 		 DETECTED_FORMAT="2.35"
-		 echo -e "\\n${CYAN}Format: $DETECTED_FORMAT${NC}"
+		 echo -e "\\n${cyan}Format: $DETECTED_FORMAT${NC}"
 	      
 	      # resize
 		 
@@ -1309,27 +1748,27 @@ encode () {
 	      NEW_HEIGHT=`echo  "scale=3;$WIDTH / 1.777" |bc`
 	      NEW_HEIGHT=`round2 $NEW_HEIGHT`
 	      NEW_SIZE="${NEW_WIDTH}x${NEW_HEIGHT}"
-		 echo -e "${CYAN}Round $SIZE -> $NEW_SIZE${NC}"
+		 echo -e "${cyan}Round: $SIZE -> $NEW_SIZE${NC}"
 	      
 	      # padding
 		 
 		 PAD=`echo "scale=3;($NEW_HEIGHT - $HEIGHT) / 2"|bc`
 	      PAD=`round2 $PAD`
 	      FF_PAD=" -padtop $PAD -padbottom $PAD "
-		 echo -e "${CYAN}Padding: $FF_PAD${NC}"
+		 echo -e "${cyan}Padding: $FF_PAD${NC}"
 		  
 		 # the padding create a distortion
 		 
 # 		 DISTORTION=`echo "scale=3; ($PAD * 2 )/ $HEIGHT 	 " | bc`
 # 		 DISTORTION=" * 1$DISTORTION"
-# 		 echo -e "${CYAN}Distortion: $DISTORTION${NC}"
+# 		 echo -e "${cyan}Distortion: $DISTORTION${NC}"
 # 		 DISTORTION="* 1"
 		 
 # 	      # the resize need to be change to the original size of the video
 # 	      #NEW_HEIGHT=$HEIGHT
 
-	      # no croping
-	      echo -e "${CYAN}no cropping${NC}"		 
+	      # Cropping: no
+	      echo -e "${cyan}Cropping: no${NC}"		 
 	      CROPLEFT=0              
 	      CROPRIGHT=0
 	      FF_CROP_WIDTH=""
@@ -1338,7 +1777,7 @@ encode () {
 	      FF_CROP_HEIGHT=""
 	      
 
-	      echo -e "${CYAN}resize $SIZE ($RATIO) -> $NEW_SIZE [ ${HEIGHT} + $PAD + $PAD ] -> (`echo "scale=2;${NEW_WIDTH}/ ( ${HEIGHT} + $PAD + $PAD )"|bc`)${NC}"
+	      echo -e "${cyan}resize $SIZE ($RATIO) -> $NEW_SIZE [ ${HEIGHT} + $PAD + $PAD ] -> (`echo "scale=2;${NEW_WIDTH}/ ( ${HEIGHT} + $PAD + $PAD )"|bc`)${NC}"
 	      
 	      fi
 	      
@@ -1348,16 +1787,16 @@ encode () {
 	    
 		if [[ -z $DETECTED_FORMAT ]] 
 		then
-		ERROR="ERROR: format ratio not detected !"
+		ERROR="ERROR: format ratio not detected $1 !"
 		echo -e "\\n${RED}${ERROR}${NC}\\n"
 		echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err
-		
-				if [[ -d $1 ]]
-				then
-				continue
-				else
-				exit
-				fi 	    
+# 		
+# 				if [[ -d $1 ]]
+# 				then
+# 				continue
+# 				else
+# 				exit
+# 				fi 	    
 		fi
 	    
 	    
@@ -1368,7 +1807,7 @@ encode () {
 	    LOGO_RESIZED=${DIRECTORY}/${SUBDIR}/${OUTPUT}.png  
 	    LOGO="/home/fredo/watermark.png"
 	    
-	    echo -e "\\n${CYAN}Logo informations${NC}\\n"
+	    echo -e "\\n${cyan}# Logo informations${NC}\\n"
 
 	    # get the logo size
 	    LOGO_W=$(identify -format %w $LOGO )
@@ -1443,7 +1882,7 @@ encode () {
 	    LOGO_X=$(echo "$LOGO_X  $DISTORTION "|bc)
 	    fi
 	    
-	    VHOOK=" -vhook \"/usr/local/lib/vhook/pip.so -f  ${DIRECTORY}/${SUBDIR}/${OUTPUT}.png -x $LOGO_X -y $LOGO_Y  -w $LOGO_RESIZED_W -h $LOGO_RESIZED_H  -m 1  -t 000000 -s $(echo "$SS  * $FPS "|bc) -e $(echo "($SS + 5) * $FPS "|bc) \" "
+	    VHOOK=" -vhook \"/usr/local/lib/vhook/pip.so -f  ${DIRECTORY}/${SUBDIR}/${OUTPUT}.png -x $LOGO_X -y $LOGO_Y  -w $LOGO_RESIZED_W -h $LOGO_RESIZED_H  -m 1  -t 000000 -s $(echo "$SS  * $FPS "|bc) -e $(echo "($SS + 15) * $FPS "|bc) \" "
 		  
 	   #echo $VHOOK
 	      
@@ -1465,6 +1904,8 @@ encode () {
 	      
 	  ### transcode the video
 		COMMAND=""
+		COMMAND_DISPLAY=""
+		
 	  	case "$OUTPUT_FORMAT" in
 		jpeg)	  
 
@@ -1477,13 +1918,22 @@ encode () {
 		FF_FPS="0.0$FF_FPS"
 		COMMAND="ffmpeg $DEINTERLACE -i ${INPUT} -sameq $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r $FF_FPS  $VHOOK -an -ss $(echo "$SS + 2 "|bc)  -vframes 9 -y ${DIRECTORY}/${OUTPUT}_%d.jpg;"
 		COMMAND="${COMMAND}montage  ${DIRECTORY}/${OUTPUT}_[0-9].jpg -geometry 160x90+1+1 ${DIRECTORY}/${OUTPUT}_montage.png;"
-	     COMMAND="${COMMAND}display  ${DIRECTORY}/${OUTPUT}_montage.png & "
+	     COMMAND_DISPLAY="display  ${DIRECTORY}/${OUTPUT}_montage.png & "
 		
 		;;
 		sample)
-		
-		COMMAND="ffmpeg $DEINTERLACE -i ${INPUT} -sameq $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24 -aspect 1.77  $VHOOK  -ss $(echo "$SS  + 10 "|bc) -t 30  -ar 44100 -ab 128000 -ac 2  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv;"
-		COMMAND="${COMMAND}mplayer ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv;"
+		# transform to pcm
+		COMMAND="mplayer -ao pcm:file=${DIRECTORY}/$SUBDIR/${OUTPUT}.wav -vc null -vo dummy   ${INPUT} > /dev/null;"
+		# resample 8bit to 16 (sox)
+		COMMAND="${COMMAND}resample_audio;"
+				COMMAND="${COMMAND}resample_video;"
+		# make a sample audio
+		COMMAND="${COMMAND}ffmpeg  -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.wav -ss  $(echo "$SS  + 10 "|bc) -t 20 -r 24 -ar 44100 -ab 128000 -ac 2  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.mp3;"
+		# make a sample video
+		COMMAND="${COMMAND}ffmpeg -an $DEINTERLACE -i ${INPUT} -sameq $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $(echo "$SS  + 10 "|bc) -t 20   -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv;"
+		# remux
+		COMMAND="${COMMAND}ffmpeg  -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.flv -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.mp3 -acodec copy -vcodec copy  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}_1.flv;"
+		COMMAND_DISPLAY="${DIRECTORY}/${SUBDIR}/${OUTPUT}_1.flv"
 		;;
 		
 		normal) 
@@ -1500,12 +1950,17 @@ encode () {
 
 	      if [[ $DEBUG -eq 1 ]]
 	      then
-	      eval $COMMAND 
+	      [[ $OVERWRITE != 1 ]] && eval $COMMAND 
 	      else
-	      eval $COMMAND > /tmp/mencoder.log 2>&1
+	      [[ $OVERWRITE != 1 ]] && eval $COMMAND > /tmp/mencoder.log 2>&1
 	      fi
 		 
-		 
+		 # Display
+
+		  if [[ $DISPLAY == 1 ]]
+		  then
+		  echo "$COMMAND_DISPLAY"
+		  fi
 		 
 		 
 		 # promt for removing the file
@@ -1513,7 +1968,7 @@ encode () {
 		 REMOVE_FILE_CONFIRM="n"
 		 echo "Do you whant to remove this video? [y/N]"
 
-		  read REMOVE_FILE_CONFIRM
+		 read -t 30 REMOVE_FILE_CONFIRM
 
 		  if [[ $REMOVE_FILE_CONFIRM = 'y' ]] || [[ $REMOVE_FILE_CONFIRM = 'Y' ]]
 		  then
@@ -1549,7 +2004,7 @@ else
     SUBDIR=${SUBDIR%%.${EXTENTION}}
 
 
-      if [[ ! -d ${DIRECTORY}/${SUBDIR} || $OVERWRITE == 1 ]]
+      if [[ ! -d ${DIRECTORY}/${SUBDIR} || $OVERWRITE  !=  0 ]]
       then
       encode $VIDEO 
       fi
