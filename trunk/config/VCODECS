@@ -1,13 +1,17 @@
-AVC
-DIVX
-mjpb 
-MPEG-4V
-On2 VP6
-Sorenson H263
-SVQ3
-WMV1 
-WMV3 
-WVC1 
-XVID
-MPEG-2V
-jpeg
+AVC|1|
+DIVX|1|
+divx|1|
+mjpb|1|
+MPEG-4V|1|
+On2 VP6|1|
+Sorenson H263|1|
+SVQ3|1|
+WMV1|1| 
+WMV2|1| 
+WMV3|3|Not allways suported by ffmpeg.
+WVC1|3|Not allways suported by ffmpeg.
+XVID|1|
+MPEG-2V|1|
+jpeg|1|
+dvcp|1|
+MPEG-1V|1|
