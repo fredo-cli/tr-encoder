@@ -9,7 +9,7 @@ SVQ1|1|
 SVQ3|1|
 WMV1|1| 
 WMV2|1| 
-WMV3|2|Not allways suported by ffmpeg.
+WMV3|3|Not allways suported by ffmpeg.
 WVC1|4|Not allways suported by ffmpeg.
 XVID|1|
 MPEG-2V|1|
