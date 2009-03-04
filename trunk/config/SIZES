@@ -33,7 +33,21 @@ Resolution,type,Standart,RQ,,,,,W,H,W*Ratio=H,W/8,W/16,W/32,,H/8,H/16,H/32
 1920x772,2.35:1,h1080 scope,,apple,,**,,1920,772,817.02,240,96.5,24.13,,120,48.25,24.13
 1920x816,2.35:1,,,,play,****,,1920,816,817.02,240,102,25.5,,120,51,25.5
 
+
+
+# pal (good)
+720x576,5:4,pal
+704x576,5:4,pal
+352x288,5:4,1/2 pal
+
+# pseudo pal (bad)
 720x404,,,pal resized to 16/9
 720x406,16:9,,pal resized to 16/9
 720x408,16:9,,pal resized to 16/9
-720x576,3:4,pal
+
+# ntsc (good)
+720x480,3:2,ntsc
+704x480,3:2,ntsc
+352x240,3:2,1/2 ntsc
+!480x480,3:2,ntsc
+
