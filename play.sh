@@ -68,6 +68,7 @@ CROP_FRAMES_L=500
 
 MAXSIZE=480
 FPS=12000/1001
+
     usage() {
 	echo >&2 "Usage: `basename $0` [-f jpeg|sample|normal] [-d] [file|folder]"
     }
@@ -2053,19 +2054,26 @@ tr-encoder(){
 			 encode   
 			 
 	 fi   
-	 
-# promt for removing of the file
+		
+		
+		# promt for removing of the file
+		
+		
+		if [[ $OVERWRITE -lt 2 ]]
+		then
+		REMOVE_FILE_CONFIRM="n"
+		echo "Do you whant to remove this video? [y/N]"
 
-REMOVE_FILE_CONFIRM="n"
-echo "Do you whant to remove this video? [y/N]"
+		read -t 30 REMOVE_FILE_CONFIRM
 
-read -t 30 REMOVE_FILE_CONFIRM
+				if [[ $REMOVE_FILE_CONFIRM = 'y' ]] || [[ $REMOVE_FILE_CONFIRM = 'Y' ]]
+				then
+				rm ${DIRECTORY}/${OUTPUT}.${EXTENTION}
+				echo "The video ${DIRECTORY}/${OUTPUT}.${EXTENTION} is remove"
+				fi
+		fi											
 
-if [[ $REMOVE_FILE_CONFIRM = 'y' ]] || [[ $REMOVE_FILE_CONFIRM = 'Y' ]]
-then
-rm ${DIRECTORY}/${OUTPUT}.${EXTENTION}
-echo "The video ${DIRECTORY}/${OUTPUT}.${EXTENTION} is remove"
-fi
+
 }
 
 
