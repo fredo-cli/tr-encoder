@@ -39,13 +39,13 @@ NC='\e[0m' # No Color
 
 
 # Set up reasonable defaults.
-APPNAME=`basename "$0"`
-CONFNAME=."$APPNAME"rc
+APP_NAME=`basename "$0"`
+CONF_NAME=."$APP_NAME"rc
 APP_DIR=`dirname "$0"`
 
 
 # Import configuration file, possibly overriding defaults.
-[ -r ~/"$CONFNAME" ] && . ~/"$CONFNAME"
+[ -r ~/"$CONF_NAME" ] && . ~/"$CONF_NAME"
 
 # minimum duration of the video 
 MINIMUM_DURATION=12
@@ -1882,11 +1882,36 @@ encode(){
 		;;
 		montage)	
 		
+		# get the time 
+		
 		FF_FPS=`scale=2;echo  "9\${DURATION_S}"|bc`
 		FF_FPS="0.0$FF_FPS"
-		COMMAND="ffmpeg $DEINTERLACE -i ${INPUT} -sameq $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r $FF_FPS  $VHOOK -an -ss $(echo "$SS + 2 "|bc)  -vframes 9 -y ${DIRECTORY}/${OUTPUT}_%d.jpg;"
-		COMMAND="${COMMAND}montage  ${DIRECTORY}/${OUTPUT}_[0-9].jpg -geometry 160x90+1+1 ${DIRECTORY}/${OUTPUT}_montage.png;"
-	     COMMAND_DISPLAY="display  ${DIRECTORY}/${OUTPUT}_montage.png & "
+		
+		# create a folder montage
+		
+		[[ ! -d "${DIRECTORY}/$SUBDIR/montage" ]] && mkdir "${DIRECTORY}/$SUBDIR/montage"
+		
+		# extract the pictures
+		COMMAND="ffmpeg $DEINTERLACE -i ${INPUT} -sameq $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r $FF_FPS  $VHOOK -an -ss $(echo "$SS + 2 "|bc)  -vframes 9 -y ${DIRECTORY}/$SUBDIR/montage/${OUTPUT}_%d.jpg;###"
+		COMMAND="${COMMAND}montage  ${DIRECTORY}/$SUBDIR/montage/${OUTPUT}_[0-9].jpg -geometry 160x90+1+1 ${DIRECTORY}/$SUBDIR/montage.png;###"
+		
+		# check the file 
+
+		RESULTS_SIZE=`stat -c %s "${DIRECTORY}/$SUBDIR/montage.png"`
+		if [ "$RESULTS_SIZE" -gt 100 ]
+		then
+
+		COMMAND_DISPLAY="$COMMAND_DISPLAY<file>\\n"
+		COMMAND_DISPLAY="$COMMAND_DISPLAY<path>${DIRECTORY}/$SUBDIR/montage.png</path>\\n"
+		COMMAND_DISPLAY="$COMMAND_DISPLAY<format>$(file   video/1483_3164/montage.png |awk -F , '{print $2}'|tr -d " ")</format>\\n"
+		COMMAND_DISPLAY="$COMMAND_DISPLAY<md5>$(md5sum -b video/1483_3164/montage.png|grep -o ".* "|tr -d " ")</md5>\\n"
+		COMMAND_DISPLAY="$COMMAND_DISPLAY<size>$RESULTS_SIZE</size>\\n"
+		COMMAND_DISPLAY="$COMMAND_DISPLAY</file>\\n"
+		
+		else
+		COMMAND_DISPLAY="ERROR:file ${DIRECTORY}/$SUBDIR/montage.png not created"
+		fi 
+
 		
 		;;
 		sample)  
@@ -1980,7 +2005,7 @@ encode(){
 
 		  if [[ $DISPLAY == 1 ]]
 		  then
-		  echo "$COMMAND_DISPLAY"
+		  echo -e "$COMMAND_DISPLAY"
 		  fi
 		 
 		 
