@@ -1,0 +1,3 @@
+#/usr/bin/bash
+. "$APP_DIR/lib/BASICS"
+. "$APP_DIR/lib/DETECTIONS"
