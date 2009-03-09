@@ -119,7 +119,7 @@ add_logo(){
 
 	    echo -e "# The final size of the logo:\\t${LOGO_RESIZED_W}x${LOGO_RESIZED_H}" 
  
-	    
+	   LO
 	    ### find the logo position 
 	    
 		# the position of the logo is base on the original size of the video
@@ -891,42 +891,28 @@ encode(){
 
 		COMMAND="${FFMPEG} $DEINTERLACE -i ${INPUT} -sameq $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24   $VHOOK -an -ss $(echo "$SS + 10 "|bc)  -vframes 1 -y ${DIRECTORY}/${OUTPUT}.jpg;"
 	     #COMMAND="${COMMAND}display  ${DIRECTORY}/${OUTPUT}.jpg & "
+			      
+	      echo -e "`echo $COMMAND| sed "s/###/\\n/g" `" > ${DIRECTORY}/${SUBDIR}/code.txt
+	      echo -e "\\n`echo $COMMAND| sed "s/###/\\n/g" `\\n" 
+
+	      if [[ $DEBUG -eq 1 ]]
+	      then
+	      [[ $OVERWRITE != 1 ]] && eval  `echo "$COMMAND"| sed "s/###//g"` 
+	      else
+	      [[ $OVERWRITE != 1 ]] && eval `echo "$COMMAND" | sed s"/###//g"` > /tmp/mencoder.log 2>&1
+	      fi
+		 
+		 # Display
+
+		  if [[ $DISPLAY == 1 ]]
+		  then
+		  echo -e "$COMMAND_DISPLAY"
+		  fi
 		;;
 		montage)	
 		
-		# get the time 
+		. "$APP_DIR/formats/montage.sh"
 		
-		FF_FPS=`echo "scale=2 ; 11 / ${DURATION_S} "|bc`
-		FF_FPS="0$FF_FPS"
-		FF_SS=`echo "$DURATION_S / 11"|bc`
-		echo $FF_FPS  ${DURATION_S} $FF_SS
-				
-		# create a folder montage
-		
-		[[ ! -d "${DIRECTORY}/$SUBDIR/montage" ]] && mkdir "${DIRECTORY}/$SUBDIR/montage"
-		
-		# extract the pictures
-		COMMAND="${FFMPEG} $DEINTERLACE -i ${INPUT} -ss $FF_SS -sameq $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r $FF_FPS  $VHOOK -an -ss $(echo "$SS + 2 "|bc)  -vframes 10 -y ${DIRECTORY}/$SUBDIR/montage/${OUTPUT}_%2d.jpg;###"
-		COMMAND="${COMMAND}rm -f  ${DIRECTORY}/$SUBDIR/montage/${OUTPUT}_01.jpg ;###"
-		COMMAND="${COMMAND}montage  ${DIRECTORY}/$SUBDIR/montage/${OUTPUT}_[0-9]*.jpg -geometry 160x90+1+1 ${DIRECTORY}/$SUBDIR/montage.png;###"
-		
-		# check the file 
-
-		RESULTS_SIZE=`stat -c %s "${DIRECTORY}/$SUBDIR/montage.png"`
-		if [ "$RESULTS_SIZE" -gt 100 ]
-		then
-
-		COMMAND_DISPLAY="$COMMAND_DISPLAY<file>\\n"
-		COMMAND_DISPLAY="$COMMAND_DISPLAY<path>${DIRECTORY}/$SUBDIR/montage.png</path>\\n"
-		COMMAND_DISPLAY="$COMMAND_DISPLAY<format>$(file   video/1483_3164/montage.png |awk -F , '{print $2}'|tr -d " ")</format>\\n"
-		COMMAND_DISPLAY="$COMMAND_DISPLAY<md5>$(md5sum -b video/1483_3164/montage.png|grep -o ".* "|tr -d " ")</md5>\\n"
-		COMMAND_DISPLAY="$COMMAND_DISPLAY<size>$RESULTS_SIZE</size>\\n"
-		COMMAND_DISPLAY="$COMMAND_DISPLAY</file>\\n"
-		
-		else
-		COMMAND_DISPLAY="ERROR:file ${DIRECTORY}/$SUBDIR/montage.png not created"
-		fi 
-
 		
 		;;
 		sample)  
@@ -995,17 +981,7 @@ encode(){
 		
 		
 		COMMAND_DISPLAY="${DIRECTORY}/${SUBDIR}/${OUTPUT}_1.flv;###"
-		
-		;;
-		
-		normal) 
-		
-		COMMAND="${FFMPEG} $DEINTERLACE -i ${INPUT}  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  -b 700000 -aspect 1.77  $VHOOK  -ss $SS  -ar 48000 -ab 128000 -ac 2 -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.mp4"
-		
-		;;
-		esac
-
-	      
+			      
 	      echo -e "`echo $COMMAND| sed "s/###/\\n/g" `" > ${DIRECTORY}/${SUBDIR}/code.txt
 	      echo -e "\\n`echo $COMMAND| sed "s/###/\\n/g" `\\n" 
 
@@ -1022,6 +998,35 @@ encode(){
 		  then
 		  echo -e "$COMMAND_DISPLAY"
 		  fi
+		
+		;;
+		
+		normal) 
+		
+		COMMAND="${FFMPEG} $DEINTERLACE -i ${INPUT}  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  -b 700000 -aspect 1.77  $VHOOK  -ss $SS  -ar 48000 -ab 128000 -ac 2 -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.mp4"
+		
+			      
+	      echo -e "`echo $COMMAND| sed "s/###/\\n/g" `" > ${DIRECTORY}/${SUBDIR}/code.txt
+	      echo -e "\\n`echo $COMMAND| sed "s/###/\\n/g" `\\n" 
+
+	      if [[ $DEBUG -eq 1 ]]
+	      then
+	      [[ $OVERWRITE != 1 ]] && eval  `echo "$COMMAND"| sed "s/###//g"` 
+	      else
+	      [[ $OVERWRITE != 1 ]] && eval `echo "$COMMAND" | sed s"/###//g"` > /tmp/mencoder.log 2>&1
+	      fi
+		 
+		 # Display
+
+		  if [[ $DISPLAY == 1 ]]
+		  then
+		  echo -e "$COMMAND_DISPLAY"
+		  fi
+		
+		;;
+		esac
+
+
 		 
 		 
 

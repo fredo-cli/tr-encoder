@@ -1,4 +1,25 @@
 #/usr/bin/bash
+get_file_infos(){
+
+		[[ -f $1 ]] && RESULTS_SIZE=`stat -c %s "$1"` || RESULTS_SIZE=0
+		if [ "$RESULTS_SIZE" -gt 1 ]
+		then
+
+		FILE_INFOS="$FILE_INFOS<file>\\n"
+		FILE_INFOS="$FILE_INFOS<path>$1</path>\\n"
+		FILE_INFOS="$FILE_INFOS<format>$(file   $1 |awk -F , '{print $2}'|tr -d " ")</format>\\n"
+		FILE_INFOS="$FILE_INFOS<md5>$(md5sum -b $1|grep -o ".* "|tr -d " ")</md5>\\n"
+		FILE_INFOS="$FILE_INFOS<size>$RESULTS_SIZE</size>\\n"
+		FILE_INFOS="$FILE_INFOS</file>\\n"
+		return 1
+		else
+		FILE_INFOS="error: file not created ($1)"
+		return 0
+		fi 
+
+}
+
+
 get_general_infos () {	      
 	      GENERAL_INFOS=""
 	      FORMAT=""
@@ -288,7 +309,7 @@ get_video_infos () {
 	      VIDEO_INFOS=`mediainfo "--Inform=Video;FPS_MODE=%FrameRate_Mode% VCODEC='%Codec%' VDURATION=%Duration% VBITERATE=%BitRate% FPS=%FrameRate% DELAY=%Delay%  INTERLACED=%ScanType% WIDTH=%Width% HEIGHT=%Height%  VFORMAT='%Format%'  " ${INPUT}`
 	      #echo $VIDEO_INFOS
 	      eval $VIDEO_INFOS
-	      echo -e "\\n${cyan}# Video informations${NC}"
+	      echo -e "\\n${cyan}$(box "Video informations")${NC}"
 	      
 	      
 	      # Check the FPS (Frame Rate)
@@ -553,7 +574,7 @@ get_audio_infos() {
 	      AR=0
 	      CHANNELS=0
 	      
-	      echo -e "\\n${cyan}# Audio informations${NC}"
+	      echo -e "\\n${cyan}$(box "Audio informations")${NC}"
 	      
 	      AUDIO_INFOS=`mediainfo "--Inform=Audio;ACODEC='%Codec%' AR=%SamplingRate% ABITERATE2=%BitRate_Nominal% ADURATION=%Duration% CHANNELS=%Channel(s)% AFORMAT='%Format%' ABITERATE=%BitRate% " ${INPUT}`
 	      #echo $AUDIO_INFOS	     
@@ -843,7 +864,7 @@ cropdetection() {
 get_extra_infos () {	 
 	      # check the BPF of the video (test)
 	      
-	      echo -e "\\n${cyan}# Extra informations${NC}\\n"
+	      echo -e "\\n${cyan}$(box "Extra informations")${NC}\\n"
 	      
 	      NB_FRAMES=$(mediainfo "--Inform=Video;%FrameCount%" ${INPUT})
 	      STREAMSIZE=$(mediainfo "--Inform=Video;%StreamSize%" ${INPUT})
