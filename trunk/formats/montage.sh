@@ -19,9 +19,9 @@
 		
 			      
 		 # write the code
-	      [[ $DEBUG -eq 1 ]] && echo -e "\\n$COMMAND\\n" || echo -e "$COMMAND" > ${DIRECTORY}/${SUBDIR}/code.txt
+	      [[ $DEBUG -gt 1 ]] && echo -e "\\n$COMMAND\\n" || echo -e "$COMMAND" > ${DIRECTORY}/${SUBDIR}/code.txt
 
-	      if [[ $DEBUG -eq 1 ]]
+	      if [[ $DEBUG -gt 1 ]]
 	      then
 			   [[ $OVERWRITE != 1 ]] && eval  `echo -e "$COMMAND"` 
 	      else
@@ -30,14 +30,14 @@
 		
 		
 		# check the file 
-		echo -e "${cyan}`box "Control output file"`${NC}"
+		[[ $DEBUG -gt 0 ]] && echo -e "${cyan}`box "Control output file"`${NC}"
 		FILE_INFOS=""
 		get_file_infos "${DIRECTORY}/$SUBDIR/montage.png"
 
 		if [[  $? == 1 ]]
 		then 
 		echo -e "${GREEN}${DIRECTORY}/$SUBDIR/montage.png${NC}"
-		[[ $DEBUG -eq 1 ]] && echo -e "$FILE_INFOS" ||echo -e "$FILE_INFOS" >  "${DIRECTORY}/$SUBDIR/montage.up"
+		[[ $DEBUG -gt 1 ]] && echo -e "$FILE_INFOS" ||echo -e "$FILE_INFOS" >  "${DIRECTORY}/$SUBDIR/montage.up"
 		else
 		echo -e "${RED}$FILE_INFOS${NC}"		
 		fi

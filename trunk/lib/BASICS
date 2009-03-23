@@ -63,21 +63,36 @@ wait $pid &> /dev/null
 }
 
 
-    round16 () {
-	echo "("$1" + 8) / 16 * 16" | bc
-    }
+floor16 () {
+echo " $1 / 16 * 16" | bc
+}
+round16() {
+echo "($1 + 8) / 16 * 16" | bc
+}
+    
+ceil16() {
+echo "($1 + 15) / 16 * 16" | bc
+}
 
-    round8 () {
-	echo "("$1" + 4) / 8 * 8" | bc
-    }
+floor8() {
+echo "$1 / 8 * 8" | bc
+}
 
-    round2 () {
-	echo "("$1" + 1) / 2 * 2" | bc
-    }
+round8() {
+echo "($1 + 4) / 8 * 8" | bc
+}
 
-    floor2 () {
-	echo "("$1" ) / 2 * 2" | bc
-    }
+ceil8() {
+echo "($1 + 7) / 8 * 8" | bc
+}
+
+round2 () {
+echo "($1 + 1) / 2 * 2" | bc
+}
+
+floor2 () {
+echo "$1  / 2 * 2" | bc
+}
 
 
 get_vbitrate_mplayer () {	
