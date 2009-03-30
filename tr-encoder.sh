@@ -1,15 +1,13 @@
 #!/usr/local/bin/bash
 
+SYSTEM=$(uname)
 
 APP_NAME=`basename "$0"`
 CONF_NAME=."$APP_NAME"rc
 #APP_DIR=`dirname "$0"`
 
-# linux
-#APP_DIR=$(readlink -f $0 | xargs dirname)
 
-# freebsd
-APP_DIR="/home/fred/tr-encoder"
+APP_DIR=$(readlink -f $0 | xargs dirname)
 
 # Import configuration file, possibly overriding defaults.
 [ -r ~/"$CONF_NAME" ] && . ~/"$CONF_NAME"
@@ -20,7 +18,8 @@ APP_DIR="/home/fred/tr-encoder"
 DEBUG=0
 DISPLAY=0
 OVERWRITE=0
-CROPDETECTION=1
+CLEAN=0
+CROPDETECTION=1 #???
 TRY=""
 LOGO_ADD=""
 FF_SIZE=""
@@ -63,15 +62,16 @@ MAXSIZE=480
 FPS=12000/1001
 
 
-    while getopts "f:T:l:e:c:s:DydY" option
+    while getopts "f:T:l:o:e:c:s:DydY" option
     do
 	case "$option" in
-	c)	   CROPDETECTION=$OPTARG;;	
+	c)	   $CLEAN=1;;	
 	d)      DEBUG=1;;	
 	D)      DEBUG=2;;
 	e)	   EXTENTION="$OPTARG";;		
 	f)      OUTPUT_FORMAT="$OPTARG";;	
 	l)	   LOGO_ADD="$OPTARG";;
+	o)	   OPERATION="$OPTARG";;	
 	s)	   FF_SIZE="$OPTARG";;	
 	T)	   TRY="${OPTARG}-";;	
 	y)      OVERWRITE=1;;
@@ -853,11 +853,18 @@ encode(){
 	  
 		COMMAND=""
 		
+		if [[ -f $APP_DIR/formats/$OUTPUT_FORMAT.sh ]]
+		then
+		. "$APP_DIR/formats/$OUTPUT_FORMAT.sh"
+		else
+		
 	  	case "$OUTPUT_FORMAT" in
 		screenshot) . "$APP_DIR/formats/screenshot.sh" ;;
 		montage) . "$APP_DIR/formats/montage.sh" ;;
 		sample). "$APP_DIR/formats/sample-flv.sh" ;;
 		esac
+		
+		fi
    
     }
 
@@ -895,138 +902,152 @@ execute(){
 	      CROPLEFT=0
 	      
 	      DISTORTION=1
+		 
+		# create the dir
+	      [[ ! -d  "${DIRECTORY}/${SUBDIR}" ]] &&   mkdir "${DIRECTORY}/${SUBDIR}"
 	      
-	      # create the dir
-	      if [[ ! -d  "${DIRECTORY}/${SUBDIR}" ]]
-	      then
-	      mkdir "${DIRECTORY}/${SUBDIR}"
-	      fi
+		 
+		 
+		case "$OPERATION" in
+		compatible) check_comp
+		stop
+		;;
+		general)    
+		  get_general_infos
+		  stop
+		  ;;
 		
-
+		video)	  
+		  get_video_infos 
+		  stop
+		  ;;
+		  
+		audio)
+		  get_audio_infos 
+		  stop
+		  ;;	
+		infos)
 		
-		# check if the video is compatible with ffmpeg or mplayer
+		  ### check if the video is compatible with ffmpeg or mplayer
+		  check_comp 
+		  ### General informations 
+		  get_general_infos
+		  ### Video informations 
+		  get_video_infos	      
+		  ### extra informations
+		  #get_extra_infos
+		  ### Audio Informations
+		    
+		  stop
+		  ;;
+		  *)
+		  
+		### check if the video is compatible with ffmpeg or mplayer
 		check_comp 
-	    
-		if [[ $MPLAYER_VIDEO_TEST == 0 || $MPLAYER_AUDIO_TEST == 0 ]] 
-		then
-		ERROR="ERROR: This video ($1) is not supported!"
-		echo -e "\\n${RED}${ERROR}${NC}\\n"
-		echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err
-		
-		else
-		
-		
-		     
-	      ### General informations 
-	    
-	      get_general_infos
-	      
- 	      ### Video informations 
-	    
-	      get_video_infos	      
-	      
-	      ### extra informations
-	      
-	      #get_extra_infos
-	      
-	      ### Audio Informations
-	      
-	      get_audio_infos
-	
-	      
-		    [[ ! -z $ERROR ]] &&  mediainfo ${INPUT} >> ${DIRECTORY}/${OUTPUT}.err
-
-		    # Get some infos about the fornat 1.77 pat ntsc ...
-		    get_format 
-		
-		    # check if the format is detected (pal 1.77 2.35 etc)
 		    
-		    if [[ -z $DETECTED_FORMAT  ]] 
-		    then
-		    ERROR="ERROR: This video format ($1) is not supported!"
-		    echo -e "\\n${RED}${ERROR}${NC}\\n"
-		    echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err
-		    
-		    else
-				  
-				  
-				  ### create the logo
-				  
-				  
-				  if [[ ! -z $LOGO_ADD ]]
-				  then
-				  
-				  LOGO_RESIZED=${DIRECTORY}/${SUBDIR}/${OUTPUT}.png  
-				  LOGO_DIR="$APP_DIR/logos"	    
-				  
-				    # get the preset from LOGOS file 
-
-
-				    LOGOS_PRESET=`grep  "^$LOGO_ADD|.*" ${APP_DIR}/config/LOGOS `
-				    #echo "$LOGOS_PRESET $LOGO_ADD"
-						    
-						    if [[ ! -z $LOGOS_PRESET ]]
-						    then
-						    # load the values
-						    
-						    eval "${LOGOS_PRESET#${LOGO_ADD}|}"
-						    else
-						    # load default values
-						    
-						    # png or gif 
-						    LOGO_FILE="test.png" 
-						    # the width of the logo in %:example 10  (base on the Width of the video after cropping ) 
-						    LOGO_PC_W=10
-						    # the position X of the logo in %:example 10  (base on the Width of the video after cropping ) 
-						    LOGO_PC_X=10
-						    # the possition Y of the logo in %:example 30  (base on the Width of the video after cropping ) 
-						    LOGO_PC_Y=25
-						    
-						    LOGO_MODE="-m 1"
-						    LOGO_TRESHOLD="-t 000000"
-						    LOGO_DURATION=15
-										    
-						    fi
-						    
-				  # run the function
-				  add_logo
-				  
-				  
-				  fi	
-				# start the encoding   
-				encode   
-		fi			
-	 fi   
-		
-		
-		# promt for removing of the file
-		
-		
-		if [[ $OVERWRITE -lt 2 ]]
-		then
-		REMOVE_FILE_CONFIRM="n"
-		echo "Do you whant to remove this video? [y/N]"
-
-		read -t 30 REMOVE_FILE_CONFIRM
-
-				if [[ $REMOVE_FILE_CONFIRM = 'y' ]] || [[ $REMOVE_FILE_CONFIRM = 'Y' ]]
+				if [[ $MPLAYER_VIDEO_TEST == 0 || $MPLAYER_AUDIO_TEST == 0 ]] 
 				then
-				rm ${DIRECTORY}/${OUTPUT}.${EXTENTION}
-				echo "The video ${DIRECTORY}/${OUTPUT}.${EXTENTION} is remove"
-				fi
-		fi											
+				ERROR="ERROR: This video ($1) is not supported!"
+				echo -e "\\n${RED}${ERROR}${NC}\\n"
+				echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err
+				else
+				
+				### General informations 
+				get_general_infos
+				### Video informations 
+				get_video_infos	      
+				### extra informations
+				#get_extra_infos
+				### Audio Informations
+				get_audio_infos
+			 
+				[[ ! -z $ERROR ]] &&  mediainfo ${INPUT} >> ${DIRECTORY}/${OUTPUT}.err
+
+				# Get some infos about the fornat 1.77 pat ntsc ...
+				get_format 
+			 
+				# check if the format is detected (pal 1.77 2.35 etc)
+				
+						if [[ -z $DETECTED_FORMAT  ]] 
+						then
+						ERROR="ERROR: This video format ($1) is not supported!"
+						echo -e "\\n${RED}${ERROR}${NC}\\n"
+						echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err
+						
+						else
+							   
+							   
+							   ### create the logo
+						   
+							   if [[ ! -z $LOGO_ADD ]]
+							   then
+							   
+							   LOGO_RESIZED=${DIRECTORY}/${SUBDIR}/${OUTPUT}.png  
+							   LOGO_DIR="$APP_DIR/logos"	    
+							   
+								# get the preset from LOGOS file 
+
+
+								LOGOS_PRESET=`grep  "^$LOGO_ADD|.*" ${APP_DIR}/config/LOGOS `
+								#echo "$LOGOS_PRESET $LOGO_ADD"
+										
+										if [[ ! -z $LOGOS_PRESET ]]
+										then
+										# load the values
+										
+										eval "${LOGOS_PRESET#${LOGO_ADD}|}"
+										else
+										# load default values
+										
+										# png or gif 
+										LOGO_FILE="test.png" 
+										# the width of the logo in %:example 10  (base on the Width of the video after cropping ) 
+										LOGO_PC_W=10
+										# the position X of the logo in %:example 10  (base on the Width of the video after cropping ) 
+										LOGO_PC_X=10
+										# the possition Y of the logo in %:example 30  (base on the Width of the video after cropping ) 
+										LOGO_PC_Y=25
+										
+										LOGO_MODE="-m 1"
+										LOGO_TRESHOLD="-t 000000"
+										LOGO_DURATION=15
+														
+										fi
+										
+							   # run the function
+							   add_logo
+							   
+							   
+							  fi	
+						# start the encoding   
+						encode
+							 
+					 fi			
+				fi 				
+		  ;;
+		esac
+	
+		[[ $CLEAN == 1 ]] && clean "${DIRECTORY}/${OUTPUT}.${EXTENTION}"											
 
 
 }
-	  # TODO
-	  # check_ouput_size "$FF_SIZE"
+
+
+
+
+
+	   # TODO
+	   # check_ouput_size "$FF_SIZE"
 	   
+
+
+
 
 # $1 is a file
 if [[ -f "${1}" ]]
 then
 
-
+SCAN_TYPE=1
 execute $1 
 
 
@@ -1034,6 +1055,8 @@ execute $1
 elif [[ -d "${1}" ]]
 then
 
+
+    SCAN_TYPE=2
     DIRECTORY=$1
 
     
