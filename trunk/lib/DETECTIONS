@@ -1,10 +1,15 @@
 #/usr/bin/bash
 get_file_infos(){
-		# linux
-		#[[ -f $1 ]] && RESULTS_SIZE=`stat -c %s "$1"` || RESULTS_SIZE=0
-		
-		# freebsd
-		[[ -f $1 ]] && RESULTS_SIZE=`stat -f '%z' "$1"` || RESULTS_SIZE=0
+
+		if [[ -f $1 &&  $SYSTEM == "Linux" ]]
+		then
+		RESULTS_SIZE=`stat -c '%s' "$1"` 
+		elif [[ -f $1 && $SYSTEM == "FreeBSD" ]] 
+		then
+		RESULTS_SIZE=`stat -f '%z' "$1"`
+		else
+		RESULTS_SIZE=0
+		fi
 		 
 		if [ "$RESULTS_SIZE" -gt 1 ]
 		then
@@ -13,11 +18,9 @@ get_file_infos(){
 		FILE_INFOS="$FILE_INFOS<path>$1</path>\\n"
 		FILE_INFOS="$FILE_INFOS<format>$(file   $1 |awk -F , '{print $2}'|tr -d " ")</format>\\n"
 		
-		# linux
-		#FILE_INFOS="$FILE_INFOS<md5>$(md5sum -b $1|grep -o ".* "|tr -d " ")</md5>\\n"
-		
-		# freebsd
-		FILE_INFOS="$FILE_INFOS<md5>$(md5 -q $1)</md5>\\n"
+
+		 [[ $SYSTEM == "Linux" ]] && FILE_INFOS="$FILE_INFOS<md5>$(md5sum -b $1|grep -o ".* "|tr -d " ")</md5>\\n"
+		 [[ $SYSTEM == "FreeBSD" ]] && FILE_INFOS="$FILE_INFOS<md5>$(md5 -q $1)</md5>\\n"
 		
 		FILE_INFOS="$FILE_INFOS<size>$RESULTS_SIZE</size>\\n"
 		FILE_INFOS="$FILE_INFOS</file>\\n"
@@ -757,7 +760,7 @@ get_audio_infos() {
 
 cropdetection() {
 
-    
+		 # Y or null
 		 if [[ $OVERWRITE != 1  ]]
 		 then
     
