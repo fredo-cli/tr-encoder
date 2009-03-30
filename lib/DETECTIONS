@@ -1,14 +1,24 @@
 #/usr/bin/bash
 get_file_infos(){
-
-		[[ -f $1 ]] && RESULTS_SIZE=`stat -c %s "$1"` || RESULTS_SIZE=0
+		# linux
+		#[[ -f $1 ]] && RESULTS_SIZE=`stat -c %s "$1"` || RESULTS_SIZE=0
+		
+		# freebsd
+		[[ -f $1 ]] && RESULTS_SIZE=`stat -f '%z' "$1"` || RESULTS_SIZE=0
+		 
 		if [ "$RESULTS_SIZE" -gt 1 ]
 		then
 
 		FILE_INFOS="$FILE_INFOS<file>\\n"
 		FILE_INFOS="$FILE_INFOS<path>$1</path>\\n"
 		FILE_INFOS="$FILE_INFOS<format>$(file   $1 |awk -F , '{print $2}'|tr -d " ")</format>\\n"
-		FILE_INFOS="$FILE_INFOS<md5>$(md5sum -b $1|grep -o ".* "|tr -d " ")</md5>\\n"
+		
+		# linux
+		#FILE_INFOS="$FILE_INFOS<md5>$(md5sum -b $1|grep -o ".* "|tr -d " ")</md5>\\n"
+		
+		# freebsd
+		FILE_INFOS="$FILE_INFOS<md5>$(md5 -q $1)</md5>\\n"
+		
 		FILE_INFOS="$FILE_INFOS<size>$RESULTS_SIZE</size>\\n"
 		FILE_INFOS="$FILE_INFOS</file>\\n"
 		return 1
@@ -191,7 +201,8 @@ check_comp(){
 		  [[ $DEBUG > 1 ]] && echo "$FFMPEG_HEAD"
 				  
 
-		  echo -e "${RED}${ERROR}${NC}\\n${FFMPEG_TAIL}"
+		  echo -e "${RED}${ERROR}${NC}"
+		  [[ $DEBUG > 0 ]] && echo  ${FFMPEG_TAIL}  
 		  echo -e ${ERROR} ${FFMPEG_HEAD}  >> ${DIRECTORY}/${OUTPUT}.err    
 			  
 		  fi
@@ -222,7 +233,10 @@ check_comp(){
 
 		  [[ $DEBUG > 1 ]] && echo "$FFMPEG_HEAD"
 
-		  echo -e "${RED}${ERROR}${NC}\\n${FFMPEG_TAIL}"
+		  echo -e "${RED}${ERROR}${NC}"
+		  [[ $DEBUG > 0 ]] && echo  ${FFMPEG_TAIL}
+		  
+		  
 		  echo -e ${ERROR} ${FFMPEG_HEAD}  >> ${DIRECTORY}/${OUTPUT}.err    
 		  
 		  fi

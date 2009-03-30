@@ -34,13 +34,24 @@ NC='\e[0m' # No Color
 	echo >&2 "Usage: `basename $0` [-f jpeg|sample|normal] [-e mov|flv] [-d] [file|folder]"
     }
 
+# linux
+# box() {
+#     str="$@"
+#     len=$((${#str}+4))
+#     for i in $(seq $len); do echo -n '#'; done;
+#     echo; echo "# "$str" #";
+#     for i in $(seq $len); do echo -n '#'; done;
+#     echo
+# }
 
+
+# freebsd 
 box() {
     str="$@"
     len=$((${#str}+4))
-    for i in $(seq $len); do echo -n '#'; done;
+    for i in $(seq2 -e $len); do echo -n '#'; done;
     echo; echo "# "$str" #";
-    for i in $(seq $len); do echo -n '#'; done;
+    for i in $(seq2 -e $len); do echo -n '#'; done;
     echo
 }
 
