@@ -1,9 +1,15 @@
-#!/bin/bash
+#!/usr/local/bin/bash
+
 
 APP_NAME=`basename "$0"`
 CONF_NAME=."$APP_NAME"rc
 #APP_DIR=`dirname "$0"`
-APP_DIR=$(readlink -f $0 | xargs dirname)
+
+# linux
+#APP_DIR=$(readlink -f $0 | xargs dirname)
+
+# freebsd
+APP_DIR="/home/fred/tr-encoder"
 
 # Import configuration file, possibly overriding defaults.
 [ -r ~/"$CONF_NAME" ] && . ~/"$CONF_NAME"
@@ -1012,9 +1018,9 @@ execute(){
 
 
 }
-
-	   check_ouput_size "$FF_SIZE"
-	   exit
+	  # TODO
+	  # check_ouput_size "$FF_SIZE"
+	   
 
 # $1 is a file
 if [[ -f "${1}" ]]
