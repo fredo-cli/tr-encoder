@@ -1,5 +1,28 @@
 #!/bin/bash
 
+
+# config
+SVN_FFMPEG=17727
+INSTALL=0
+
+usage() {
+echo >&2 "Usage: `basename $0` [-i]"
+}
+
+
+    while getopts "i" option
+    do
+	case "$option" in
+	  i)	   INSTALL=1;;	
+	[?])    usage
+		exit 1;;
+	esac
+    done
+    shift $(($OPTIND - 1))
+
+
+
+
 # Define some colors:
 
 red='\e[0;31m'
@@ -12,6 +35,9 @@ yellow='\e[0;33m'
 YELLOW='\e[1;33m'
 
 NC='\e[0m' # No Color
+
+# create link to be compatible
+[[ -z $(readlink "/usr/local/bin/bash") ]] && sudo ln -s /bin/bash /usr/local/bin/bash
 
 
 
@@ -180,7 +206,9 @@ tar -xzvf ffmpeg.tar.gz
 
 cd ffmpeg
 
-svn checkout -r 17768 svn://svn.ffmpeg.org/ffmpeg/trunk ffmpeg
+# Version 0.5
+$SVN_FFMPEG
+svn checkout -r $SVN_FFMPEG svn://svn.ffmpeg.org/ffmpeg/trunk ffmpeg
 
 ## old release
 ## -r 10657
@@ -216,7 +244,7 @@ make
 
 
 
-sudo checkinstall -y --fstrans=no --install=yes --pkgname=ffmpeg --pkgversion "r17768+vhook+pip+wm3a"
+sudo checkinstall -y --fstrans=no --install=yes --pkgname=ffmpeg --pkgversion "$SVN_FFMPEG+vhook+pip+wm3a"
 
 
 
@@ -252,19 +280,19 @@ chmod +x /home/fredo/tr-encoder/tr-encoder.sh
 }
 
 
-#TEST_CONNEXION
+TEST_CONNEXION
 
-if [[ -z $(cat /etc/apt/sources.list |grep "deb http://www.debian-multimedia.org" ) ]]
-then
-### not ggod
-sudo su -
-echo "deb http://www.debian-multimedia.org stable main" >> /etc/apt/sources.list
-exit
-wget http://www.debian-multimedia.org/pool/main/d/debian-multimedia-keyring/debian-multimedia-keyring_2008.10.16_all.deb
-sudo dpkg -i debian-multimedia-keyring_2008.10.16_all.deb
-rm debian-multimedia-keyring_2008.10.16_all.deb
-
-fi
+#if [[ -z $(cat /etc/apt/sources.list |grep "deb http://www.debian-multimedia.org" ) ]]
+#then
+### not good
+#sudo su -
+#echo "deb http://www.debian-multimedia.org stable main" >> /etc/apt/sources.list
+#exit
+#wget http://www.debian-multimedia.org/pool/main/d/debian-multimedia-keyring/debian-multimedia-keyring_2008.10.16_all.deb
+#sudo dpkg -i debian-multimedia-keyring_2008.10.16_all.deb
+#rm debian-multimedia-keyring_2008.10.16_all.deb
+#
+#fi
 
 
 ACTIVER_SOURCES
@@ -274,7 +302,7 @@ echo -en "Atomicparsley\t"
 if [[ -z $(which AtomicParsley) ]]
 then
 echo -e "${yellow}false${NC}"
-INSTALL_ATOMICPARSLEY
+[[ $INSTALL == 1 ]] && INSTALL_ATOMICPARSLEY
 else
 echo -e "${green}true${NC}"
 fi
@@ -285,7 +313,7 @@ echo -en "x264\t"
 if [[ $(dpkg -s x264| grep Version:) != "Version: 9.9.9-1" ]]
 then
 echo -e "${yellow}false${NC}"
-INSTALL_X264
+[[ $INSTALL == 1 ]] &&  INSTALL_X264
 else
 echo -e "${green}true${NC}"
 fi
@@ -294,7 +322,7 @@ echo -en "tr-encoder\t"
 if [[ -z $(which tr-encoder) ]]
 then
 echo -e "${yellow}false${NC}"
-INSTALL_TR-ENCODER
+[[ $INSTALL == 1 ]] && INSTALL_TR-ENCODER
 else
 echo -e "${green}true${NC}"
 fi
@@ -317,17 +345,17 @@ echo -en "yasm\t"
 if [[ $(dpkg -s yasm| grep Version:) != "Version: 0.7.2-1" ]]
 then
 echo -e "${yellow}false${NC}"
-INSTALL_YASM
+[[ $INSTALL == 1 ]] && INSTALL_YASM
 else
 echo -e "${green}true${NC}"
 fi
 
 
 echo -en "ffmpeg\t"
-if [[ $(dpkg -s ffmpeg| grep Version:) != "Version: r17768+vhook+pip+wm3a-1" ]]
+if [[ $(dpkg -s ffmpeg| grep Version:) != "Version: $SVN_FFMPEG+vhook+pip+wm3a-1" ]]
 then
 echo -e "${yellow}false${NC}"
-INSTALL_FFMPEG
+[[ $INSTALL == 1 ]] && INSTALL_FFMPEG
 else
 echo -e "${green}true${NC}"
 fi
@@ -336,7 +364,7 @@ echo -en "mediainfo\t"
 if [[ $(dpkg -s mediainfo| grep Version:) != "Version: 0.7.8-1" ]]
 then
 echo -e "${yellow}false${NC}"
-INSTALL_MEDIAINFO
+[[ $INSTALL == 1 ]] && INSTALL_MEDIAINFO
 else
 echo -e "${green}true${NC}"
 fi
