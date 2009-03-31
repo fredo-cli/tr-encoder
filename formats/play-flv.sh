@@ -9,14 +9,14 @@
 		# transform to pcm
 		echo -e "${yellow}# create wav${NC}"		
 		COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/${OUTPUT}.wav -vc null -vo null ${INPUT}"
-		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" > /dev/null"
+		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" > /dev/null  2>&1"
 	     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 
 		if [[ $CHANNELS == 6 ]]
 		then
 		echo -e "${yellow}# create ch6${NC}"
 		COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/${OUTPUT}_ch6.wav -channels 6 -vc null -vo null  ${INPUT}"
-		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" >/dev/null"
+		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" >/dev/null  2>&1"
 	     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 		fi
 		
@@ -25,6 +25,7 @@
 		
 		# create audio
 		echo -e "${yellow}# Create mp3${NC}"
+		#COMMAND="lame -h --abr 128  ${DIRECTORY}/$SUBDIR/${OUTPUT}.wav  ${DIRECTORY}/${SUBDIR}/${OUTPUT}.mp3"
 		COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.wav -v 0 -ss  $(echo "$SS  + 10 "|bc)  -r 24 -ar 44100 -ab 128000 -ac 2  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.mp3"
 		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
 	     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
