@@ -6,8 +6,8 @@ APP_NAME=`basename "$0"`
 CONF_NAME=."$APP_NAME"rc
 #APP_DIR=`dirname "$0"`
 
-
-APP_DIR=$(readlink -f $0 | xargs dirname)
+[[ SYSTEM == "Linux" ]] && APP_DIR=$(readlink -f $0 | xargs dirname) || APP_DIR=$(readlink -n $0 | xargs dirname)
+ 
 
 # Import configuration file, possibly overriding defaults.
 [ -r ~/"$CONF_NAME" ] && . ~/"$CONF_NAME"
@@ -166,14 +166,11 @@ file ${DIRECTORY}/${SUBDIR}/${OUTPUT}.wav | grep -qs 'PCM, 8 bit'
 if [ $? = 0 ]; then
     SOX_B="-b -u"
     SOX_W="-w"
-COMMAND="${COMMAND}sox $SOX_B ${DIRECTORY}/${SUBDIR}/${OUTPUT}.wav -r 48000 $SOX_W ${DIRECTORY}/${SUBDIR}/resample.wav resample;###"
+echo -e "${yellow}# Resampling PCM 8 bit to PCM 16 bit${NC}"    
+COMMAND="${COMMAND}sox $SOX_B ${DIRECTORY}/${SUBDIR}/${OUTPUT}.wav -r 48000 $SOX_W ${DIRECTORY}/${SUBDIR}/resample.wav resample"
 #echo "sox: resampling PCM, 8 bi to PCM, 16 bit" 
- 
-
-#     if sox $SOX_B ${DIRECTORY}/${SUBDIR}/${OUTPUT}.wav -r 48000 $SOX_W ${DIRECTORY}/${SUBDIR}/resample.wav resample  ; then
-#     mv -f ${DIRECTORY}/${SUBDIR}/resample.wav ${DIRECTORY}/${SUBDIR}/${OUTPUT}.wav
-#     echo "sox: resampling done" 
-#     fi
+[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
+eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 fi
 }
 
@@ -904,8 +901,9 @@ execute(){
 	      DISTORTION=1
 		 
 		# create the dir
-	      [[ ! -d  "${DIRECTORY}/${SUBDIR}" ]] &&   mkdir "${DIRECTORY}/${SUBDIR}"
+	      [[ ! -d  "${DIRECTORY}/${SUBDIR}" ]] &&   mkdir  "${DIRECTORY}/${SUBDIR}"
 	      
+
 		 
 		 
 		case "$OPERATION" in
