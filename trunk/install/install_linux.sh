@@ -62,6 +62,16 @@ wget -q -t 3 http://google.com -O /tmp/testconnexion
 
 
 function ACTIVER_SOURCES(){
+sudo echo "x264 hold" |sudo  dpkg --set-selections
+sudo echo "ffmpeg hold" |sudo  dpkg --set-selections
+
+
+
+
+## add medibuntu
+#wget -q http://fr.packages.medibuntu.org/medibuntu-key.gpg -O- | sudo apt-key add -
+#deb http://packages.medibuntu.org/ intrepid free non-free
+
 echo -e '\nUpdate Sources\n'
 for source in main universe restricted multiverse
 do
