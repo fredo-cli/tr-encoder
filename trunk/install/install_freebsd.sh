@@ -1,13 +1,67 @@
-# the script is base on
-#http://piao-tech.blogspot.com/2008/04/get-latest-ffmpeg-svn-in-freebsd-70.html
-#http://www.nabble.com/ffmpeg-patch-td22286995.html#a22286995
-#http://www.freebsd.org/cgi/query-pr.cgi?pr=132780
+#!/bin/bash
+
+# config
+SVN_FFMPEG=17727
+INSTALL=0
+
+usage() {
+echo >&2 "Usage: `basename $0` [-i]"
+}
+
+
+    while getopts "i" option
+    do
+	case "$option" in
+	  i)	   INSTALL=1;;	
+	[?])    usage
+		exit 1;;
+	esac
+    done
+    shift $(($OPTIND - 1))
 
 
 
 
+# Define some colors:
+
+red='\e[0;31m'
+RED='\e[1;31m'
+
+green='\e[0;32m'
+GREEN='\e[1;32m'
+
+yellow='\e[0;33m'
+YELLOW='\e[1;33m'
+
+NC='\e[0m' 
 
 
+
+echo -en "lame\t"
+if [[ $(pkg_version  -vs ^lame-) == lame-3.98_1 ]] 
+echo -e "${yellow}false${NC}"
+then 
+[[ $INSTALL == 1 ]] && INSTALL_LAME
+else
+echo -e "${green}true${NC}"
+fi
+
+
+
+function INSTALL_LAME(){
+http://fastbull.dl.sourceforge.net/sourceforge/lame/lame-398.tar.gz
+
+wget http://freefr.dl.sourceforge.net/sourceforge/lame/lame-398.tar.gz -O - | tar xzf -
+cd lame-3.98
+./configure --enable-shared --enable-static
+sudo gmake
+sudo gmake install
+} 
+
+
+
+
+exit
 
 
 sudo su -
