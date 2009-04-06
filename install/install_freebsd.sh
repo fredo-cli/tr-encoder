@@ -313,25 +313,22 @@ fi
 
 
 echo -en "ffmpeg\t"
-if [[ $(pkg_version -vs ffmpeg| grep Version:) != "Version: $FFMPEG_VERSION+vhook+pip+wm3a-1" ]]
+FFMPEG_INSTALLED=$(ffmpeg -i 2>&1 |grep FFmpeg |grep -o SVN-r[0-9]* )
+if [[ $FFMPEG_INSTALLED != "SVN-r$FFMPEG_VERSION" ]]
 then
-echo -e "${yellow}false${NC}"
+echo -e "${yellow}false${NC}\t($FFMPEG_INSTALLED)"
 [[ $INSTALL == 1 ]] && INSTALL_FFMPEG
 else
-echo -e "${green}true${NC}"
+echo -e "${green}true${NC}\t($FFMPEG_INSTALLED)"
 fi
 
 
-
 cd
+
+echo "Press any keys to exit"
+[[ $INSTALL == 0 ]] && echo "bash $0 -i to install missing packages"
 read
 exit
-
-
-
-
-
-cd 
 
 
 
