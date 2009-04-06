@@ -282,7 +282,7 @@ fi
 # Controle if md5  is install
 
 echo -en "md5 (cfv)\t"
-if [[  -z $(which md5) || $(pkg_version  -vs ^cfv- |awk -F " " '{print $1}')  == "pkg_version: no packages match pattern" ]]
+if [[  $(pkg_version  -vs ^cfv- |awk -F " " '{print $1}')  == "pkg_version: no packages match pattern" ]]
 then
 echo -e "${yellow}false${NC}\t($(pkg_version  -vs ^cfv- |awk -F " " '{print $1}'))"
 [[ $INSTALL == 1 ]] && cd /usr/ports/security/cfv && sudo make install clean
