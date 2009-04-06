@@ -1,19 +1,25 @@
 #!/bin/bash
 
-
 # config
-SVN_FFMPEG=17727
 INSTALL=0
+REINSTALL=0
+
+
+FFMPEG_VERSION=17768
+LAME_VERSION=3.98
+
+
 
 usage() {
-echo >&2 "Usage: `basename $0` [-i]"
+echo >&2 "Usage: `basename $0` [-i install] [-i reinstall]"
 }
 
 
-    while getopts "i" option
+    while getopts "iI" option
     do
 	case "$option" in
-	  i)	   INSTALL=1;;	
+	  i)	INSTALL=1;;	
+	  I)	REINSTALL=1;;
 	[?])    usage
 		exit 1;;
 	esac
@@ -34,7 +40,7 @@ GREEN='\e[1;32m'
 yellow='\e[0;33m'
 YELLOW='\e[1;33m'
 
-NC='\e[0m' # No Color
+NC='\e[0m' 
 
 # create link to be compatible
 [[ -z $(readlink "/usr/local/bin/bash") ]] && sudo ln -s /bin/bash /usr/local/bin/bash
@@ -217,8 +223,8 @@ tar -xzvf ffmpeg.tar.gz
 cd ffmpeg
 
 # Version 0.5
-$SVN_FFMPEG
-svn checkout -r $SVN_FFMPEG svn://svn.ffmpeg.org/ffmpeg/trunk ffmpeg
+$FFMPEG_VERSION
+svn checkout -r $FFMPEG_VERSION svn://svn.ffmpeg.org/ffmpeg/trunk ffmpeg
 
 ## old release
 ## -r 10657
@@ -254,7 +260,7 @@ make
 
 
 
-sudo checkinstall -y --fstrans=no --install=yes --pkgname=ffmpeg --pkgversion "$SVN_FFMPEG+vhook+pip+wm3a"
+sudo checkinstall -y --fstrans=no --install=yes --pkgname=ffmpeg --pkgversion "$FFMPEG_VERSION+vhook+pip+wm3a"
 
 
 
@@ -362,7 +368,7 @@ fi
 
 
 echo -en "ffmpeg\t"
-if [[ $(dpkg -s ffmpeg| grep Version:) != "Version: $SVN_FFMPEG+vhook+pip+wm3a-1" ]]
+if [[ $(dpkg -s ffmpeg| grep Version:) != "Version: $FFMPEG_VERSION+vhook+pip+wm3a-1" ]]
 then
 echo -e "${yellow}false${NC}"
 [[ $INSTALL == 1 ]] && INSTALL_FFMPEG
