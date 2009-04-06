@@ -279,16 +279,16 @@ echo -e "${yellow}false${NC}\t($(pkg_version  -vs ^seq2- |awk -F " " '{print $1}
 fi
 
 
-# Controle if seq2  is install
+# Controle if md5  is install
 
 echo -en "md5 (cfv)\t"
-if [[ ! -z $(which md5) ]]
+if [[  -z $(which md5) || $(pkg_version  -vs ^cfv- |awk -F " " '{print $1}')  == "pkg_version: no packages match pattern" ]]
 then
-echo -e "${green}true${NC}\t($(pkg_version  -vs ^cfv- |awk -F " " '{print $1}'))"
-[[ $REINSTALL == 1 ]] && cd /usr/ports/security/cfv && make deinstall && sudo make install clean
-else
 echo -e "${yellow}false${NC}\t($(pkg_version  -vs ^cfv- |awk -F " " '{print $1}'))"
 [[ $INSTALL == 1 ]] && cd /usr/ports/security/cfv && sudo make install clean
+else
+echo -e "${green}true${NC}\t($(pkg_version  -vs ^cfv- |awk -F " " '{print $1}'))"
+[[ $REINSTALL == 1 ]] && cd /usr/ports/security/cfv && make deinstall && sudo make install clean
 fi
 
 
