@@ -48,20 +48,23 @@ get_general_infos () {
 	      #echo "$GENERAL_INFOS"
 	      eval "$GENERAL_INFOS"
 
-		[[ $DEBUG -gt 0 ]] 	 &&  echo -e "\\n${cyan}$(box "General informations")${NC}"
-
+		[[ $DEBUG -gt 0 ]] 	 &&  echo -e "\\n${cyan}$(box "General informations")${NC}" 
+		save_info "$(box "#General informations")"
 	      # display the file name and the size
 	      
-	      [[ $DEBUG -gt 0 ]] && echo -e "FILE_PATH=${GREEN}\"$INPUT\"${NC}" || echo -e "${BLUE}$INPUT${NC}"
+		[[ $DEBUG -gt 0 ]] && echo -e "FILE_PATH=${GREEN}\"$INPUT\"${NC}" || echo -e "${BLUE}$INPUT${NC}"
+		save_info "FILE_PATH=$INPUT"
 		 
-		 if [[ $FILE_SIZE -gt 1 ]]
-		 then
-	      [[ $DEBUG -gt 0 ]] && echo -e "FILE_SIZE=${GREEN}$FILE_SIZE${NC}\\t# `echo "$FILE_SIZE / 1024 /1024 "| bc `MB"
-		 else
-   
-		 echo -e "FILE_SIZE=${RED}$FILE_SIZE${NC}\\t#`echo "$FILE_SIZE / 1024 /1024 "| bc `MB"
-		 fi
+		if [[ $FILE_SIZE -gt 1 ]]
+		then
+		[[ $DEBUG -gt 0 ]] && echo -e "FILE_SIZE=${GREEN}$FILE_SIZE${NC}\\t# `echo "$FILE_SIZE / 1024 /1024 "| bc `MB"
 
+		else
+   
+		echo -e "FILE_SIZE=${RED}$FILE_SIZE${NC}\\t#`echo "$FILE_SIZE / 1024 /1024 "| bc `MB"
+
+		fi
+		save_info "FILE_SIZE=$FILE_SIZE"
 
 
 
@@ -74,7 +77,7 @@ get_general_infos () {
 	      else
 	      [[ $DEBUG -gt 0 ]] && echo -e "FORMAT=${YELLOW}$FORMAT${NC}"
 	      fi
-
+	      save_info "FORMAT=$FORMAT"
 
 
 
@@ -104,6 +107,7 @@ get_general_infos () {
 	      [[ $DEBUG -gt 0 ]] && echo -e "DURATION=${GREEN}$DURATION_S${NC}"
 	      CROPSTART=`echo ${DURATION_S} / 2|bc`
 	      fi
+	      save_info "DURATION=$DURATION"
 
 
 	      
@@ -148,6 +152,7 @@ get_general_infos () {
 				fi
 
 	      fi
+	      save_info "BITERATE=$BITERATE"
 
 
 
@@ -156,10 +161,12 @@ get_general_infos () {
 	      if [[ $VIDEO_COUNT == 1 ]] 
 	      then
 	      [[ $DEBUG -gt 0 ]] && echo -e "VIDEO_COUNT=${GREEN}$VIDEO_COUNT${NC}"
+	      save_info "VIDEO_COUNT=$VIDEO_COUNT"
 	      else
-	      ERROR="ERROR: 1 video stream is needed (Detection: $VIDEO_COUNT)."
+	      ERROR="# ERROR: 1 video stream is needed (Detection: $VIDEO_COUNT)."
 	      echo -e ${RED}${ERROR}${NC}
 	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err 
+	      save_info "$ERROR"
 	      fi
 	      
 	      # Chek the number of audio stream	      
@@ -167,15 +174,19 @@ get_general_infos () {
 	      if [[ $AUDIO_COUNT == 1 ]] 
 	      then
 	      [[ $DEBUG -gt 0 ]] && echo -e "AUDIO_COUNT=${GREEN}$AUDIO_COUNT${NC}"
+	      save_info "AUDIO_COUNT=$AUDIO_COUNT"
+	      
 		 elif [[ $AUDIO_COUNT -gt 1 ]]
 		 then
-		 WARNING="WARNING: More than 1 audio stream is detected ($AUDIO_COUNT)"
+		 WARNING="# WARNING: More than 1 audio stream is detected ($AUDIO_COUNT)"
 	      echo -e ${PINK}${WARNING}${NC}
 	      echo $WARNING >> ${DIRECTORY}/${OUTPUT}.err 
+	      save_info "$WARNING"
 	      else
-	      ERROR="ERROR: 1 audio stream is needed (Detection: $AUDIO_COUNT)"
+	      ERROR="# ERROR: 1 audio stream is needed (Detection: $AUDIO_COUNT)"
 	      echo -e ${RED}${ERROR}${NC}
 	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err 
+	      save_info "$ERROR"
 	      fi
 }
 
@@ -183,7 +194,7 @@ check_comp(){
 		 
 		 
 		 [[ $DEBUG -gt 0 ]] &&  echo -e "\\n${BLUE}$(box "Compatibility")${NC}"
-		 
+		 save_info "$( box "Compatibility")"
 		 # check if the video codec is supPorted by ffmpeg
 		 
 		FFMPEG_TEST=`${FFMPEG} -i "$INPUT" -sameq -vframes 1 -y "${DIRECTORY}/${SUBDIR}/test.jpg" 2>&1 `   
@@ -195,8 +206,8 @@ check_comp(){
 		 
 		  if [[ ! -z $FFMPEG_VIDEO_YES ]]
 		  then
-		 [[ $DEBUG > 0 ]] && echo -e "${GREEN}# Video codec supported by ffmpeg${NC} "
-		  #echo $FFMPEG_YES
+		  [[ $DEBUG > 0 ]] && echo -e "${GREEN}# Video codec supported by ffmpeg${NC} "
+		  save_info "# Video codec supported by ffmpeg"
 		  else
 		  
 		  ERROR="# ERROR: Video codec not supported by ffmpeg"
@@ -205,6 +216,9 @@ check_comp(){
 				  
 
 		  echo -e "${RED}${ERROR}${NC}"
+		  save_info "$ERROR"
+		  
+		  # Video codec supported by ffmpeg
 		  [[ $DEBUG > 0 ]] && echo  ${FFMPEG_TAIL}  
 		  echo -e ${ERROR} ${FFMPEG_HEAD}  >> ${DIRECTORY}/${OUTPUT}.err    
 			  
@@ -229,13 +243,14 @@ check_comp(){
 		  if [[ ! -z $FFMPEG_AUDIO_YES ]]
 		  then
 		  [[ $DEBUG > 0 ]] && echo -e "${GREEN}# Audio codec supported by ffmpeg${NC} "
-		  #echo $FFMPEG_YES
+		  save_info "# Audio codec supported by ffmpeg"
 		  else
 		  
 		  ERROR="# ERROR: Audio codec not supported by ffmpeg"
 
 		  [[ $DEBUG > 1 ]] && echo "$FFMPEG_HEAD"
-
+		  save_info "$ERROR"
+		  
 		  echo -e "${RED}${ERROR}${NC}"
 		  [[ $DEBUG > 0 ]] && echo  ${FFMPEG_TAIL}
 		  
@@ -244,7 +259,7 @@ check_comp(){
 		  
 		  fi
 		  
-		# check if video can be read with mplayer  
+		### check if video can be read with mplayer  
 		  
 		ID_VIDEO_ID=0
 		ID_AUDIO_ID=0
@@ -315,7 +330,7 @@ get_video_infos () {
 	      VIDEO_INFOS=""
 	      
 	      FPS=0
-		 FPS_MODE=""
+	      FPS_MODE=""
 	      INTERLACED=""
 	      DEINTERLACE=""
 	      DELAY=0

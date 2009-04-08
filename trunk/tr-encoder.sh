@@ -21,8 +21,10 @@ OVERWRITE=0
 CLEAN=0
 CROPDETECTION=1 #???
 TRY=""
-LOGO_ADD=""
+LOGOS_ADD=""
 FF_SIZE=""
+SS=0
+
 
 # Path to ffmpeg
 #FFMPEG="/home/fredo/ffmpeg/ffmpeg/ffmpeg"
@@ -62,18 +64,19 @@ MAXSIZE=480
 FPS=12000/1001
 
 
-    while getopts "f:T:l:o:e:c:s:DydY" option
+    while getopts "f:T:l:o:e:c:s:b:DydY" option
     do
 	case "$option" in
-	c)	   $CLEAN=1;;	
-	d)      DEBUG=1;;	
-	D)      DEBUG=2;;
-	e)	   EXTENTION="$OPTARG";;		
-	f)      OUTPUT_FORMAT="$OPTARG";;	
-	l)	   LOGO_ADD="$OPTARG";;
-	o)	   OPERATION="$OPTARG";;	
-	s)	   FF_SIZE="$OPTARG";;	
-	T)	   TRY="${OPTARG}-";;	
+	c)	CLEAN=1;;	
+	s)	SS="$OPTARG";;
+	d)	DEBUG=1;;	
+	D)	DEBUG=2;;
+	e)	EXTENTION="$OPTARG";;		
+	f)	OUTPUT_FORMAT="$OPTARG";;	
+	l)	LOGOS_ADD="$OPTARG";;
+	o)	OPERATION="$OPTARG";;	
+	#s)	FF_SIZE="$OPTARG";;	
+	T)	TRY="${OPTARG}-";;	
 	y)      OVERWRITE=1;;
 	Y)      OVERWRITE=2;;
 	[?])    usage
@@ -91,11 +94,12 @@ FPS=12000/1001
 add_logo(){
 				    
 	   LOGO="${LOGO_DIR}/${LOGO_FILE}"
+
 	    
 	   [[ $DEBUG -gt 0 ]] && echo -e "\\n${cyan}$(box "Logo informations")${NC}\\n"
 	    
 
-	   [[ $DEBUG -gt 0 ]] && echo -e "LOGO_FILE=$LOGO_FILE\\nLOGO_PC_W=$LOGO_PC_W\\nLOGO_PC_X=$LOGO_PC_X\\nLOGO_PC_Y=$LOGO_PC_Y\\nLOGO_MODE=$LOGO_MODE\\nLOGO_TRESHOLD=$LOGO_TRESHOLD\\nLOGO_DURATION=$LOGO_DURATION\\n"
+	   [[ $DEBUG -gt 0 ]] && echo -e "LOGO_FILE=$LOGO_FILE\\nLOGO_PC_W=$LOGO_PC_W\\nLOGO_PC_X=$LOGO_PC_X\\nLOGO_PC_Y=$LOGO_PC_Y\\nLOGO_MODE=$LOGO_MODE\\nLOGO_TRESHOLD=$LOGO_TRESHOLD\\nLOGO_START=$LOGO_START\\nLOGO_DURATION=$LOGO_DURATION\\n"
 	    
 
 	    # get the logo size
@@ -119,7 +123,9 @@ add_logo(){
 	    
 	    # create the resized logo
 	    
-	    convert "${LOGO}" -resize ${LOGO_RESIZED_W}x${LOGO_RESIZED_H}\! -depth 8 $LOGO_RESIZED 
+	    COMMAND="convert "${LOGO}" -resize ${LOGO_RESIZED_W}x${LOGO_RESIZED_H}\! -depth 8 $LOGO_RESIZED" 
+
+	    eval "$COMMAND " && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 	    
 	    # get the exact size of the resized logo (imagemagick do not respect the exactly thr -resize parameter)
 	    LOGO_RESIZED_W=$(identify -format %w $LOGO_RESIZED )
@@ -157,7 +163,7 @@ add_logo(){
 	    LOGO_X=${LOGO_X%.???}
 	    LOGO_Y=${LOGO_Y%.???}
 	    [[ $DEBUG -gt 0 ]] && echo -e "# Position of the logo:\\tx = $LOGO_X Y = $LOGO_Y"
-	    VHOOK=" -vhook \"/usr/local/lib/vhook/pip.so -f  ${DIRECTORY}/${SUBDIR}/${OUTPUT}.png -x $LOGO_X -y $LOGO_Y  -w $LOGO_RESIZED_W -h $LOGO_RESIZED_H  $LOGO_MODE   $LOGO_TRESHOLD -s $(echo "$SS  * $FPS "|bc) -e $(echo "($SS + $LOGO_DURATION) * $FPS "|bc) \" "
+	    VHOOK=$VHOOK" -vhook \"/usr/local/lib/vhook/pip.so -f  $LOGO_RESIZED -x $LOGO_X -y $LOGO_Y  -w $LOGO_RESIZED_W -h $LOGO_RESIZED_H  $LOGO_MODE   $LOGO_TRESHOLD -s $(echo "$SS + $LOGO_START  * $FPS "|bc) -e $(echo "($SS + $LOGO_START + $LOGO_DURATION) * $FPS "|bc) \" "
  	    #echo $VHOOK
 }
 
@@ -881,16 +887,19 @@ execute(){
 	      WARNING=""
 	      ERROR=""
 	      
-	      SS=0
+	      
+
+
 	      
 	      PAD=0
-		 PADTOP=0
-		 PADBOTTOM=0
+	      PADTOP=0
+	      PADBOTTOM=0
 	      FF_PAD=""
-		 
-		 CROPDETECTION_2PASS=0
-		 
-		 FF_CROP_WIDTH=""
+
+
+	      CROPDETECTION_2PASS=0
+	      
+	      FF_CROP_WIDTH=""
 	      FF_CROP_HEIGHT=""
 	      CROP=""
 	      CROPTOP=0
@@ -900,9 +909,11 @@ execute(){
 	      
 	      DISTORTION=1
 		 
-		# create the dir
+	      # create the dir
 	      [[ ! -d  "${DIRECTORY}/${SUBDIR}" ]] &&   mkdir  "${DIRECTORY}/${SUBDIR}"
 	      
+	      # clean  info if overwrite  != 1
+	      [[ $OVERWRITE != 1 && -f ${DIRECTORY}/${OUTPUT}/info.txt ]] && rm ${DIRECTORY}/${OUTPUT}/info.txt 
 
 		 
 		 
@@ -930,8 +941,9 @@ execute(){
 		  check_comp 
 		  ### General informations 
 		  get_general_infos
+		  exit
 		  ### Video informations 
-		  get_video_infos	      
+		  get_video_infos      
 		  ### extra informations
 		  #get_extra_infos
 		  ### Audio Informations
@@ -975,45 +987,54 @@ execute(){
 						else
 							   
 							   
-							   ### create the logo
-						   
-							   if [[ ! -z $LOGO_ADD ]]
+							   ### create the logo or logos
+							   VHOOK=""
+							   if [[ ! -z $LOGOS_ADD ]]
 							   then
 							   
-							   LOGO_RESIZED=${DIRECTORY}/${SUBDIR}/${OUTPUT}.png  
-							   LOGO_DIR="$APP_DIR/logos"	    
+						   
+								    for LOGO_ADD in $(echo $LOGOS_ADD)
+								    do
+
 							   
-								# get the preset from LOGOS file 
+								    
+									      LOGO_RESIZED=${DIRECTORY}/${SUBDIR}/$LOGO_ADD.png
+									      LOGO_DIR="$APP_DIR/logos"	    
+									      
+										    # get the preset from LOGOS file 
 
 
-								LOGOS_PRESET=`grep  "^$LOGO_ADD|.*" ${APP_DIR}/config/LOGOS `
-								#echo "$LOGOS_PRESET $LOGO_ADD"
-										
-										if [[ ! -z $LOGOS_PRESET ]]
-										then
-										# load the values
-										
-										eval "${LOGOS_PRESET#${LOGO_ADD}|}"
-										else
-										# load default values
-										
-										# png or gif 
-										LOGO_FILE="test.png" 
-										# the width of the logo in %:example 10  (base on the Width of the video after cropping ) 
-										LOGO_PC_W=10
-										# the position X of the logo in %:example 10  (base on the Width of the video after cropping ) 
-										LOGO_PC_X=10
-										# the possition Y of the logo in %:example 30  (base on the Width of the video after cropping ) 
-										LOGO_PC_Y=25
-										
-										LOGO_MODE="-m 1"
-										LOGO_TRESHOLD="-t 000000"
-										LOGO_DURATION=15
-														
-										fi
-										
-							   # run the function
-							   add_logo
+										    LOGOS_PRESET=`grep  "^$LOGO_ADD|.*" ${APP_DIR}/config/LOGOS `
+										    #echo "$LOGOS_PRESET $LOGOS_ADD"
+												    
+												    if [[ ! -z $LOGOS_PRESET ]]
+												    then
+												    # load the values
+												    
+												    eval "${LOGOS_PRESET#${LOGO_ADD}|}"
+												    else
+												    # load default values
+												    
+												    # png or gif 
+												    LOGO_FILE="test.png" 
+												    # the width of the logo in %:example 10  (base on the Width of the video after cropping ) 
+												    LOGO_PC_W=10
+												    # the position X of the logo in %:example 10  (base on the Width of the video after cropping ) 
+												    LOGO_PC_X=10
+												    # the possition Y of the logo in %:example 30  (base on the Width of the video after cropping ) 
+												    LOGO_PC_Y=25
+												    
+												    LOGO_MODE="-m 1"
+												    LOGO_TRESHOLD="-t 000000"
+												    LOGO_START=0
+												    LOGO_DURATION=15
+																    
+												    fi
+												    
+									      # run the function
+									      add_logo 
+								    
+								    done
 							   
 							   
 							  fi	
@@ -1065,10 +1086,10 @@ then
     SUBDIR=${SUBDIR%%.${EXTENTION}}
 
 
-      if [[ ! -d ${DIRECTORY}/${SUBDIR} || $OVERWRITE  !=  0 ]]
-      then
+      #if [[ ! -d ${DIRECTORY}/${SUBDIR} || $OVERWRITE  !=  0 ]]
+      #then
       execute $VIDEO 
-      fi
+      #fi
     done
 else 
 usage

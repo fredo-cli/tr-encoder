@@ -13,7 +13,7 @@
 		resample_audio
 		
 		# make a sample audio
-		COMMAND="${COMMAND}${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.wav -ss  $(echo "$SS  + 10 "|bc) -t 20 -r 24 -ar 44100 -ab 128000 -ac 2  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.mp3;\\n"
+		COMMAND="${COMMAND}${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.wav -ss $SS -t 20 -r 24 -ar 44100 -ab 128000 -ac 2  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.mp3;\\n"
 		
 
 
@@ -21,10 +21,10 @@
 		then
 		# pipe mplayer rawvideo to ffmpeg
 		COMMAND="${COMMAND}resample_video;\\n"
-		COMMAND="${COMMAND}${FFMPEG}  $DEINTERLACE -r   $FPS -f yuv4mpegpipe -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.yuv -b 900k $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $(echo "$SS  + 10 "|bc) -t 20  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv;\\n"
+		COMMAND="${COMMAND}${FFMPEG}  $DEINTERLACE -r   $FPS -f yuv4mpegpipe -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.yuv -b 900k $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $SS -t 20  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv;\\n"
 		else
 		# make a sample video flv
-		COMMAND="${COMMAND}${FFMPEG} -an $DEINTERLACE -i ${INPUT} -sameq $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $(echo "$SS  + 10 "|bc) -t 20   -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv;\\n"
+		COMMAND="${COMMAND}${FFMPEG} -an $DEINTERLACE -i ${INPUT} -sameq $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $SS -t 20   -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv;\\n"
 		fi
 		
 		 
