@@ -385,14 +385,11 @@ else
 echo -e "${green}true${NC}"
 fi
 
+### end
 
+cd
 
-
-
-
-
-
-
-
-
-
+echo "Press any keys to exit"
+[[ $INSTALL == 0 ]] && echo "bash $0 -i to install missing packages"
+read
+exit

@@ -30,9 +30,9 @@ NC='\e[0m' # No Color
 
 
 
-    usage() {
-	echo >&2 "Usage: `basename $0` [-f jpeg|sample|normal] [-e mov|flv] [-d] [file|folder]"
-    }
+function    usage() {
+echo >&2 "Usage: `basename $0` [-f jpeg|sample|normal] [-e mov|flv] [-d] [file|folder]"
+}
 
 function stop(){
 
@@ -44,6 +44,11 @@ exit
 fi
 
 }
+
+function save_info(){
+[[ $OVERWRITE != 1 ]] && echo $1 >> ${DIRECTORY}/${OUTPUT}/info.txt 
+}
+
 
 # promt for removing of the file		
 function clean(){
