@@ -31,7 +31,7 @@
 	     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 
 
-		if [[ -z $FFMPEG_VIDEO_YES ]]
+		if [[  $FFMPEG_VIDEO == 0 ]]
 		then
 		# pipe mplayer rawvideo to ffmpeg
 		echo -e "${yellow}# Resample video${NC}"
@@ -41,8 +41,10 @@
 		echo -e "${yellow}# Create flv${NC}"
 		COMMAND="${FFMPEG} -an $DEINTERLACE -i ${INPUT} -sameq $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $SS -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv"
 		fi
+		
+		
 		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-	     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} } 
+	     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 		
 		 
 		# remux the sound and the video
