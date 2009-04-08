@@ -17,7 +17,7 @@
 		
 
 
-		if [[ -z $FFMPEG_VIDEO_YES ]]
+		if [[ $FFMPEG == 0 ]]
 		then
 		# pipe mplayer rawvideo to ffmpeg
 		COMMAND="${COMMAND}resample_video;\\n"

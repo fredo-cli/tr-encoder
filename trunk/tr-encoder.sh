@@ -786,7 +786,7 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 	      FF_CROP_HEIGHT=""
 
 		# get new sizes
-		 calc_new_sizes
+		calc_new_sizes
 	      fi
 	      
 	      
@@ -913,7 +913,7 @@ execute(){
 	      [[ ! -d  "${DIRECTORY}/${SUBDIR}" ]] &&   mkdir  "${DIRECTORY}/${SUBDIR}"
 	      
 	      # clean  info if overwrite  != 1
-	      [[ $OVERWRITE != 1 && -f ${DIRECTORY}/${OUTPUT}/info.txt ]] && rm ${DIRECTORY}/${OUTPUT}/info.txt 
+	      [[ $OVERWRITE == 1 && -f ${DIRECTORY}/${OUTPUT}/info.txt ]] && rm ${DIRECTORY}/${OUTPUT}/info.txt 
 
 		 
 		 
@@ -947,44 +947,72 @@ execute(){
 		  ### extra informations
 		  #get_extra_infos
 		  ### Audio Informations
-		    
+		  get_audio_infos
+		  ###
+		  get_format
+		  
+		  
 		  stop
 		  ;;
 		  *)
 		  
 		### check if the video is compatible with ffmpeg or mplayer
+		
+		if  [[ $OVERWRITE == 2  || ! -f "${DIRECTORY}/${OUTPUT}/info.txt" ]]
+		then
+		[[  ! -f ${DIRECTORY}/${OUTPUT}/info.txt ]] && echo 1
 		check_comp 
+		else
+		[[ $DEBUG -gt 0 ]] && cat "${DIRECTORY}/${OUTPUT}/info.txt"
+		eval "$(cat "${DIRECTORY}/${OUTPUT}/info.txt")"
+		fi
+				
 		    
 				if [[ $MPLAYER_VIDEO_TEST == 0 || $MPLAYER_AUDIO_TEST == 0 ]] 
 				then
-				ERROR="ERROR: This video ($1) is not supported!"
+				ERROR="# ERROR: This video ($1) is not supported!"
 				echo -e "\\n${RED}${ERROR}${NC}\\n"
 				echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err
+				stop
 				else
 				
+				if  [[ $OVERWRITE == 2 ||  ! -f "${DIRECTORY}/${OUTPUT}/info.txt" ]]
+				then
+			
 				### General informations 
 				get_general_infos
 				### Video informations 
 				get_video_infos	      
-				### extra informations
-				#get_extra_infos
 				### Audio Informations
 				get_audio_infos
+				
+				
 			 
 				[[ ! -z $ERROR ]] &&  mediainfo ${INPUT} >> ${DIRECTORY}/${OUTPUT}.err
 
 				# Get some infos about the fornat 1.77 pat ntsc ...
 				get_format 
-			 
+				fi
+	 
 				# check if the format is detected (pal 1.77 2.35 etc)
 				
 						if [[ -z $DETECTED_FORMAT  ]] 
 						then
-						ERROR="ERROR: This video format ($1) is not supported!"
+						ERROR="# ERROR: This video format ($1) is not supported!"
 						echo -e "\\n${RED}${ERROR}${NC}\\n"
 						echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err
+						save_info "${ERROR}"						
 						
 						else
+						
+						save_info "\\n# Format infos\\n"
+						save_info "DETECTED_FORMAT=\"$DETECTED_FORMAT\""
+						save_info "FF_PAD=\"$FF_PAD\""
+						save_info "FF_CROP_WIDTH=\"$FF_CROP_WIDTH\""
+						save_info "FF_CROP_HEIGHT=\"$FF_CROP_HEIGHT\""
+						save_info  "NEW_WIDTH=$NEW_WIDTH"
+						save_info  "NEW_HEIGHT=$NEW_HEIGHT"
+						save_info  "NEW_SIZE=$NEW_SIZE"
 							   
 							   
 							   ### create the logo or logos

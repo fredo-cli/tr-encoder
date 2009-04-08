@@ -46,7 +46,7 @@ fi
 }
 
 function save_info(){
-[[ $OVERWRITE != 1 ]] && echo $1 >> ${DIRECTORY}/${OUTPUT}/info.txt 
+[[ $OVERWRITE != 1 ]] && echo -e $1 >> ${DIRECTORY}/${OUTPUT}/info.txt 
 }
 
 
