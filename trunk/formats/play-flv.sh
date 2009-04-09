@@ -39,11 +39,7 @@
 		else
 		# create video
 		echo -e "${yellow}# Create flv${NC}"
-<<<<<<< .mine
-		COMMAND="${FFMPEG} -an $DEINTERLACE -i ${INPUT} -b 400k -minrate 400k -maxrate 400k -bufsize 1835k  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $(echo "$SS  + 10 "|bc) -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv"
-=======
-		COMMAND="${FFMPEG} -an $DEINTERLACE -i ${INPUT} -sameq $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $SS -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv"
->>>>>>> .r40
+		COMMAND="${FFMPEG} -an $DEINTERLACE -i ${INPUT} -b 400k -minrate 400k -maxrate 400k -bufsize 1835k  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $SS  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv"
 		fi
 		
 		
