@@ -39,7 +39,11 @@
 		else
 		# create video
 		echo -e "${yellow}# Create flv${NC}"
+<<<<<<< .mine
+		COMMAND="${FFMPEG} -an $DEINTERLACE -i ${INPUT} -b 400k -minrate 400k -maxrate 400k -bufsize 1835k  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $(echo "$SS  + 10 "|bc) -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv"
+=======
 		COMMAND="${FFMPEG} -an $DEINTERLACE -i ${INPUT} -sameq $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $SS -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv"
+>>>>>>> .r40
 		fi
 		
 		
@@ -49,12 +53,23 @@
 		 
 		# remux the sound and the video
 		echo -e "${yellow}# Remux sound and video${NC}"
-		COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.flv -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.mp3 -acodec copy -vcodec copy  -y ${DIRECTORY}/${SUBDIR}/sample.flv"
+		COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.flv -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.mp3 -acodec copy -vcodec copy -r 24 -y ${DIRECTORY}/${SUBDIR}/sample_tmp.flv"
 		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
 	     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 		
 		
-
+		# use flvtool2
+		
+		COMMAND="flvtool2 -U ${DIRECTORY}/${SUBDIR}/sample_tmp.flv ${DIRECTORY}/${SUBDIR}/sample.flv"
+		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
+	     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+		
+		
+		# clean up
+		
+# 		[[ -f  ${DIRECTORY}/${SUBDIR}/sample_tmp.flv ]] && rm  ${DIRECTORY}/${SUBDIR}/sample_tmp.flv
+# 		[[ -f  ${DIRECTORY}/${SUBDIR}/test.jpg ]] && rm  ${DIRECTORY}/${SUBDIR}/test.jpg
+# 		[[ -f  ${DIRECTORY}/${SUBDIR}/test.mp3 ]] && rm  ${DIRECTORY}/${SUBDIR}/test.mp3
 			      
 		 
 		# check the file 

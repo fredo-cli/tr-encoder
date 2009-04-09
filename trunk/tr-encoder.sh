@@ -210,8 +210,14 @@ pal-dar133(){
 				[[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Cropping W: $FF_CROP_WIDTH ${NC}\\t(preset)"				
 				else
 				
-				# keep the cropping detected values
+				# keep the cropping detected values for the width (if not to big)
+				if [[ $CROPWIDTH_AV  -lt `echo "$WIDTH * 0.03 * 2 / 2" |bc` ]]
+				then
 				FF_CROP_WIDTH="-cropleft $CROPLEFT -cropright $CROPRIGHT "
+				else
+				FF_CROP_WIDTH="-cropleft 0 -cropright 0 "				
+				fi
+				
 				[[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Cropping W: $FF_CROP_WIDTH ${NC}\\t(crop detection)"
 				
 				fi
@@ -290,8 +296,15 @@ pal-dar177(){
 				[[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Cropping W: $FF_CROP_WIDTH ${NC}\\t(preset)"				
 				else
 				
-				# keep the cropping detected values
+				# keep the cropping detected values for the width (if not to big)
+				if [[ $CROPWIDTH_AV  -lt `echo "$WIDTH * 0.03 * 2 / 2" |bc` ]]
+				then
 				FF_CROP_WIDTH="-cropleft $CROPLEFT -cropright $CROPRIGHT "
+				else
+				FF_CROP_WIDTH="-cropleft 0 -cropright 0 "				
+				fi
+				
+				
 				[[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Cropping W: $FF_CROP_WIDTH ${NC}\\t(crop detection)"
 				
 				fi
