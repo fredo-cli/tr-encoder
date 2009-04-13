@@ -362,17 +362,22 @@ pal-dar177(){
 	 }
       
 calc_new_sizes(){
+
+
+
+
 		# new width
 		NEW_WIDTH=`echo "($WIDTH -  $CROPLEFT - $CROPRIGHT) * ${DISTORTION#/} /1 "|bc`
 		# new height before padding
 		NEW_HEIGHT_BP=`echo "($HEIGHT -  $CROPTOP - $CROPBOTTOM )  "|bc`
-		#echo "$NEW_HEIGHT_BP $PADTOP $PADBOTTOM"
 		# new height (after padding)
 		NEW_HEIGHT=`echo "( $NEW_HEIGHT_BP +  $PADTOP + $PADBOTTOM ) "|bc`
 
 		NEW_SIZE=${NEW_WIDTH}x${NEW_HEIGHT}
 
 		[[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Resize: $SIZE -> $NEW_SIZE${NC}"
+		
+
 
 }
 
@@ -973,7 +978,6 @@ execute(){
 		
 		if  [[ $OVERWRITE == 2  || ! -f "${DIRECTORY}/${OUTPUT}/info.txt" ]]
 		then
-		[[  ! -f ${DIRECTORY}/${OUTPUT}/info.txt ]] && echo 1
 		check_comp 
 		else
 		[[ $DEBUG -gt 0 ]] && cat "${DIRECTORY}/${OUTPUT}/info.txt"
@@ -989,7 +993,8 @@ execute(){
 				stop
 				else
 				
-				if  [[ $OVERWRITE == 2 ||  ! -f "${DIRECTORY}/${OUTPUT}/info.txt" ]]
+				# try to read from the info file
+				if  [[ $OVERWRITE == 2 ||  -z "$FILE_PATH" ]]
 				then
 			
 				### General informations 
@@ -1005,6 +1010,16 @@ execute(){
 
 				# Get some infos about the fornat 1.77 pat ntsc ...
 				get_format 
+				
+				save_info "\\n# Format infos\\n"
+				save_info "DETECTED_FORMAT=\"$DETECTED_FORMAT\""
+				save_info "FF_PAD=\"$FF_PAD\""
+				save_info "FF_CROP_WIDTH=\"$FF_CROP_WIDTH\""
+				save_info "FF_CROP_HEIGHT=\"$FF_CROP_HEIGHT\""
+				save_info  "NEW_WIDTH=$NEW_WIDTH"
+				save_info  "NEW_HEIGHT=$NEW_HEIGHT"
+				save_info  "NEW_SIZE=$NEW_SIZE"
+				
 				fi
 	 
 				# check if the format is detected (pal 1.77 2.35 etc)
@@ -1018,14 +1033,7 @@ execute(){
 						
 						else
 						
-						save_info "\\n# Format infos\\n"
-						save_info "DETECTED_FORMAT=\"$DETECTED_FORMAT\""
-						save_info "FF_PAD=\"$FF_PAD\""
-						save_info "FF_CROP_WIDTH=\"$FF_CROP_WIDTH\""
-						save_info "FF_CROP_HEIGHT=\"$FF_CROP_HEIGHT\""
-						save_info  "NEW_WIDTH=$NEW_WIDTH"
-						save_info  "NEW_HEIGHT=$NEW_HEIGHT"
-						save_info  "NEW_SIZE=$NEW_SIZE"
+
 							   
 							   
 							   ### create the logo or logos

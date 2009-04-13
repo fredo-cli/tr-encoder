@@ -29,12 +29,12 @@
 		then
 		# pipe mplayer rawvideo to ffmpeg
 		COMMAND="${COMMAND}resample_video;###"
-		COMMAND="${COMMAND}${FFMPEG}  $DEINTERLACE -r   $FPS -f yuv4mpegpipe -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.yuv -b 900k $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${NEW_WIDTH}x${NEW_HEIGHT} -r 24  $VHOOK  -ss $(echo "$SS  + 10 "|bc) -t 20  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv;###"
+		COMMAND="${COMMAND}${FFMPEG}  $DEINTERLACE -r   $FPS -f yuv4mpegpipe -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.yuv -b 900k $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $(echo "$SS  + 10 "|bc) -t 20  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv;###"
 		else
 		# make a sample video
 		
 		# flv
-		COMMAND="${COMMAND}${FFMPEG} -an $DEINTERLACE -i ${INPUT} -sameq $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${NEW_WIDTH}x${NEW_HEIGHT} -r 24  $VHOOK  -ss $(echo "$SS  + 10 "|bc) -t 20   -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv;###"
+		COMMAND="${COMMAND}${FFMPEG} -an $DEINTERLACE -i ${INPUT} -sameq $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $(echo "$SS  + 10 "|bc) -t 20   -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv;###"
 		
 		# mp4 !!!
 # 		COMMAND="${COMMAND}${FFMPEG} -an $DEINTERLACE -i ${INPUT} -sameq $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $(echo "$SS  + 10 "|bc) -t 20 -f mp4  -vcodec libx264 -vpre default -vpre main -level 30 -refs 2  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.m4v;###"

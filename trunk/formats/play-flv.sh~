@@ -150,7 +150,7 @@
 		
 		# clean up
 		
-		[[ -f  ${DIRECTORY}/${SUBDIR}/${OUTPUT}_tmp.flv ]] && rm  ${DIRECTORY}/${SUBDIR}/${OUTPUT}_tmp.flv
+		[[ -f  ${DIRECTORY}/${SUBDIR}/sample_tmp.flv ]] && rm  ${DIRECTORY}/${SUBDIR}/${OUTPUT}_tmp.flv
  		[[ -f  ${DIRECTORY}/${SUBDIR}/test.jpg ]] && rm  ${DIRECTORY}/${SUBDIR}/test.jpg
  		[[ -f  ${DIRECTORY}/${SUBDIR}/test.mp3 ]] && rm  ${DIRECTORY}/${SUBDIR}/test.mp3
 			      
