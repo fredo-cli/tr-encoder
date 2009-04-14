@@ -804,19 +804,20 @@ cropdetection() {
 				fi
 		 
 		 
-				# Run mplayer to get somme parameters of the video.
-				CROPDETECTION_CMD="mplayer \"$INPUT\" -ss $CROPSTART_TMP -frames $CROPFRAMES_TMP -vf cropdetect -ac dummy -quiet -vo null -ao null > ${DIRECTORY}/${SUBDIR}/${OUTPUT}.crop 2>&1"
+				###  Run mplayer to get somme parameters of the video.
+				
+				CROPDETECTION_CMD="mplayer \"$INPUT\" -ss $CROPSTART_TMP -frames $CROPFRAMES_TMP -vf cropdetect -ac dummy -quiet -vo null -ao null > ${DIRECTORY}/${SUBDIR}/crop.txt 2>&1"
 				eval $CROPDETECTION_CMD 
 				if [[  $DEBUG -gt 1 ]]
 				then
-				cat "${DIRECTORY}/${SUBDIR}/${OUTPUT}.crop" |tail -n 10
+				cat "${DIRECTORY}/${SUBDIR}/crop.txt" |tail -n 10
 				fi
 				
 		fi
 	      
-		# Get the output of -vf cropdetect.
+		### Get the output of -vf cropdetect.
 
-		CROP=`cat ${DIRECTORY}/${SUBDIR}/${OUTPUT}.crop | grep CROP | tail -1`
+		CROP=`cat "${DIRECTORY}/${SUBDIR}/crop.txt" | grep CROP | tail -1`
 		CROP=${CROP#* crop=}
 		CROP=${CROP%%\).*}
 
@@ -825,7 +826,7 @@ cropdetection() {
 	      then 
 	
 				
-				# get crop left
+				### get crop left
 				CROPLEFT=`echo $CROP|awk -F ':' '{print $3 }'`
 
 
@@ -900,7 +901,7 @@ cropdetection() {
 	      else
 		 ERROR="Crop detection failled!"
 		 ERROR=${ERROR}$CROPDETECTION_CMD
-		 ERROR=${ERROR}`cat "${DIRECTORY}/${SUBDIR}/${OUTPUT}.crop" |tail -n 10`
+		 ERROR=${ERROR}`cat "${DIRECTORY}/${SUBDIR}/crop.txt" |tail -n 10`
 		 
 	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err   
 	      echo -e "${RED}${ERROR}${NC}\\n"

@@ -1,6 +1,6 @@
 #!/usr/bin/bash		
 
-  	FF_FORMAT=mp4
+  	
 	
 	### Recalculate the padding
 	
@@ -14,11 +14,16 @@
 		 echo -e "${green}# $FF_PAD ${NC}"
 
         fi   
-	   	### Recalculate the FF_HEIGHT_BP 
-		FF_HEIGHT_BP=$( echo "${FF_HEIGHT} - ( 2*${PAD} )"|bc)
-		echo -e "${yellow}# Recalculate the FF_HEIGHT_BP  ${NC}"	
-		echo -e "${green}# FF_HEIGHT_BP=$FF_HEIGHT_BP ${NC}"
-          # Create audio.wav
+	
+	
+	### Recalculate the FF_HEIGHT_BP 
+	FF_HEIGHT_BP=$( echo "${FF_HEIGHT} - ( 2*${PAD} )"|bc)
+	echo -e "${yellow}# Recalculate the FF_HEIGHT_BP  ${NC}"	
+	echo -e "${green}# FF_HEIGHT_BP=$FF_HEIGHT_BP ${NC}"
+	
+	
+	
+         # Create audio.wav
 		
 		if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio.wav" ]]
 		then
@@ -38,22 +43,22 @@
 		
 		
 		
-		# create audio_96ch2.mp3
-		if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio_96ch2.mp3" ]]
+		### create audio_96ch2.mp3
+		if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.mp3" ]]
 		then
 		
-				echo -e "${yellow}# Create audio_96ch2.mp3${NC}"		
-				echo -e "${green}# This file (audio_96ch2.mp3) already exit. We going to use it${NC}"		
+				echo -e "${yellow}# Create audio_${FF_AB}_${FF_AC}_$FF_AR.mp3 ${NC}"		
+				echo -e "${green}# This file (audio_${FF_AB}_${FF_AC}_$FF_AR.mp3) already exit. We going to use it${NC}"		
 
 		else
 		
-				  # check if resample 8bit to 16 is needed  (sox)
+				  ### check if resample 8bit to 16 is needed  (sox)
 				  resample_audio
 				  
-				  # create audio_96ch2.mp3
-				  echo -e "${yellow}# Create audio_96ch2.mp3 ${NC}"
+				  ### create audio_96ch2.mp3
+				  echo -e "${yellow}#Create audio_${FF_AB}_${FF_AC}_$FF_AR.mp3 ${NC}"
 				  #COMMAND="lame -h --abr 48  ${DIRECTORY}/$SUBDIR/${OUTPUT}.wav  ${DIRECTORY}/${SUBDIR}/${OUTPUT}.mp3"
-				  COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/audio.wav -v 0 -ss  $SS  -r 24 -ar 44100 -ab 48k -ac 2  -y ${DIRECTORY}/${SUBDIR}/audio_96ch2.mp3"
+				  COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/audio.wav -v 0 -ss  $SS   -ar 44100 -ab ${FF_AB}k -ac ${FF_AC}  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.mp3"
 				  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
 				  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 		
@@ -67,102 +72,60 @@
 
 		if [[  $FFMPEG_VIDEO == 0 ]]
 		then
-		# pipe mplayer rawvideo to ffmpeg
-		echo -e "${yellow}# Resample video${NC}"
-		COMMAND="${FFMPEG} -v 0 $DEINTERLACE -r   $FPS -f yuv4mpegpipe -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.yuv -b 900k $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $SS  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv"
-		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-	     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
+		
+			  ### pipe mplayer rawvideo to ffmpeg
+			  echo -e "${yellow}# Resample video${NC}"
+			  COMMAND="${FFMPEG} -v 0 $DEINTERLACE -r   $FPS -f yuv4mpegpipe -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.yuv -b 900k $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $SS  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.${FF_FORMAT}"
+			  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
+			  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
+		
 		else
-		# create video
-		echo -e "${yellow}# Create flv${NC}"
+			  
+			  # create video
+			  echo -e "${yellow}# Create the video h.263 ${NC}"
+
+			  echo -e "${yellow}# pass 1 ${NC}"
+			  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
+			  COMMAND="${FFMPEG} -an $DEINTERLACE -i ${INPUT} -passlogfile /tmp/${OUTPUT}.log  -pass 1  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25 -i_qfactor 0.71  -g 500     $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -ss $SS -f $FF_FORMAT -y /dev/null"
+			  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
+
+			  COMMAND="${FFMPEG} -an $DEINTERLACE -i ${INPUT} -passlogfile /tmp/${OUTPUT}.log   -pass 2  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25 -i_qfactor 0.71  -g 500     $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -ss $SS  -f $FF_FORMAT -y ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263"
+			  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
+			  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 		
-		echo -e "${yellow}# pass 1 ${NC}"
-		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-		COMMAND="${FFMPEG} -an $DEINTERLACE -i ${INPUT} -passlogfile /tmp/${OUTPUT}.log  -pass 1  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25 -i_qfactor 0.71  -g 500     $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r 24  $VHOOK  -ss $SS -f flv -y /dev/null"
-		eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
-		
-		COMMAND="${FFMPEG} -an $DEINTERLACE -i ${INPUT} -passlogfile /tmp/${OUTPUT}.log   -pass 2  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25 -i_qfactor 0.71  -g 500     $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r 24  $VHOOK  -ss $SS  -f flv -y ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}.h263"
-		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-	     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 		fi
-		
-		#COMMAND="${FFMPEG} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -s 640x368  -passlogfile /tmp/${OUTPUT}.log -pass 1 -vcodec libx264 -vpre default -vpre main -level 30 -refs 2 $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $SS  -f mp4 -y /dev/null "
-		#[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-	     #eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
- 
-		#COMMAND="${FFMPEG} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -s 640x368  -passlogfile /tmp/${OUTPUT}.log -pass 2 -vcodec libx264 -vpre default -vpre main -level 30 -refs 2 $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $SS  -f mp4 -y  ${DIRECTORY}/${SUBDIR}/${OUTPUT}.mp4"
-# 		#[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-	     #eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
-		
-		#ffmpeg  -i video/video1.org -acodec libmp3lame -an-b 1600k -s 640x360 -r 24 -y video/video1/test.flv
 
-
-		#ffmpeg -i in.mov 
-		#-ab 48k -ac 2 -ar 44100 -f flv 
-		#-deinterlace -nr 500 
-		#-s 640x420 -r 30 
-		# -bufsize 4096
-
-		# 320
-
-		#pb r 23 !
-		
-		# 270*1024*117 = 32348160/8  4043520
-		
-		# -b 270k  
-		# 263672*8
-
-		#-b 270k  -bt 270k 
-		# 263672
-	
-		# -b 270k  -bt 270k -qmin 2 -qmax 8 
-		# 263672
-		 
-
-		
-		# -b 270k -minrate 270k -maxrate 270k -bufsize 1835k
-		
-
-		# -b 270k -me_range 25 -i_qfactor 0.71 
-		# -b 270k -me_range 25 -i_qfactor 0.9 -qmin 1 -qmax 1 
-		# -b 270k -me_range 25 -i_qfactor 0.90 -qmin 8  -qmax 8
-		
-		
-		
-		#640
-		#-b 650k -me_range 25 -i_qfactor 0.71 -g 500 high.fl
-		
 	
 		 
-		# remux the sound and the video
+		### remux the sound and the video
 		echo -e "${yellow}# Remux sound and video${NC}"
-		COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}.h263 -i ${DIRECTORY}/$SUBDIR/audio_96ch2.mp3 -acodec copy -vcodec copy -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}_tmp.flv"
+		COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263 -i ${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.mp3 -acodec copy -vcodec copy -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}_tmp.${FF_FORMAT}"
 		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-	     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+		eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 		
 		
-		# use flvtool2
+		### use flvtool2
 		
-		COMMAND="flvtool2 -U ${DIRECTORY}/${SUBDIR}/${OUTPUT}_tmp.flv ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.flv"
+		COMMAND="flvtool2 -U ${DIRECTORY}/${SUBDIR}/${OUTPUT}_tmp.${FF_FORMAT} ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}"
 		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-	     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+		eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 		
 		
-		# clean up
+		### clean up
 		
-		[[ -f  ${DIRECTORY}/${SUBDIR}/${OUTPUT}_tmp.flv ]] && rm  ${DIRECTORY}/${SUBDIR}/${OUTPUT}_tmp.flv
+		[[ -f  ${DIRECTORY}/${SUBDIR}/${OUTPUT}_tmp.${FF_FORMAT} ]] && rm  ${DIRECTORY}/${SUBDIR}/${OUTPUT}_tmp.${FF_FORMAT}
  		[[ -f  ${DIRECTORY}/${SUBDIR}/test.jpg ]] && rm  ${DIRECTORY}/${SUBDIR}/test.jpg
  		[[ -f  ${DIRECTORY}/${SUBDIR}/test.mp3 ]] && rm  ${DIRECTORY}/${SUBDIR}/test.mp3
 			      
 		 
-		# check the file 
+		### check the file 
 		[[ $DEBUG -gt 0 ]] && echo -e "${cyan}`box "Control output file"`${NC}"
 		FILE_INFOS=""
-		get_file_infos "${DIRECTORY}/$SUBDIR/${OUTPUT}${PLAY_SIZE}.flv"
+		get_file_infos "${DIRECTORY}/$SUBDIR/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}"
 
 		if [[  $? == 1 ]]
 		then 
-		echo -e "${GREEN}${DIRECTORY}/$SUBDIR/${OUTPUT}${PLAY_SIZE}.flv${NC}"
+		echo -e "${GREEN}${DIRECTORY}/$SUBDIR/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT} ${NC}"
 		[[ $DEBUG -gt 1 ]] && echo -e "$FILE_INFOS" ||echo -e "$FILE_INFOS" >  "${DIRECTORY}/$SUBDIR/sample.up"
 		else
 		echo -e "${RED}$FILE_INFOS${NC}"		
