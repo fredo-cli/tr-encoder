@@ -1061,27 +1061,30 @@ execute(){
 												    # load the values
 												    
 												    eval "${LOGOS_PRESET#${LOGO_ADD}|}"
-												    else
-												    # load default values
+												    									      # run the function
+												    add_logo 
 												    
-												    # png or gif 
-												    LOGO_FILE="test.png" 
-												    # the width of the logo in %:example 10  (base on the Width of the video after cropping ) 
-												    LOGO_PC_W=10
-												    # the position X of the logo in %:example 10  (base on the Width of the video after cropping ) 
-												    LOGO_PC_X=10
-												    # the possition Y of the logo in %:example 30  (base on the Width of the video after cropping ) 
-												    LOGO_PC_Y=25
-												    
-												    LOGO_MODE="-m 1"
-												    LOGO_TRESHOLD="-t 000000"
-												    LOGO_START=0
-												    LOGO_DURATION=15
+# 												    else
+# 												    # load default values
+#											    
+# 												    # png or gif 
+# 												    LOGO_FILE="test.png" 
+# 												    # the width of the logo in %:example 10  (base on the Width of the video after cropping ) 
+# 												    LOGO_PC_W=10
+# 												    # the position X of the logo in %:example 10  (base on the Width of the video after cropping ) 
+# 												    LOGO_PC_X=10
+# 												    # the possition Y of the logo in %:example 30  (base on the Width of the video after cropping ) 
+# 												    LOGO_PC_Y=25
+# 												    
+# 												    LOGO_MODE="-m 1"
+# 												    LOGO_TRESHOLD="-t 000000"
+# 												    LOGO_START=0
+# 												    LOGO_DURATION=15
+#												    add_logo 
 																    
 												    fi
 												    
-									      # run the function
-									      add_logo 
+
 								    
 								    done
 							   
