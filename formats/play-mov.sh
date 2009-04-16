@@ -33,6 +33,9 @@
 		COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio.wav -vc null -vo null ${INPUT}"
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET=" > /dev/null  2>&1"
 		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
+		
+		### check if resample 8bit to 16 is needed  (sox)
+		resample_audio
 
 	fi
 
@@ -45,26 +48,26 @@
 		
 	### create audio_${FF_AB}_${FF_AC}_$FF_AR.aac
 	
-	echo -e "${yellow}# Create audio_${FF_AB}_${FF_AC}_$FF_AR.aac ${NC}"
-	if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.aac" ]]
-	then
-	
-		echo -e "${green}# This file already exit. We going to use it${NC}"		
-
-	else
-	
-		### check if resample 8bit to 16 is needed  (sox)
-		resample_audio
-		
-
-
-		#COMMAND="faac -q 500 -c $FF_AR -b $FF_AB --mpeg-vers 4 -o ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.aac ${DIRECTORY}/$SUBDIR/audio.wav"
-		COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/audio.wav -v 0 -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec libfaac  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.aac"
-		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
-	
-
-	fi
+# 	echo -e "${yellow}# Create audio_${FF_AB}_${FF_AC}_$FF_AR.aac ${NC}"
+# 	if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.aac" ]]
+# 	then
+# 	
+# 		echo -e "${green}# This file already exit. We going to use it${NC}"		
+# 
+# 	else
+# 	
+# 		### check if resample 8bit to 16 is needed  (sox)
+# 		resample_audio
+# 		
+# 
+# 
+# 		#COMMAND="faac -q 500 -c $FF_AR -b $FF_AB --mpeg-vers 4 -o ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.aac ${DIRECTORY}/$SUBDIR/audio.wav"
+# 		COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/audio.wav  -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec libfaac  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.aac"
+# 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
+# 		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
+# 	
+# 
+# 	fi
 	
 	
 	
@@ -102,9 +105,24 @@
 	### Remux the sound and the video
 	
 	echo -e "${yellow}# Remux sound and video${NC}"
-	COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.mpeg4 -i ${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.aac  -acodec copy -vcodec copy -aspect 16:9  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}"
+	COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.mpeg4 -i ${DIRECTORY}/$SUBDIR/audio.wav  -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec libfaac -vcodec copy -aspect 16:9 -f mov -y ${DIRECTORY}/${SUBDIR}/video_tmp.${FF_FORMAT}"
 	[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
 	eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
+	
+	
+	### Remux the sound and the video MP4Box
+	
+# 	echo -e "${yellow}# Remux sound and video with MP4Box${NC}"
+# 	COMMAND="MP4Box -fps $FF_FPS  -add ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.mpeg4 -add ${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.aac ${DIRECTORY}/${SUBDIR}/video_tmp.${FF_FORMAT}"
+# 	[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
+# 	eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
+	
+	
+	### Use qt-faststart
+	echo -e "${yellow}# qt-faststart${NC}"
+	COMMAND="qt-faststart \"${DIRECTORY}/${SUBDIR}/video_tmp.${FF_FORMAT}\" \"${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}\""
+	[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
+	eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND $QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
 	
 	
 

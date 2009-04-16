@@ -16,6 +16,7 @@ FF_AR=44100
 
 
 
+
 echo -e "\\n${BLUE}$(box "format: play-$FF_FORMAT-$PLAY_SIZE")${NC}"
 . "$APP_DIR/formats/play-$FF_FORMAT.sh" 
 
