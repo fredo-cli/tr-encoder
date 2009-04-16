@@ -1,5 +1,8 @@
 #!/usr/local/bin/bash
 
+if [[ $NEW_WIDTH -gt 640 ]]
+then
+
 FF_FORMAT="mov"
 PLAY_SIZE="_5"
 
@@ -18,3 +21,4 @@ FF_AR=44100
 
 echo -e "\\n${BLUE}$(box "format: play-$FF_FORMAT-$PLAY_SIZE")${NC}"
 . "$APP_DIR/formats/play-$FF_FORMAT.sh" 
+fi
