@@ -1,5 +1,8 @@
 #!/usr/local/bin/bash
 
+if [[ $NEW_WIDTH -gt 640 ]]
+then
+
 FF_FORMAT="mp4"
 PLAY_SIZE="_5"
 
@@ -19,3 +22,4 @@ FF_PRESET2="-vpre hq -vpre ipod640"
 
 echo -e "\\n${BLUE}$(box "format: play-$FF_FORMAT-$PLAY_SIZE")${NC}"
 . "$APP_DIR/formats/play-$FF_FORMAT.sh" 
+fi
