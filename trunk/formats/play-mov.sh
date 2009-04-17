@@ -78,7 +78,7 @@
 		### pipe mplayer rawvideo to ffmpeg
 		
 		echo -e "${yellow}# Resample video${NC}"
-		COMMAND="${FFMPEG} -v 0 $DEINTERLACE -r   $FPS -f yuv4mpegpipe -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.yuv -b 900k $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $SS  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv"
+		COMMAND="${FFMPEG} -v 0 $DEINTERLACE -r   $FPS -f yuv4mpegpipe -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.yuv -b 900k $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK    -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv"
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
 		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 	else
@@ -88,12 +88,12 @@
 		echo -e "${yellow}# Create the video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.mpeg4 ${NC}"
 		
 		echo -e "${yellow}# pass 1 ${NC}"
-		COMMAND="${FFMPEG} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -ss $SS  -f $FF_FORMAT -y /dev/null "
+		COMMAND="${FFMPEG} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK    -f $FF_FORMAT -y /dev/null "
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
 		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 		
 		echo -e "${yellow}# pass 2 ${NC}"
-		COMMAND="${FFMPEG} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -ss $SS  -f $FF_FORMAT -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.mpeg4"
+		COMMAND="${FFMPEG} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -ss $SS  -f $FF_FORMAT -aspect 16:9 -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.mpeg4"
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
 		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 	
@@ -105,7 +105,7 @@
 	### Remux the sound and the video
 	
 	echo -e "${yellow}# Remux sound and video${NC}"
-	COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.mpeg4 -i ${DIRECTORY}/$SUBDIR/audio.wav  -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec libfaac -vcodec copy -aspect 16:9 -f mov -y ${DIRECTORY}/${SUBDIR}/video_tmp.${FF_FORMAT}"
+	COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.mpeg4 -i ${DIRECTORY}/$SUBDIR/audio.wav  -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec libfaac -vcodec copy  -y ${DIRECTORY}/${SUBDIR}/video_tmp.${FF_FORMAT}"
 	[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
 	eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
 	
