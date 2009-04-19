@@ -253,6 +253,19 @@ echo -e "${yellow}false${NC}\t($(pkg_version  -vs ^mediainfo- |awk -F " " '{prin
 [[ $INSTALL == 1 ]] && cd /usr/ports/multimedia/mediainfo/ && sudo make install clean
 fi
 
+echo -en "gpac-mp4box\t"
+if [[ ! -z $(which mp4box) ]]
+then
+echo -e "${green}true${NC}\t($(pkg_version  -vs ^gpac-mp4box- |awk -F " " '{print $1}'))"
+[[ $REINSTALL == 1 ]] && cd /usr/ports/multimedia/gpac-mp4box && make deinstall && sudo make install clean
+else
+echo -e "${yellow}false${NC}\t($(pkg_version  -vs ^gpac-mp4box- |awk -F " " '{print $1}'))"
+[[ $INSTALL == 1 ]] && cd /usr/ports/multimedia/gpac-mp4box && sudo make install clean
+fi
+
+
+
+
 
 # Controle if readlink  is install
 

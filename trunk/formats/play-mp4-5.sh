@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-if [[ $NEW_WIDTH -gt 640 ]]
+if [[ $NEW_WIDTH -ge 640 ]]
 then
 
 FF_FORMAT="mp4"
@@ -11,7 +11,7 @@ FF_HEIGHT=360
 
 FF_FPS=24
 
-FF_VBITRATE=1200
+FF_VBITRATE=750
 
 FF_AB=96
 FF_AC=2

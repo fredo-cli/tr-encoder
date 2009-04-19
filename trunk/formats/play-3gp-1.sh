@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-FF_FORMAT=3gp
+FF_FORMAT="3gp"
 PLAY_SIZE="_1"
 
 FF_WIDTH=176
@@ -13,6 +13,7 @@ FF_VBITRATE=80
 FF_AB=12.2
 FF_AC=1
 FF_AR=8000
+echo -e "\\n${BLUE}$(box "format: play-$FF_FORMAT-$PLAY_SIZE")${NC}"
 
 
 
@@ -138,7 +139,7 @@ FF_AR=8000
 	### Remux the sound and the video
 	
 	echo -e "${yellow}# Remux sound and video${NC}"
-	COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263 -i -i ${DIRECTORY}/$SUBDIR/audio.wav  -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec libamr_nb -r ${FF_FPS}    -vcodec copy  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}"
+	COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263 -i ${DIRECTORY}/$SUBDIR/audio.wav  -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec libamr_nb -r ${FF_FPS}    -vcodec copy  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}"
 	[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
 	eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
 	

@@ -26,9 +26,19 @@ FF_SIZE=""
 SS=0
 
 
-# Path to ffmpeg
-#FFMPEG="/home/fredo/ffmpeg/ffmpeg/ffmpeg"
+### Path to ffmpeg
+
 FFMPEG="ffmpeg"
+
+### Path to mp4box 
+
+if [[ $SYSTEM == "FreeBSD" ]]
+then
+MP4BOX=mp4box
+elif  [[ $SYSTEM == "Linux" ]]
+then
+MP4BOX=MP4Box
+fi
 
 
 EXTENTION="org"
@@ -142,7 +152,7 @@ add_logo(){
 		then
 		[[ $DEBUG -gt 0 ]] && echo "# The logo can not be on the paddind area"
 		LOGO_X=$(echo "(($NEW_WIDTH * $LOGO_PC_X ) / 100) "|bc)
-		LOGO_Y=$(echo "scale=3;(($NEW_HEIGHT  * $LOGO_PC_Y) / 100) - $PADTOP "|bc)
+		LOGO_Y=$(echo "scale=3;(($NEW_HEIGHT  / 100 ) * $LOGO_PC_Y)  - $PADTOP "|bc)
 
 		else
 		# no padding 
@@ -1013,9 +1023,23 @@ execute(){
 				
 				save_info "\\n# Format infos\\n"
 				save_info "DETECTED_FORMAT=\"$DETECTED_FORMAT\""
+				
 				save_info "FF_PAD=\"$FF_PAD\""
+				save_info "PADTOP=\"$PADTOP\""
+				save_info "PADBOTTOM=\"$PADBOTTOM\""	
+				
+				save_info "CROPTOP=\"$PADTOP\""
+				save_info "CROPBOTTOM=\"$PADBOTTOM\""	
+
+				save_info "CROPLEFT=\"$CROPLEFT\""				
+				save_info "CROPRIGHT=\"$CROPRIGHT\""	
+				
 				save_info "FF_CROP_WIDTH=\"$FF_CROP_WIDTH\""
 				save_info "FF_CROP_HEIGHT=\"$FF_CROP_HEIGHT\""
+				
+				ave_info "DISTORTION=\"$DISTORTION\""
+				
+				DISTORTION
 				save_info  "NEW_WIDTH=$NEW_WIDTH"
 				save_info  "NEW_HEIGHT=$NEW_HEIGHT"
 				save_info  "NEW_SIZE=$NEW_SIZE"
@@ -1115,20 +1139,20 @@ execute(){
 
 
 # $1 is a file
-if [[ -f "${1}" ]]
+if [[ -f $(realpath "${1}") ]]
 then
 
 SCAN_TYPE=1
-execute $1 
+execute  "$(realpath "${1}")" 
 
 
 # $1 is a folder
-elif [[ -d "${1}" ]]
+elif [[ -d  $(realpath "${1}") ]]
 then
 
 
     SCAN_TYPE=2
-    DIRECTORY=$1
+    DIRECTORY=$(realpath "${1}")
 
     
     for VIDEO  in `find ${DIRECTORY}  -name "*.${EXTENTION}"`

@@ -1,5 +1,5 @@
 #!/usr/local/bin/bash
-if [[ $NEW_WIDTH -gt 640 ]]
+if [[ $NEW_WIDTH -ge 640 ]]
 then
 
 FF_FORMAT="wmv"

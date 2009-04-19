@@ -761,7 +761,7 @@ get_audio_infos() {
 		else
 		echo -e "CHANNELS=${YELLOW}$CHANNELS${NC}"
 		fi
-		save_info "ADURATION=$ADURATION"
+		save_info "CHANNELS=$CHANNELS"
 	      
 	      
 	      ### Check the AR (Sampling rate) ###
