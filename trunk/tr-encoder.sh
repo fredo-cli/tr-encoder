@@ -152,13 +152,13 @@ add_logo(){
 		then
 		[[ $DEBUG -gt 0 ]] && echo "# The logo can not be on the paddind area"
 		LOGO_X=$(echo "(($NEW_WIDTH * $LOGO_PC_X ) / 100) "|bc)
-		LOGO_Y=$(echo "scale=3;(($NEW_HEIGHT  / 100 ) * $LOGO_PC_Y)  - $PADTOP "|bc)
+		LOGO_Y=$(echo "scale=3;(($NEW_HEIGHT * $LOGO_PC_Y) / 100  )  - $PADTOP "|bc)
 
 		else
 		# no padding 
 		#echo "scale=3;(($NEW_HEIGHT / 100 ) * $LOGO_PC_Y ) + $CROPTOP"
-		LOGO_X=$(echo "scale=3;(($NEW_WIDTH  / 100) *  $LOGO_PC_X) + $CROPLEFT"|bc)
-		LOGO_Y=$(echo "scale=3;(($NEW_HEIGHT / 100 ) * $LOGO_PC_Y ) + $CROPTOP"|bc)
+		LOGO_X=$(echo "scale=3;(($NEW_WIDTH *  $LOGO_PC_X )/ 100 ) + $CROPLEFT"|bc)
+		LOGO_Y=$(echo "scale=3;(($NEW_HEIGHT * $LOGO_PC_Y ) / 100 ) + $CROPTOP"|bc)
 		fi
     
 
@@ -562,7 +562,7 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 
 	      # padding
 		 
-		 PAD=`echo "scale=3;(($WIDTH / 1.777) - $HEIGHT) / 2"|bc`
+		 PAD=`echo "scale=3;( ( $WIDTH / 1.777)  - ( $WIDTH / 2.21)  / 2)"|bc`
 	      PAD=`round2 $PAD`
 		 PADTOP=$PAD
 		 PADBOTTOM=$PAD
@@ -584,12 +584,12 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 		  DISTORTION="/1.768 "
 		  [[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Distortion: $DISTORTION${NC}"				
     
-		  # Padding: no
-		  [[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Padding: no${NC}"
+
 		  
 		  # get new sizes
 		  calc_new_sizes				 
-				 
+		
+		 DETECTED_FORMAT=""
 				 
 	      fi      	 
 		 
@@ -1037,9 +1037,9 @@ execute(){
 				save_info "FF_CROP_WIDTH=\"$FF_CROP_WIDTH\""
 				save_info "FF_CROP_HEIGHT=\"$FF_CROP_HEIGHT\""
 				
-				ave_info "DISTORTION=\"$DISTORTION\""
+				save_info "DISTORTION=\"$DISTORTION\""
 				
-				DISTORTION
+
 				save_info  "NEW_WIDTH=$NEW_WIDTH"
 				save_info  "NEW_HEIGHT=$NEW_HEIGHT"
 				save_info  "NEW_SIZE=$NEW_SIZE"

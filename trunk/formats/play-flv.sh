@@ -8,6 +8,9 @@
            then
 
            PAD=`echo "scale=3;(($FF_WIDTH / 1.777 ) - ($FF_WIDTH / $RATIO )) / 2"|bc`
+		 
+
+		 
            PAD=`round2 $PAD`
            FF_PAD=" -padtop $PAD -padbottom $PAD "
 		 echo -e "${yellow}# Recalculate the padding  ${NC}"	

@@ -94,10 +94,10 @@ MISSING=();
 
         if [[ "$(lsb_release -si)" == "Ubuntu" ]]
 	then
-        LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac atomicparsley flvtool2 libamrnb-dev libamrwb-dev mplayer sox )
+        LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac atomicparsley flvtool2 libamrnb-dev libamrwb-dev mplayer sox realpath)
         elif [[ "$(lsb_release -si)" == "Debian" ]]
 	then
-        LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac  flvtool2 libamrnb-dev libamrwb-dev mplayer sox )
+        LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac  flvtool2 libamrnb-dev libamrwb-dev mplayer sox realpath)
         else
         echo -e "${red}ERROR lsb_release:$(lsb_release -si) != Ubuntu|Debian ${NC}" ;
 
