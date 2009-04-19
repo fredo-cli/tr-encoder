@@ -1,5 +1,11 @@
 #!/usr/local/bin/bash
 
+THREADS=1
+
+# change of directory  ( to avoid the x264_2pass.log issue )
+PWD=$(pwd)
+cd ${DIRECTORY}/${SUBDIR}/
+
 	### Recalculate the padding
 	
        if [[ ! -z $FF_PAD ]]
@@ -22,34 +28,57 @@
 
         ### Create audio.wav
 	
-	echo -e "${yellow}# Create audio.wav ${NC}"
-	if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio.wav" ]]
-	then
-
-		echo -e "${green}# This file (audio.wav) already exit.We going to use it${NC}"
-	
-	else
-	
-		COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio.wav -vc null -vo null ${INPUT}"
-		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET=" > /dev/null  2>&1"
-		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
-
-	fi
 
 
-	### Create audio_ch6.wav
-	
-	if [[ $CHANNELS == 999 ]]
-	then
-	
-		echo -e "${yellow}# create audio_ch6.wav ${NC}"
-		COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_ch6.wav -channels 6 -vc null -vo null  ${INPUT}"
-		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET=" >/dev/null  2>&1"
-		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
+
+	   
+
+	   if [[ $CHANNELS == 6 && $FF_AC == 6 ]]
+	   then
+	   
+			 ### Create audio_ch6.wav
+			 
+		 
+	   
+			 echo -e "${yellow}# create audio_${FF_AC}.wav ${NC}"
+			 if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav" ]]
+			 then
+
+			 echo -e "${green}# This file already exit.We going to use it${NC}"
+
+			 else
+
+			 COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -channels 6 -vc null -vo null  ${INPUT}"
+			 [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET=" >/dev/null  2>&1"
+			 eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
+			 fi
+
+	   else
+	   
+		    # change some values if the input video is not 6 channels 
+	         [[ $FF_AC == 6 ]] &&  FF_AC=2 && FF_AB=$(echo "$FF_AB / 3" |bc)
+		    
+	   
+			 ### Create audio.wav
+
+			 echo -e "${yellow}# Create audio_${FF_AC}.wav ${NC}"
+
+			 if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav" ]]
+			 then
+
+				echo -e "${green}# This file (audio.wav) already exit.We going to use it${NC}"
+
+			 else
+
+				COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -vc null -vo null ${INPUT}"
+				[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET=" > /dev/null  2>&1"
+				eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
+
+			 fi	
+	   fi	    
+		   
 		
-	fi
-		
-		
+
 		
 		
 		
@@ -63,15 +92,15 @@
 
 	else
 	
-		### check if resample 8bit to 16 is needed  (sox)
 		resample_audio
+
 		
 
 
-		#COMMAND="faac -q 500 -c $FF_AR -b $FF_AB --mpeg-vers 4 -o ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.aac ${DIRECTORY}/$SUBDIR/audio.wav"
-		COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/audio.wav -v 0 -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.aac"
+		COMMAND="faac -q 500 -c $FF_AR -b $FF_AB --mpeg-vers 4 -o ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.aac ${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav"
+		#COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -v 0 -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.aac"
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
+		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND $QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
 	
 
 	fi
@@ -95,12 +124,12 @@
 		echo -e "${yellow}# Create the video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264 ${NC}"
 		
 		echo -e "${yellow}# pass 1 ${NC}"
-		COMMAND="${FFMPEG} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1 -vcodec libx264 $FF_PRESET1  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -ss $SS  -f $FF_FORMAT -aspect 16:9  -y /dev/null "
+		COMMAND="${FFMPEG} -threads $THREADS -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1 -vcodec libx264 $FF_PRESET1  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -ss $SS  -f $FF_FORMAT -aspect 16:9  -y /dev/null "
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
 		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 		
 		echo -e "${yellow}# pass 2 ${NC}"
-		COMMAND="${FFMPEG} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2 -vcodec libx264 $FF_PRESET2 $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -ss $SS  -f $FF_FORMAT -aspect 16:9  -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264"
+		COMMAND="${FFMPEG} -threads $THREADS -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2 -vcodec libx264 $FF_PRESET2 $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -ss $SS  -f $FF_FORMAT -aspect 16:9  -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264"
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
 		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 	
@@ -112,15 +141,15 @@
 	### Remux the sound and the video MP4Box
 	
 	echo -e "${yellow}# Remux sound and video with MP4Box${NC}"
-	COMMAND="MP4Box -fps $FF_FPS  -add ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264 -add ${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.aac ${DIRECTORY}/${SUBDIR}/video_tmp.${FF_FORMAT}"
-	[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
+	COMMAND="${MP4BOX} -fps $FF_FPS  -add ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264 -add ${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.aac ${DIRECTORY}/${SUBDIR}/video_tmp.${FF_FORMAT}"
+	[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  >/dev/null"
 	eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
 	
 	
 	### Use AtomicParsley
 	echo -e "${yellow}# add some tags${NC}"
-	COMMAND="AtomicParsley \"${DIRECTORY}/${SUBDIR}/video_tmp.${FF_FORMAT}\" --metaEnema  --copyright \"Fredo-cli\"   --artist \"Fredo :-)\"  --title \"The art of encoding\"   --comment \"Made by Fredo\" -o \"${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}\" --freefree --overWrite"
-	[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
+	COMMAND="AtomicParsley \"${DIRECTORY}/${SUBDIR}/video_tmp.${FF_FORMAT}\" --metaEnema  --copyright \"\"   --artist \"\"  --title \"\"   --comment \"Encoded and delivered by previewnetworks.com\" -o \"${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}\" --freefree --overWrite"
+	[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  >/dev/null"
 	eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
 	
 	
@@ -146,3 +175,6 @@
 	else
 	echo -e "${RED}$FILE_INFOS${NC}"		
 	fi
+	
+	# go back in the pwd ( to avoid the x264_2pass.log issue )
+	cd $PWD

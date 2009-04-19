@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-if [[ $NEW_WIDTH -gt 640 ]]
+if [[ $NEW_WIDTH -ge 640 ]]
 then
 
 FF_FORMAT=flv
@@ -11,7 +11,7 @@ FF_HEIGHT=360
 
 FF_FPS=24
 
-FF_VBITRATE=1200
+FF_VBITRATE=800
 
 FF_AB=96
 FF_AC=2
@@ -19,4 +19,5 @@ FF_AR=44100
 
 echo -e "\\n${BLUE}$(box "format: play-$FF_FORMAT-$PLAY_SIZE")${NC}"
 . "$APP_DIR/formats/play-$FF_FORMAT.sh" 
-if
+
+fi

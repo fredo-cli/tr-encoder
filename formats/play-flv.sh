@@ -58,7 +58,7 @@
 				  ### create audio_96ch2.mp3
 				  echo -e "${yellow}#Create audio_${FF_AB}_${FF_AC}_$FF_AR.mp3 ${NC}"
 				  #COMMAND="lame -h --abr 48  ${DIRECTORY}/$SUBDIR/${OUTPUT}.wav  ${DIRECTORY}/${SUBDIR}/${OUTPUT}.mp3"
-				  COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/audio.wav -v 0 -ss  $SS   -ar 44100 -ab ${FF_AB}k -ac ${FF_AC}  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.mp3"
+				  COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/audio.wav -v 0 -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac ${FF_AC}  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.mp3"
 				  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
 				  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 		
@@ -106,7 +106,7 @@
 		
 		### use flvtool2
 		
-		COMMAND="flvtool2 -U ${DIRECTORY}/${SUBDIR}/${OUTPUT}_tmp.${FF_FORMAT} ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}"
+		COMMAND="flvtool2 -U  -comment:\"Encoded and delivered by previewnetworks.com\"  -metadatacreator:\"Previewnetworks Encoding System\"  ${DIRECTORY}/${SUBDIR}/${OUTPUT}_tmp.${FF_FORMAT} ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}"
 		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
 		eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 		
