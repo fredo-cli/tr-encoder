@@ -127,7 +127,7 @@ add_logo(){
 	    
 	    if [[  $DISTORTION != "1" ]]
 	    then
-	    LOGO_RESIZED_W=$(echo "$LOGO_RESIZED_W  $DISTORTION "|bc)
+	    LOGO_RESIZED_W=$(echo "$LOGO_RESIZED_W / $DISTORTION "|bc)
 	    [[ $DEBUG -gt 0 ]] && echo -e "# Add the Distortion ($DISTORTION):\\t ${LOGO_W}x${LOGO_H} -> ${LOGO_RESIZED_W}x${LOGO_RESIZED_H}" 
 	    fi
 	    
@@ -166,7 +166,7 @@ add_logo(){
 	    
 	    if [[ $DISTORTION != "1" ]]
 	    then
-	    LOGO_X=$(echo "$LOGO_X  $DISTORTION "|bc)
+	    LOGO_X=$(echo "$LOGO_X  / $DISTORTION "|bc)
 	    fi
 	    
 	    
@@ -270,6 +270,7 @@ pal-dar133(){
 				
 	               # stantart    
 				DISTORTION="/$PAR" # PAR 16:15 = 1.0666666
+				[[ $PAR == 0 ]] && DISTORTION="1"
 				[[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Distortion: $DISTORTION${NC}\\t(standart)"				
 				
 				fi
@@ -326,7 +327,8 @@ pal-dar177(){
 				if [[ ! -z $CROP_PRESET_HEIGHT ]]
 				then
 				
-			     # change to the preset values
+				# change to the preset values
+				
 				eval "$CROP_PRESET_HEIGHT"
 				FF_CROP_HEIGHT="-croptop $CROPTOP -cropbottom $CROPBOTTOM "
 				[[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Cropping H: $FF_CROP_HEIGHT ${NC}\\t(preset)"
@@ -355,8 +357,10 @@ pal-dar177(){
 				
 				else
 				
-	               # stantart    
-				DISTORTION="/$PAR " 
+				# stantart    
+
+				DISTORTION="$PAR " 
+				[[ $PAR == 0 ]] && DISTORTION="1"
 				[[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Distortion: $DISTORTION${NC}\\t(standart)"				
 				
 				 fi
@@ -377,7 +381,7 @@ calc_new_sizes(){
 
 
 		# new width
-		NEW_WIDTH=`echo "($WIDTH -  $CROPLEFT - $CROPRIGHT) * ${DISTORTION#/} /1 "|bc`
+		NEW_WIDTH=`echo "($WIDTH -  $CROPLEFT - $CROPRIGHT) *  ${DISTORTION} /1 "|bc`
 		# new height before padding
 		NEW_HEIGHT_BP=`echo "($HEIGHT -  $CROPTOP - $CROPBOTTOM )  "|bc`
 		# new height (after padding)
@@ -456,7 +460,7 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 				
 				
 				# distortion 
-				DISTORTION="/1.422 "
+				DISTORTION="1.422 "
 				[[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Distortion: $DISTORTION${NC}"				
 		 
 				# Padding: no
@@ -581,7 +585,7 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 	      FF_CROP_HEIGHT=""
 				
 		  # distortion 1.768
-		  DISTORTION="/1.768 "
+		  DISTORTION="1.768 "
 		  [[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Distortion: $DISTORTION${NC}"				
     
 
@@ -614,7 +618,7 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 	      FF_CROP_HEIGHT=""
 		 
 		  # distortion 1.768
-		  DISTORTION="/`echo "scale=3; 1.777 / $RATIO "|bc` "
+		  DISTORTION="`echo "scale=3; 1.777 / $RATIO "|bc` "
 		  [[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Distortion: $DISTORTION${NC}"				
     
 		  # Padding: no
@@ -644,7 +648,7 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 	      FF_CROP_HEIGHT=""
 		 
 		  # distortion 1.768
-		  DISTORTION="/`echo "scale=3; $ID_VIDEO_ASPECT  / $RATIO "|bc` "
+		  DISTORTION="`echo "scale=3; $ID_VIDEO_ASPECT  / $RATIO "|bc` "
 		  [[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Distortion: $DISTORTION${NC}"				
     
 		  # Padding: no
@@ -699,7 +703,7 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 		 
 				
 		  # distortion 
-		  DISTORTION="/1.333 "
+		  DISTORTION="1.333 "
 		  [[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Distortion: $DISTORTION${NC}"				
     
 		  # Padding: no
@@ -935,7 +939,7 @@ execute(){
 	      CROPBOTTOM=0
 	      CROPLEFT=0
 	      
-	      DISTORTION=1
+	      DISTORTION="1"
 		 
 	      # create the dir
 	      [[ ! -d  "${DIRECTORY}/${SUBDIR}" ]] &&   mkdir  "${DIRECTORY}/${SUBDIR}"
