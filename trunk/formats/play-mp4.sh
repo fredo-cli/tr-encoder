@@ -125,7 +125,7 @@ cd ${DIRECTORY}/${SUBDIR}/
 		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 		
 		echo -e "${yellow}# pass 2 ${NC}"
-		COMMAND="${FFMPEG} -threads $THREADS -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2 -vcodec libx264 $FF_PRESET2 $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -crf $FF_FPS  $VHOOK  -ss $SS  -f $FF_FORMAT -aspect 16:9  -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264"
+		COMMAND="${FFMPEG} -threads $THREADS -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2 -vcodec libx264 $FF_PRESET2 $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP}   $VHOOK  -ss $SS  -f $FF_FORMAT -aspect 16:9  -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264"
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
 		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 	
