@@ -17,8 +17,8 @@ FF_AB=96
 FF_AC=2
 FF_AR=44100
 
-FF_PRESET1="-vpre fastfirstpass -vpre ipod640"
-FF_PRESET2="-vpre hq -vpre ipod640"
+FF_PRESET1="-vpre default -vpre ipod640"
+FF_PRESET2="-vpre default -vpre ipod640"
 
 echo -e "\\n${BLUE}$(box "format: play-$FF_FORMAT-$PLAY_SIZE")${NC}"
 . "$APP_DIR/formats/play-$FF_FORMAT.sh" 
