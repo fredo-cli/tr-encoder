@@ -268,8 +268,9 @@ pal-dar133(){
 				
 				else
 				
-	               # stantart    
-				DISTORTION="/$PAR" # PAR 16:15 = 1.0666666
+				# stantart    
+				
+				DISTORTION="$PAR" # PAR 16:15 = 1.0666666
 				[[ $PAR == 0 ]] && DISTORTION="1"
 				[[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Distortion: $DISTORTION${NC}\\t(standart)"				
 				
