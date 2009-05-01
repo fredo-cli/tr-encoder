@@ -1,36 +1,5 @@
 #!/bin/bash
 
-# # config
-# INSTALL=0
-# REINSTALL=0
-# 
-# 
-# FFMPEG_VERSION=17768
-# LAME_VERSION=3.98
-
-
-
-# usage() {
-# echo >&2 "Usage: `basename $0` [-i install] [-i reinstall]"
-# }
-# 
-# 
-#     while getopts "iI" option
-#     do
-# 	case "$option" in
-# 	  i)	INSTALL=1;;	
-# 	  I)	REINSTALL=1;;
-# 	[?])    usage
-# 		exit 1;;
-# 	esac
-#     done
-#     shift $(($OPTIND - 1))
-
-
-
-
-
-
 # create link to be compatible
 [[ -z $(readlink "/usr/local/bin/bash") ]] && sudo ln -s /bin/bash /usr/local/bin/bash
 
@@ -59,7 +28,7 @@ wget -q -t 3 http://google.com -O /tmp/testconnexion
 function ACTIVER_SOURCES(){
 sudo echo "x264 hold" |sudo  dpkg --set-selections
 sudo echo "ffmpeg hold" |sudo  dpkg --set-selections
-
+sudo echo "mplayer hold" |sudo  dpkg --set-selections
 
 
 
@@ -83,10 +52,10 @@ MISSING=();
 
         if [[ "$(lsb_release -si)" == "Ubuntu" ]]
 	then
-        LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac atomicparsley flvtool2 libamrnb-dev libamrwb-dev mplayer sox realpath)
+        LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac atomicparsley flvtool2 libamrnb-dev libamrwb-dev  sox realpath)
         elif [[ "$(lsb_release -si)" == "Debian" ]]
 	then
-        LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac  flvtool2 libamrnb-dev libamrwb-dev mplayer sox realpath)
+        LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac  flvtool2 libamrnb-dev libamrwb-dev  sox realpath)
         else
         echo -e "${red}ERROR lsb_release:$(lsb_release -si) != Ubuntu|Debian ${NC}" ;
 
@@ -145,7 +114,19 @@ read -t 10 INSTALL_DEP
 fi
 }
 
-
+function INSTALL_MPLAYER(){
+sudo apt-get -y purge mplayer 
+cd  
+svn checkout  -r $MPLAYER_VERSION  svn://svn.mplayerhq.hu/mplayer/trunk mplayer
+#svn checkout -r 29033 svn://svn.mplayerhq.hu/mplayer/trunk mplayer
+cd mplayer
+./configure
+make
+sudo checkinstall -y --fstrans=no --install=yes --pkgname=mplayer --pkgversion "$MPLAYER_VERSION"
+sudo ldconfig
+cd 
+sudo rm -Rf mplayer*
+}
 
 
 
@@ -302,6 +283,17 @@ TEST_CONNEXION
 
 ACTIVER_SOURCES
 VERIF_DEPENDENCES
+
+
+echo -en "mplayer (svn)\t"
+if [[ $(dpkg -s mplayer| grep Version:) != "Version: $MPLAYER_VERSION-1" ]]
+then
+echo -e "${yellow}false${NC}"
+[[ $INSTALL == 1 ]] && INSTALL_MPLAYER
+else
+echo -e "${green}true${NC}"
+fi
+
 
 echo -en "Atomicparsley\t"
 if [[ -z $(which AtomicParsley) ]]
