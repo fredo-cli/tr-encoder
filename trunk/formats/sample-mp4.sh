@@ -1,12 +1,12 @@
 #!/usr/bin/bash		
 
 		# transform to pcm
-		COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/${OUTPUT}.wav -vc null -vo null   ${INPUT} > /dev/null;###"
+		COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/${OUTPUT}.wav -vc dummy -vo null   ${INPUT} > /dev/null;###"
 		
 		
 		if [[ $CHANNELS == 6 ]]
 		then
-		COMMAND="${COMMAND}mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/${OUTPUT}_ch6.wav -channels 6 -vc null -vo null   ${INPUT} > /dev/null;###"
+		COMMAND="${COMMAND}mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/${OUTPUT}_ch6.wav -channels 6 -vc dummy -vo null   ${INPUT} > /dev/null;###"
 		
 		# dump the audia !!! use mp4creator
 		#COMMAND="${COMMAND}mplayer -dumpaudio -dumpfile ${DIRECTORY}/$SUBDIR/${OUTPUT}_ch6.aac ${INPUT} > /dev/null;###"

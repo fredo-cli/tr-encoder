@@ -1,7 +1,7 @@
 #!/usr/bin/bash		
 
 		# transform to pcm
-		COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/${OUTPUT}.wav -vc null -vo null   ${INPUT} > /dev/null;\\n"
+		COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/${OUTPUT}.wav -vc dummy -vo null   ${INPUT} > /dev/null;\\n"
 		
 		
 		if [[ $CHANNELS == 6 ]]
