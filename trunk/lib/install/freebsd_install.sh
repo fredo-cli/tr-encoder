@@ -77,10 +77,10 @@ sudo gmake install
 } 
 
 
-function INSTALL_MPLAYER_old(){
+function INSTALL_MPLAYER(){
 
 cd  
-svn checkout -r 29033 svn://svn.mplayerhq.hu/mplayer/trunk mplayer
+svn checkout -r  $MPLAYER_VERSION  svn://svn.mplayerhq.hu/mplayer/trunk mplayer
 cd mplayer
 ./configure
 gmake
@@ -155,6 +155,26 @@ svn checkout http://tr-encoder.googlecode.com/svn/trunk/ tr-encoder
 sudo ln -sf /home/fred/tr-encoder/tr-encoder.sh /usr/bin/tr-encoder
 chmod +x /home/fred/tr-encoder/tr-encoder.sh
 }
+
+# Controle the version of mplayer
+
+echo -en "mplayer\t"
+MPLAYER_VERSION_DETECTED=$(mplayer |grep -o "MPlayer SVN-r$MPLAYER_VERSION" |grep -o "$MPLAYER_VERSION")
+
+
+if [[ "$MPLAYER_VERSION_DETECTED" != "$MPLAYER_VERSION" ]]
+then 
+echo -e "${yellow}false${NC}\t($MPLAYER_VERSION_DETECTED)"
+[[ $INSTALL == 1 ]] && INSTALL_MPLAYER
+else
+echo -e "${green}true${NC}\t($MPLAYER_VERSION_DETECTED)"
+[[ $REINSTALL == 1 ]] && INSTALL_MPLAYER
+fi
+
+
+
+
+
 
 
 # Controle the version of lame

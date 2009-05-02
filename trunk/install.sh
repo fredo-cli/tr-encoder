@@ -8,7 +8,7 @@ REINSTALL=0
 LAME_VERSION=3.98
 FFMPEG_VERSION=17768
 X264_VERSION=0.65
-MPLAYER_VERSION=29241
+MPLAYER_VERSION=29242
 
 usage() {
 echo >&2 "Usage: `basename $0` [-i install] [-i reinstall]"
@@ -50,7 +50,7 @@ SYSTEM=$(uname)
 		then
 		echo -e "$GREEN $SYSTEM $NC"
 		. lib/install/linux_install.sh
-		elif [[ $SYSTEM  == "Freebsd" ]]
+		elif [[ $SYSTEM  == "FreeBSD" ]]
 		then
 			 echo -e "$GREEN $SYSTEM $NC"
 		. lib/install/freebsd_install.sh
