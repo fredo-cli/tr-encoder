@@ -259,10 +259,10 @@ sudo rm -rf MediaInfo_CLI*
 
 function INSTALL_TR-ENCODER(){
 cd 
-svn checkout http://tr-encoder.googlecode.com/svn/trunk/ tr-encoder
+[[ ! -d  "/home/$USER/tr-encoder/" ]] && svn checkout http://tr-encoder.googlecode.com/svn/trunk/ tr-encoder
 
 sudo ln -sf /home/$USER/tr-encoder/tr-encoder.sh /usr/bin/tr-encoder
-chmod +x /home/fredo/tr-encoder/tr-encoder.sh
+chmod +x /home/$USER/tr-encoder/tr-encoder.sh
 }
 
 
