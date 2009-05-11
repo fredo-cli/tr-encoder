@@ -239,7 +239,7 @@ pal-dar133(){
 				if [[ ! -z $CROP_PRESET_HEIGHT ]]
 				then
 				
-			     # change to the preset values
+				# change to the preset values
 				eval "$CROP_PRESET_HEIGHT"
 				FF_CROP_HEIGHT="-croptop $CROPTOP -cropbottom $CROPBOTTOM "
 				[[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Cropping H: $FF_CROP_HEIGHT ${NC}\\t(preset)"
@@ -248,6 +248,7 @@ pal-dar133(){
 				
 				# change to the standart values
 				CUT=`echo " $HEIGHT / 8 "|bc ` 
+				CUT=$(floor2 $CUT)
 				CROPTOP=$CUT
 				CROPBOTTOM=$CUT
 				FF_CROP_HEIGHT="-croptop $CROPTOP -cropbottom $CROPBOTTOM "
@@ -337,7 +338,8 @@ pal-dar177(){
 				else
 				
 				# change to the standart values
-				CUT=`echo " $HEIGHT / 8 "|bc ` 
+				CUT=`echo " $HEIGHT / 8 "|bc `
+				CUT=$(floor2 $CUT) 
 				CROPTOP=$CUT
 				CROPBOTTOM=$CUT
 				FF_CROP_HEIGHT="-croptop $CROPTOP -cropbottom $CROPBOTTOM "
@@ -670,11 +672,11 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 
 	      # Cut the top and the bottom 
 		 
-		 CUT=`echo "scale=3;( $HEIGHT - ( $WIDTH / 1.777 )) / 2"|bc ` 
- 	      CUT=`floor2 $CUT` 
-		 CROPTOP=$CUT
-	      CROPBOTTOM=$CUT
-	      FF_CROP_HEIGHT="-croptop $CROPTOP -cropbottom $CROPBOTTOM "
+		  CUT=`echo "scale=3;( $HEIGHT - ( $WIDTH / 1.777 )) / 2"|bc ` 
+		  CUT=$(floor2 $CUT) 
+		  CROPTOP=$CUT
+		  CROPBOTTOM=$CUT
+		  FF_CROP_HEIGHT="-croptop $CROPTOP -cropbottom $CROPBOTTOM "
 		 
 		 [[ $DEBUG -gt 0 ]] && echo -e "${cyan}Cutting: $FF_CROP_HEIGHT${NC}"
 		 
