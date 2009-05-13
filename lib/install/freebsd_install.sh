@@ -89,26 +89,30 @@ sudo  su root -c 'gmake install'
 
 
 function INSTALL_FFMPEG(){
+
+
+
 cd 
+[[ -d ffmpeg ]] && echo -e "${yellow}# clean ffmpeg*${NC}" &&  rm -rf ffmpeg*
 
+wget http://dl.getdropbox.com/u/221284/ffmpeg.tar.gz
+tar -xzvf ffmpeg.tar.gz 
 
-echo -e "${yellow}# clean ffmpeg*${NC}"
-[[ -d ffmpeg ]] &&  rm -rf ffmpeg*
-mkdir ffmpeg
 cd ffmpeg
 
 echo -e "${yellow}# checkout version $FFMPEG_VERSIONff from ffmpeg${NC}"
 
+# 17727 17768 12684
+FFMPEG_VERSION=17727
 svn checkout -r $FFMPEG_VERSION svn://svn.ffmpeg.org/ffmpeg/trunk ffmpeg
-
  
-cd ffmpeg
+
 
 #patch wma3 
 
 echo -e "${yellow}# add patch wma3${NC}" 
 
-cd libavcodec
+cd ffmpeg/libavcodec
 ln -s ../../wma3dec.c wma3dec.c
 ln -s ../../wma3data.h wma3data.h
 ln -s ../../wma3.h wma3.h
@@ -123,18 +127,24 @@ cd ./vhook
 ln -s  ../../pip1.2.1.c pip.c
 cd ../
 patch -p0  <  ../pip.patch
+
  
+
+
 echo "${yellow}# add patch freebsd${NC}" 
 cd .. 
 wget http://www.nabble.com/attachment/22286995/0/ffmpeg.bsd.patch
 patch -p0 < ffmpeg.bsd.patch 
 cd ffmpeg
 
+
 echo -e "${yellow}# configure${NC}" 
 export LIBRARY_PATH=/usr/local/lib
 export CPATH=/usr/local/include
+
+#./configure --cc=cc --prefix=/usr/local --disable-debug --enable-memalign-hack --enable-shared --enable-postproc --extra-cflags="-I/usr/local/include/vorbis -I/usr/local/include" --extra-ldflags="-L/usr/local/lib -la52" --extra-libs=-pthread --enable-gpl --enable-pthreads  --mandir=/usr/local/man  --enable-libfaac --enable-libfaad --enable-libfaadbin --enable-libamr-nb --enable-nonfree --disable-libamr-wb --enable-nonfree --disable-mmx --disable-libgsm --enable-libmp3lame --disable-ffplay --enable-libtheora --enable-libvorbis --enable-libx264 --enable-libxvid --disable-ipv6
 # --enable-swscale
-./configure --cc=cc --prefix=/usr/local --disable-debug --enable-memalign-hack --enable-shared --enable-postproc --extra-cflags="-I/usr/local/include/vorbis -I/usr/local/include" --extra-ldflags="-L/usr/local/lib -la52" --extra-libs=-pthread --enable-gpl --enable-pthreads  --mandir=/usr/local/man  --enable-libfaac --enable-libfaad --enable-libfaadbin --enable-libamr-nb --enable-nonfree --disable-libamr-wb --enable-nonfree --disable-mmx --disable-libgsm --enable-libmp3lame --disable-ffplay --enable-libtheora --enable-libvorbis --enable-libx264 --enable-libxvid --disable-ipv6
+./configure --cc=cc --prefix=/usr/local --disable-debug --enable-memalign-hack --enable-shared --enable-postproc --extra-cflags="-I/usr/local/include/vorbis -I/usr/local/include" --extra-ldflags="-L/usr/local/lib -la52" --extra-libs=-pthread --enable-gpl --enable-pthreads  --mandir=/usr/local/man  --enable-libfaac --enable-libfaad --enable-libfaadbin --enable-libamr-nb --enable-nonfree --disable-libamr-wb --enable-nonfree --disable-mmx --disable-libgsm --enable-libmp3lame --disable-ffplay --enable-libtheora --enable-libvorbis --enable-libx264 --enable-libxvid --disable-ipv6 --enable-swscale
 
 
 # compile using GNU Make (gmake), not BSD Make
