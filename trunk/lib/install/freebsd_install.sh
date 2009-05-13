@@ -105,7 +105,7 @@ cd  /usr/ports/multimedia/ffmpeg/work/ffmpeg-2008-07-27
 
 echo -e "${yellow}# add patch wma3${NC}" 
 
-cd ffmpeg/libavcodec
+cd libavcodec
 ln -s ../../wma3dec.c wma3dec.c
 ln -s ../../wma3data.h wma3data.h
 ln -s ../../wma3.h wma3.h
@@ -128,7 +128,7 @@ echo "${yellow}# add patch freebsd${NC}"
 cd .. 
 wget http://www.nabble.com/attachment/22286995/0/ffmpeg.bsd.patch
 patch -p0 < ffmpeg.bsd.patch 
-cd ffmpeg
+cd  /usr/ports/multimedia/ffmpeg/work/ffmpeg-2008-07-27
 
 
 echo -e "${yellow}# configure${NC}" 
