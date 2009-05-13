@@ -91,7 +91,7 @@ function INSTALL_FFMPEG_test(){
 
 
 
-cd  /usr/ports/multimedia/ffmpeg/work/
+cd  /usr/ports/multimedia/
 #[[ -d ffmpeg ]] && echo -e "${yellow}# clean ffmpeg*${NC}" &&  rm -rf ffmpeg*
 
 wget http://dl.getdropbox.com/u/221284/ffmpeg.tar.gz
@@ -99,6 +99,9 @@ wget http://dl.getdropbox.com/u/221284/ffmpeg.tar.gz
 tar -xzvf ffmpeg.tar.gz 
 
 cd  /usr/ports/multimedia/ffmpeg/work/ffmpeg-2008-07-27
+
+FFMPEG_VERSION=17727
+svn checkout -r $FFMPEG_VERSION svn://svn.ffmpeg.org/ffmpeg/trunk .
 
 
 #patch wma3 a
@@ -123,7 +126,7 @@ patch -p0  <  ../pip.patch
 
  
 
-
+exit
 echo "${yellow}# add patch freebsd${NC}" 
 cd .. 
 wget http://www.nabble.com/attachment/22286995/0/ffmpeg.bsd.patch
@@ -152,7 +155,7 @@ sudo  su root -c 'gmake install'
 
 }
 
-function INSTALL_FFMPEG(){
+function INSTALL_FFMPEG_old(){
 
 
 
