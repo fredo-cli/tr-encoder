@@ -87,7 +87,7 @@ gmake
 sudo  su root -c 'gmake install'
 }
 
-function INSTALL_FFMPEG(){
+function INSTALL_FFMPEG_test(){
 
 
 
@@ -152,7 +152,7 @@ sudo  su root -c 'gmake install'
 
 }
 
-function INSTALL_FFMPEG_old(){
+function INSTALL_FFMPEG(){
 
 
 
@@ -166,7 +166,9 @@ cd ffmpeg
 
 echo -e "${yellow}# checkout version $FFMPEG_VERSIONff from ffmpeg${NC}"
 
-# 17727 17768 12684
+# 17727 0.5
+# 17768 last version with vhook 
+# 14424 freebsd
 FFMPEG_VERSION=17727
 svn checkout -r $FFMPEG_VERSION svn://svn.ffmpeg.org/ffmpeg/trunk ffmpeg
  
