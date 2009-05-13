@@ -87,7 +87,7 @@ gmake
 sudo  su root -c 'gmake install'
 }
 
-function INSTALL_FFMPEG_test(){
+function INSTALL_FFMPEG(){
 
 
 
