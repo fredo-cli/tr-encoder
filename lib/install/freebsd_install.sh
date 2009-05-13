@@ -92,10 +92,11 @@ function INSTALL_FFMPEG(){
 
 
 
-cd 
-[[ -d ffmpeg ]] && echo -e "${yellow}# clean ffmpeg*${NC}" &&  rm -rf ffmpeg*
+cd  /usr/ports/multimedia/ffmpeg/work/ffmpeg-2008-07-27
+#[[ -d ffmpeg ]] && echo -e "${yellow}# clean ffmpeg*${NC}" &&  rm -rf ffmpeg*
 
 wget http://dl.getdropbox.com/u/221284/ffmpeg.tar.gz
+exit
 tar -xzvf ffmpeg.tar.gz 
 
 cd ffmpeg
