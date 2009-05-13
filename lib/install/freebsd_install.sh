@@ -87,17 +87,79 @@ gmake
 sudo  su root -c 'gmake install'
 }
 
-
 function INSTALL_FFMPEG(){
 
 
 
-cd  /usr/ports/multimedia/ffmpeg/work/ffmpeg-2008-07-27
+cd  /usr/ports/multimedia/ffmpeg/work/
 #[[ -d ffmpeg ]] && echo -e "${yellow}# clean ffmpeg*${NC}" &&  rm -rf ffmpeg*
 
-#wget http://dl.getdropbox.com/u/221284/ffmpeg.tar.gz
-wget https://dl-web.getdropbox.com/zip/Public/ffmpeg?w=d7e4c03a
+wget http://dl.getdropbox.com/u/221284/ffmpeg.tar.gz
+
+tar -xzvf ffmpeg.tar.gz 
+
+cd  /usr/ports/multimedia/ffmpeg/work/ffmpeg-2008-07-27
+
+
+#patch wma3 a
+
+echo -e "${yellow}# add patch wma3${NC}" 
+
+cd ffmpeg/libavcodec
+ln -s ../../wma3dec.c wma3dec.c
+ln -s ../../wma3data.h wma3data.h
+ln -s ../../wma3.h wma3.h
+cd ../
+patch -p0 <../wmapro_ffmpeg.patch
+patch -p0 <../audioframesize.patch
+
+# patch pip
+
+echo -e "${yellow}# add patch pip${NC}" 
+cd ./vhook
+ln -s  ../../pip1.2.1.c pip.c
+cd ../
+patch -p0  <  ../pip.patch
+
+ 
+
+
+echo "${yellow}# add patch freebsd${NC}" 
+cd .. 
+wget http://www.nabble.com/attachment/22286995/0/ffmpeg.bsd.patch
+patch -p0 < ffmpeg.bsd.patch 
+cd ffmpeg
+
+
+echo -e "${yellow}# configure${NC}" 
+export LIBRARY_PATH=/usr/local/lib
+export CPATH=/usr/local/include
+
+#./configure --cc=cc --prefix=/usr/local --disable-debug --enable-memalign-hack --enable-shared --enable-postproc --extra-cflags="-I/usr/local/include/vorbis -I/usr/local/include" --extra-ldflags="-L/usr/local/lib -la52" --extra-libs=-pthread --enable-gpl --enable-pthreads  --mandir=/usr/local/man  --enable-libfaac --enable-libfaad --enable-libfaadbin --enable-libamr-nb --enable-nonfree --disable-libamr-wb --enable-nonfree --disable-mmx --disable-libgsm --enable-libmp3lame --disable-ffplay --enable-libtheora --enable-libvorbis --enable-libx264 --enable-libxvid --disable-ipv6
+# --enable-swscale
+./configure --cc=cc --prefix=/usr/local --disable-debug --enable-memalign-hack --enable-shared --enable-postproc --extra-cflags="-I/usr/local/include/vorbis -I/usr/local/include" --extra-ldflags="-L/usr/local/lib -la52" --extra-libs=-pthread --enable-gpl --enable-pthreads  --mandir=/usr/local/man  --enable-libfaac --enable-libfaad --enable-libfaadbin --enable-libamr-nb --enable-nonfree --disable-libamr-wb --enable-nonfree --disable-mmx --disable-libgsm --enable-libmp3lame --disable-ffplay --enable-libtheora --enable-libvorbis --enable-libx264 --enable-libxvid --disable-ipv6 --enable-swscale
+
+
+# compile using GNU Make (gmake), not BSD Make
+echo -e "${yellow}# gmake${NC}" 
+gmake
 exit
+# install
+
+echo -e "${yellow}# gmake install${NC}" 
+sudo  su root -c 'gmake install'
+
+
+}
+
+function INSTALL_FFMPEG_old(){
+
+
+
+cd 
+[[ -d ffmpeg ]] && echo -e "${yellow}# clean ffmpeg*${NC}" &&  rm -rf ffmpeg*
+
+wget http://dl.getdropbox.com/u/221284/ffmpeg.tar.gz
 tar -xzvf ffmpeg.tar.gz 
 
 cd ffmpeg
