@@ -48,7 +48,7 @@ cd ${DIRECTORY}/${SUBDIR}/
 
 			 else
 
-			 COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -channels 6 -vc dummy -vo null  ${INPUT}"
+			 COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -channels 6 -vc null -vo null  ${INPUT}"
 			 [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET=" >/dev/null  2>&1"
 			 eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
 			 fi
@@ -70,7 +70,7 @@ cd ${DIRECTORY}/${SUBDIR}/
 
 			 else
 
-				COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -vc dummy -vo null ${INPUT}"
+				COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -vc null -vo null ${INPUT}"
 				[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET=" > /dev/null  2>&1"
 				eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
 
