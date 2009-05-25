@@ -51,6 +51,26 @@ cd ${DIRECTORY}/${SUBDIR}/
 			 COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -channels 6 -vc dummy -vo null  ${INPUT}"
 			 [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET=" >/dev/null  2>&1"
 			 eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
+
+				  ### check the size audio.wav
+
+				  if [[ -f "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav" &&  $SYSTEM == "Linux" ]]
+				  then
+				  RESULTS_SIZE=`stat -c '%s' "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav"` 
+				  elif [[ -f $1 && $SYSTEM == "FreeBSD" ]] 
+				  then
+				  RESULTS_SIZE=`stat -f '%z' "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav"`
+				  fi
+
+				  ### try one more time if failed
+
+				  if [ "$RESULTS_SIZE" -lt 1014000 ]
+				  then
+				  echo -e "${yellow}# create audio.wav ${NC}"		
+				  COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -channels 6  -vc dummy -vo null ${INPUT}"
+				  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" > /dev/null  2>&1"
+				  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+				  fi
 			 fi
 
 	   else
@@ -73,6 +93,30 @@ cd ${DIRECTORY}/${SUBDIR}/
 				COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -vc dummy -vo null ${INPUT}"
 				[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET=" > /dev/null  2>&1"
 				eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
+
+				  ### check the size audio.wav
+
+				  if [[ -f "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav" &&  $SYSTEM == "Linux" ]]
+				  then
+				  RESULTS_SIZE=`stat -c '%s' "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav"` 
+				  elif [[ -f $1 && $SYSTEM == "FreeBSD" ]] 
+				  then
+				  RESULTS_SIZE=`stat -f '%z' "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav"`
+				  fi
+
+				  ### try one more time if failed
+
+				  if [ "$RESULTS_SIZE" -lt 1014000 ]
+				  then
+				  echo -e "${yellow}# create audio.wav ${NC}"		
+				  COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -vc dummy -vo null ${INPUT}"
+				  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" > /dev/null  2>&1"
+				  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+				  fi
+
+
+
+
 
 			 fi	
 	   fi	    

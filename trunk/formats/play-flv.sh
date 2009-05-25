@@ -26,27 +26,14 @@
 	
 	
 	
-         # Create audio.wav
-		
-		if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio.wav" ]]
-		then
-		
-				echo -e "${yellow}# Create audio.wav ${NC}"		
-				echo -e "${green}# This file (audio.wav) already exit.We going to use it${NC}"
-		
-		else
-				echo -e "${yellow}# create audio.wav ${NC}"		
-				COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio.wav -vc dummy -vo null ${INPUT}"
-				[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" > /dev/null  2>&1"
-				eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
-
-		fi
-
+		# Create audio.wav
+		dump_audio
 	
 		
-		
+
 		
 		### create audio_96ch2.mp3
+
 		if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.mp3" ]]
 		then
 		
