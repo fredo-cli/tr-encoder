@@ -21,30 +21,10 @@
 		
 
         ### Create audio.wav
+
+	dump_audio
+
 	
-	echo -e "${yellow}# Create audio.wav ${NC}"
-	if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio.wav" ]]
-	then
-
-		echo -e "${green}# This file (audio.wav) already exit.We going to use it${NC}"
-	
-	else
-	
-		COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio.wav -vc dummy -vo null ${INPUT}"
-		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET=" > /dev/null  2>&1"
-		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
-		
-		### check if resample 8bit to 16 is needed  (sox)
-		resample_audio
-
-	fi
-
-
-
-		
-		
-		
-		
 		
 	### create audio_${FF_AB}_${FF_AC}_$FF_AR.aac
 	

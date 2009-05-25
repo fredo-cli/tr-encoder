@@ -21,24 +21,8 @@
 		
 
         ### Create audio.wav
-	
-	echo -e "${yellow}# Create audio.wav ${NC}"
-	if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio.wav" ]]
-	then
 
-		echo -e "${green}# This file (audio.wav) already exit.We going to use it${NC}"
-	
-	else
-	
-		COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio.wav -vc dummy -vo null ${INPUT}"
-		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET=" > /dev/null  2>&1"
-		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
-
-	fi
-
-
-
-		
+	dump_audio
 		
 		
 		

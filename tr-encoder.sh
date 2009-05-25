@@ -41,8 +41,8 @@ MP4BOX=MP4Box
 fi
 
 
-EXTENTION="org"
-#EXTENTION="VOB"
+EXTENTION=".org"
+#EXTENTION=".VOB"
 
 
 
@@ -175,6 +175,45 @@ add_logo(){
 	    [[ $DEBUG -gt 0 ]] && echo -e "# Position of the logo:\\tx = $LOGO_X Y = $LOGO_Y"
 	    VHOOK=$VHOOK" -vhook \"/usr/local/lib/vhook/pip.so -f  $LOGO_RESIZED -x $LOGO_X -y $LOGO_Y  -w $LOGO_RESIZED_W -h $LOGO_RESIZED_H  $LOGO_MODE   $LOGO_TRESHOLD -s $(echo "$SS + $LOGO_START  * $FPS "|bc) -e $(echo "($SS + $LOGO_START + $LOGO_DURATION) * $FPS "|bc) \" "
  	    #echo $VHOOK
+}
+
+dump_audio(){
+
+		if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio.wav" ]]
+		then
+		
+		echo -e "${yellow}# Create audio.wav ${NC}"		
+		echo -e "${green}# This file (audio.wav) already exit.We going to use it${NC}"
+		
+		else
+
+		echo -e "${yellow}# create audio.wav ${NC}"		
+		COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio.wav -vc null -vo null ${INPUT}"
+		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" > /dev/null  2>&1"
+		eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+
+			  ### check the size audio.wav
+
+			  if [[ -f "${DIRECTORY}/$SUBDIR/audio.wav" &&  $SYSTEM == "Linux" ]]
+			  then
+			  RESULTS_SIZE=`stat -c '%s' "${DIRECTORY}/$SUBDIR/audio.wav"` 
+			  elif [[ -f $1 && $SYSTEM == "FreeBSD" ]] 
+			  then
+			  RESULTS_SIZE=`stat -f '%z' "${DIRECTORY}/$SUBDIR/audio.wav"`
+			  fi
+
+			  ### try one more time if failed
+
+			  if [ "$RESULTS_SIZE" -lt 1014000 ]
+			  then
+			  echo -e "${yellow}# create audio.wav ${NC}"		
+			  COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio.wav -vc dummy -vo null ${INPUT}"
+			  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" > /dev/null  2>&1"
+			  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+			  fi
+
+		fi
+
 }
 
 resample_audio(){
@@ -912,7 +951,7 @@ execute(){
 	      DIRECTORY=`dirname "$INPUT"`
 	      
 	      SUBDIR=`basename "$INPUT"`
-	      SUBDIR=${SUBDIR%%.${EXTENTION}}
+	      SUBDIR=${SUBDIR%%${EXTENTION}}
 	      
 	      OUTPUT=` basename $INPUT`
 	      OUTPUT=${OUTPUT%%.???}
@@ -1129,7 +1168,7 @@ execute(){
 		  ;;
 		esac
 	
-		[[ $CLEAN == 1 ]] && clean "${DIRECTORY}/${OUTPUT}.${EXTENTION}"											
+		[[ $CLEAN == 1 ]] && clean "${DIRECTORY}/${OUTPUT}${EXTENTION}"											
 
 
 }
@@ -1150,6 +1189,8 @@ if [[ -f $(realpath "${1}") ]]
 then
 
 SCAN_TYPE=1
+EXTENTION=$(echo $1  |grep -o -e "\..*$")
+
 execute  "$(realpath "${1}")" 
 
 
@@ -1162,11 +1203,11 @@ then
     DIRECTORY=$(realpath "${1}")
 
     
-    for VIDEO  in `find ${DIRECTORY}  -name "*.${EXTENTION}"`
+    for VIDEO  in `find ${DIRECTORY}  -name "*${EXTENTION}"`
     do
 
     SUBDIR=`basename "$VIDEO"`
-    SUBDIR=${SUBDIR%%.${EXTENTION}}
+    SUBDIR=${SUBDIR%%${EXTENTION}}
 
 
       #if [[ ! -d ${DIRECTORY}/${SUBDIR} || $OVERWRITE  !=  0 ]]
