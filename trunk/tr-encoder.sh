@@ -197,7 +197,7 @@ dump_audio(){
 			  if [[ -f "${DIRECTORY}/$SUBDIR/audio.wav" &&  $SYSTEM == "Linux" ]]
 			  then
 			  RESULTS_SIZE=`stat -c '%s' "${DIRECTORY}/$SUBDIR/audio.wav"` 
-			  elif [[ -f $1 && $SYSTEM == "FreeBSD" ]] 
+			  elif [[ -f "${DIRECTORY}/$SUBDIR/audio.wav" && $SYSTEM == "FreeBSD" ]] 
 			  then
 			  RESULTS_SIZE=`stat -f '%z' "${DIRECTORY}/$SUBDIR/audio.wav"`
 			  fi
