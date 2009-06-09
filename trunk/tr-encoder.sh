@@ -957,7 +957,19 @@ encode(){
 		if [[ $EVALUTE==1 ]]
 		then  
 		echo  EVALUATION=$EVALUATION
+		save_info "EVALUATION=$EVALUATION"
+
+		### create info.xml 
+
+		echo "<INFOS>"$(sed  -e  s/^#.*// -e /^$/d  "${DIRECTORY}/${SUBDIR}/info.txt" | awk -F "=" '{print "<"$1">"$2"</"$1">" }'|tr -d "\"")"</INFOS>" > "${DIRECTORY}/${SUBDIR}/info.xml"
+
 		fi
+
+
+
+
+
+
    
     }
 
