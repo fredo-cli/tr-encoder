@@ -24,6 +24,8 @@ TRY=""
 LOGOS_ADD=""
 FF_SIZE=""
 SS=0
+EVALUTE=0
+EVALUATION=0
 
 
 ### Path to ffmpeg
@@ -74,15 +76,16 @@ MAXSIZE=480
 FPS=12000/1001
 
 
-    while getopts "f:T:l:o:e:c:s:b:DydY" option
+    while getopts "f:T:l:o:e:c:s:b:DydYE" option
     do
 	case "$option" in
 	c)	CLEAN=1;;	
 	s)	SS="$OPTARG";;
 	d)	DEBUG=1;;	
 	D)	DEBUG=2;;
-	e)	EXTENTION="$OPTARG";;		
-	f)	OUTPUT_FORMAT="$OPTARG";;	
+	e)	EXTENTION="$OPTARG";;	
+	E)	EVALUTE=1;;	
+	f)	OUTPUT_FORMATS="$OPTARG";;	
 	l)	LOGOS_ADD="$OPTARG";;
 	o)	OPERATION="$OPTARG";;	
 	#s)	FF_SIZE="$OPTARG";;	
@@ -927,6 +930,9 @@ encode(){
 	      
 	      
 	  ### transcode the video to differents formats 
+
+		for OUTPUT_FORMAT in $(echo $OUTPUT_FORMATS)
+		do
 	  
 		COMMAND=""
 		
@@ -941,6 +947,16 @@ encode(){
 		sample). "$APP_DIR/formats/sample-flv.sh" ;;
 		esac
 		
+		fi
+
+
+		done
+
+
+		### output the evaluation
+		if [[ $EVALUTE==1 ]]
+		then  
+		echo  EVALUATION=$EVALUATION
 		fi
    
     }
