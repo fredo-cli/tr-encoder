@@ -961,7 +961,7 @@ encode(){
 
 		### create info.xml 
 
-		echo "<INFOS>"$(sed  -e  s/^#.*// -e /^$/d  "${DIRECTORY}/${SUBDIR}/info.txt" | awk -F "=" '{print "<"$1">"$2"</"$1">" }'|tr -d "\"")"</INFOS>" > "${DIRECTORY}/${SUBDIR}/info.xml"
+		echo -e "\\n<TR-ENCODER>\\n"$(sed  -e  s/^#.*// -e /^$/d  "${DIRECTORY}/${SUBDIR}/info.txt" | awk -F "=" '{print "<"$1">"$2"</"$1">\\n" }'|tr -d "\"")"</TR-ENCODER>" > "${DIRECTORY}/${SUBDIR}/info.xml"
 
 		fi
 
@@ -1073,7 +1073,7 @@ execute(){
 				then
 				ERROR="# ERROR: This video ($1) is not supported!"
 				echo -e "\\n${RED}${ERROR}${NC}\\n"
-				echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err
+				echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt
 				stop
 				else
 				
@@ -1090,7 +1090,7 @@ execute(){
 				
 				
 			 
-				[[ ! -z $ERROR ]] &&  mediainfo ${INPUT} >> ${DIRECTORY}/${OUTPUT}.err
+				[[ ! -z $ERROR ]] &&  mediainfo ${INPUT} >> ${DIRECTORY}/${OUTPUT}/error.txt
 
 				# Get some infos about the fornat 1.77 pat ntsc ...
 				get_format 
@@ -1126,7 +1126,7 @@ execute(){
 						then
 						ERROR="# ERROR: This video format ($1) is not supported!"
 						echo -e "\\n${RED}${ERROR}${NC}\\n"
-						echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err
+						echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt
 						save_info "${ERROR}"						
 						
 						else

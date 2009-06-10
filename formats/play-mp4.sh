@@ -57,7 +57,7 @@ cd ${DIRECTORY}/${SUBDIR}/
 				  if [[ -f "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav" &&  $SYSTEM == "Linux" ]]
 				  then
 				  RESULTS_SIZE=`stat -c '%s' "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav"` 
-				  elif [[ -f $1 && $SYSTEM == "FreeBSD" ]] 
+				  elif [[ -f "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav" && $SYSTEM == "FreeBSD" ]] 
 				  then
 				  RESULTS_SIZE=`stat -f '%z' "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav"`
 				  fi
@@ -99,7 +99,7 @@ cd ${DIRECTORY}/${SUBDIR}/
 				  if [[ -f "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav" &&  $SYSTEM == "Linux" ]]
 				  then
 				  RESULTS_SIZE=`stat -c '%s' "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav"` 
-				  elif [[ -f $1 && $SYSTEM == "FreeBSD" ]] 
+				  elif [[ -f "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav" && $SYSTEM == "FreeBSD" ]] 
 				  then
 				  RESULTS_SIZE=`stat -f '%z' "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav"`
 				  fi
