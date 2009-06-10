@@ -102,7 +102,7 @@ get_general_infos () {
 	      then
 	      ERROR="ERROR: Duration of the video is ($DURATION_S secondes).The minimun duration for a video is ($MINIMUM_DURATION secondes)  "
 	      echo -e ${RED}${ERROR}${NC}
-	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err   
+	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt   
 	      else
 	      [[ $DEBUG -gt 0 ]] && echo -e "DURATION=${GREEN}$DURATION_S${NC}"
 	      CROPSTART=`echo ${DURATION_S} / 2|bc`
@@ -131,7 +131,7 @@ get_general_infos () {
 				else
 				WARNING="WARNING: General biterate  of the video is ( $BITERATE / $FF_BITERATE ).The minimun biterate for a $FORMAT video is ($MINIMUM_BITERATE)  "
 				echo -e ${PINK}${WARNING}${NC}
-				echo $WARNING >> ${DIRECTORY}/${OUTPUT}.err
+				echo $WARNING >> ${DIRECTORY}/${OUTPUT}/error.txt
 				fi
 		 
 		 # BITERATE not detected from mediainfo take the BITERATE_CALC instead
@@ -148,7 +148,7 @@ get_general_infos () {
 				else
 				WARNING="WARNING: General biterate  of the video is ( $BITERATE / $FF_BITERATE ).The minimun biterate for a $FORMAT video is ($MINIMUM_BITERATE)  "
 				echo -e ${PINK}${WARNING}${NC}
-				echo $WARNING >> ${DIRECTORY}/${OUTPUT}.err
+				echo $WARNING >> ${DIRECTORY}/${OUTPUT}/error.txt
 				fi
 
 	      fi
@@ -165,7 +165,7 @@ get_general_infos () {
 	      else
 	      ERROR="# ERROR: 1 video stream is needed (Detection: $VIDEO_COUNT)."
 	      echo -e ${RED}${ERROR}${NC}
-	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err 
+	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt 
 	      save_info "$ERROR"
 	      fi
 	      
@@ -180,12 +180,12 @@ get_general_infos () {
 		 then
 		 WARNING="# WARNING: More than 1 audio stream is detected ($AUDIO_COUNT)"
 	      echo -e ${PINK}${WARNING}${NC}
-	      echo $WARNING >> ${DIRECTORY}/${OUTPUT}.err 
+	      echo $WARNING >> ${DIRECTORY}/${OUTPUT}/error.txt 
 	      save_info "$WARNING"
 	      else
 	      ERROR="# ERROR: 1 audio stream is needed (Detection: $AUDIO_COUNT)"
 	      echo -e ${RED}${ERROR}${NC}
-	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err 
+	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt 
 	      save_info "$ERROR"
 	      fi
 }
@@ -224,7 +224,7 @@ check_comp(){
 		  
 		  # Video codec supported by ffmpeg
 		  [[ $DEBUG > 0 ]] && echo  ${FFMPEG_TAIL}  
-		  echo -e ${ERROR} ${FFMPEG_HEAD}  >> ${DIRECTORY}/${OUTPUT}.err    
+		  echo -e ${ERROR} ${FFMPEG_HEAD}  >> ${DIRECTORY}/${OUTPUT}/error.txt    
 			  
 		  fi
 				
@@ -260,7 +260,7 @@ check_comp(){
 		  [[ $DEBUG > 0 ]] && echo  ${FFMPEG_TAIL}
 		  
 		  
-		  echo -e ${ERROR} ${FFMPEG_HEAD}  >> ${DIRECTORY}/${OUTPUT}.err    
+		  echo -e ${ERROR} ${FFMPEG_HEAD}  >> ${DIRECTORY}/${OUTPUT}/error.txt    
 		  
 		  fi
 		  
@@ -314,7 +314,7 @@ check_comp(){
 		ERROR="MPLAYER_VIDEO=$MPLAYER_VIDEO"
 		save_info "$ERROR"
 		echo -e "${RED}${ERROR}${NC}\\n"
-		echo -e ${ERROR}  >> ${DIRECTORY}/${OUTPUT}.err 
+		echo -e ${ERROR}  >> ${DIRECTORY}/${OUTPUT}/error.txt 
 		fi
 		### check if audio can be read with mplayer  ###
 		
@@ -566,7 +566,7 @@ VCODEC=""
 	      else
 	      WARNING="WARNING: Video biterate is ($VBITERATE $VFF_BITERATE ).The minimun biterate for a $VFORMAT video is ($MINIMUM_VBITERATE)  "
 	      echo -e ${PINK}${WARNING}${NC}
-	      echo $WARNING >> ${DIRECTORY}/${OUTPUT}.err
+	      echo $WARNING >> ${DIRECTORY}/${OUTPUT}/error.txt
 	      fi
 	      save_info  "VBITERATE=$VBITERATE"
 	      
@@ -584,7 +584,7 @@ VCODEC=""
 	      then
 	      ERROR="Error: Duration of the video is ($VDURATION_S secondes).The minimun duration for a video is ($MINIMUM_DURATION secondes)  "
 	      echo -e ${RED}${ERROR}${NC}
-	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err   
+	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt   
 	      else
 	      [[ $DEBUG -gt 0 ]] && echo -e "VDURATION=${GREEN}$VDURATION_S${NC}"
 	      CROPSTART=`echo ${VDURATION_S} / 2|bc`
@@ -730,7 +730,7 @@ get_audio_infos() {
 		  else
 		  WARNING="WARNING: audio biterate is ($FF_ABITERATE $ABITERATE ).The minimun biterate for a $AFORMAT audio is ($MINIMUM_ABITERATE)  "
 		  echo -e ${PINK}${WARNING}${NC}
-		  echo $WARNING >> ${DIRECTORY}/${OUTPUT}.err
+		  echo $WARNING >> ${DIRECTORY}/${OUTPUT}/error.txt
 		  fi
 		  save_info "ABITERATE=$ABITERATE"
 
@@ -749,7 +749,7 @@ get_audio_infos() {
 		else
 		ERROR="Error: Duration of the audio is ($ADURATION_S secondes).The minimun duration for a audio is ($MINIMUM_DURATION secondes)  "
 		echo -e ${RED}${ERROR}${NC}
-		echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err 
+		echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt 
 		fi
 		save_info "ADURATION=$ADURATION"
 
@@ -903,7 +903,7 @@ cropdetection() {
 		 ERROR=${ERROR}$CROPDETECTION_CMD
 		 ERROR=${ERROR}`cat "${DIRECTORY}/${SUBDIR}/crop.txt" |tail -n 10`
 		 
-	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}.err   
+	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt   
 	      echo -e "${RED}${ERROR}${NC}\\n"
 
 	      fi
@@ -935,7 +935,7 @@ function get_extra_infos () {
 	      then
 	      WARNING="WARNING: BPF quality  of the video is ($BPF).The minimun quality is ($MINIMUM_BPF)  "
 	      echo -e "${PINK}$WARNING${NC}"
-	      echo $WARNING >> ${DIRECTORY}/${OUTPUT}.err
+	      echo $WARNING >> ${DIRECTORY}/${OUTPUT}/error.txt
 	      else
 	      echo  -e "BPF=${GREEN}${BPF}${NC}"
 	      fi
@@ -947,7 +947,7 @@ function get_extra_infos () {
 	      then
 	      WARNING="WARNING: VBRPP quality  of the video is ($VBRPP).The minimun quality is (1)  "
 	      echo -e "${PINK}$WARNING${NC}"
-	      echo $WARNING >> ${DIRECTORY}/${OUTPUT}.err
+	      echo $WARNING >> ${DIRECTORY}/${OUTPUT}/error.txt
 	      else
 	      echo -e "fredo VBRPP=${GREEN}${VBRPP}${NC}"
 	      fi
