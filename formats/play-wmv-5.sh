@@ -1,7 +1,7 @@
 #!/usr/local/bin/bash
 if [[ $NEW_WIDTH -ge 640 ]]
 then
-
+PREFIX="play"
 FF_FORMAT="wmv"
 PLAY_SIZE="_5"
 
@@ -16,16 +16,26 @@ FF_AB=96
 FF_AC=2
 FF_AR=44100
 
-if [[ $EVALUTE == 1 ]]
+if [[ $EVALUTE == 1 && $EVALUATION == 0 ]]
 then
 
-EVALUATION=$(echo "$EVALUATION + ($FF_WIDTH * $FF_HEIGHT * $FF_FPS * $FF_PASS * ($DURATION_S - $SS))"|bc)
+### evalute only once or encode
+
+evaluation_ini
+
+### check the evolution of the encoding
+
+elif [[ $EVALUTE == 1 && $EVALUATION -gt 0 ]]
+then
+
+evaluation_check
 
 else
 
-echo -e "\\n${BLUE}$(box "format: play-$FF_FORMAT-$PLAY_SIZE")${NC}"
-. "$APP_DIR/formats/play-$FF_FORMAT.sh" 
+### encode the video
 
-fi 
+. "$APP_DIR/formats/$PREFIX-$FF_FORMAT.sh" 
+
+fi
 
 fi

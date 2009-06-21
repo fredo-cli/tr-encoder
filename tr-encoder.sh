@@ -24,9 +24,15 @@ TRY=""
 LOGOS_ADD=""
 FF_SIZE=""
 SS=0
-EVALUTE=0
-EVALUATION=0
 
+EVALUTE=0
+
+EVALUATION=0
+NB_FILE_TO_CREATE=0
+NB_FILE_CREATED=0
+
+### in  Mhz
+CPUS_AVERAGE=8 
 
 ### Path to ffmpeg
 
@@ -138,7 +144,7 @@ add_logo(){
 	    
 	    COMMAND="convert "${LOGO}" -resize ${LOGO_RESIZED_W}x${LOGO_RESIZED_H}\! -depth 8 $LOGO_RESIZED" 
 
-	    eval "$COMMAND " && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
+	    eval "/usr/bin/time -a -f \"CreateLogo : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND " && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 	    
 	    # get the exact size of the resized logo (imagemagick do not respect the exactly thr -resize parameter)
 	    LOGO_RESIZED_W=$(identify -format %w $LOGO_RESIZED )
@@ -193,7 +199,7 @@ dump_audio(){
 		echo -e "${yellow}# create audio.wav ${NC}"		
 		COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio.wav -vc null -vo null ${INPUT}"
 		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" > /dev/null  2>&1"
-		eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+		eval "/usr/bin/time -a -f \"dumpAudio : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 
 			  ### check the size audio.wav
 
@@ -212,7 +218,7 @@ dump_audio(){
 			  echo -e "${yellow}# create audio.wav ${NC}"		
 			  COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio.wav -vc dummy -vo null ${INPUT}"
 			  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" > /dev/null  2>&1"
-			  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+			  eval "/usr/bin/time -a -f \"dumpAudio : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 			  fi
 
 		fi
@@ -228,7 +234,7 @@ echo -e "${yellow}# Resampling PCM 8 bit to PCM 16 bit${NC}"
 COMMAND="${COMMAND}sox $SOX_B ${DIRECTORY}/${SUBDIR}/${OUTPUT}.wav -r 48000 $SOX_W ${DIRECTORY}/${SUBDIR}/resample.wav resample"
 #echo "sox: resampling PCM, 8 bi to PCM, 16 bit" 
 [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+eval "/usr/bin/time -a -f \"resampleAudio : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 fi
 }
 
@@ -844,12 +850,12 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 	      
 	      # padding
 		 
-		 PAD=`echo "scale=3;(($WIDTH / 1.777) - $HEIGHT) / 2"|bc`
+	      PAD=`echo "scale=3;(($WIDTH / 1.777) - $HEIGHT) / 2"|bc`
 	      PAD=`round2 $PAD`
-		 PADTOP=$PAD
-		 PADBOTTOM=$PAD
+	      PADTOP=$PAD
+	      PADBOTTOM=$PAD
 	      FF_PAD="-padtop $PADTOP -padbottom $PADBOTTOM "
-		 [[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Padding: $FF_PAD${NC}"
+	     [[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Padding: $FF_PAD${NC}"
 		  
 
 	      # Cropping: no
@@ -862,9 +868,11 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 	      CROPBOTTOM=0
 	      FF_CROP_HEIGHT=""
 
-		# get new sizes
-		calc_new_sizes
+	      # get new sizes
+	      calc_new_sizes
 	      fi
+
+
 	      
 	      
 	      
@@ -953,17 +961,72 @@ encode(){
 		done
 
 
-		### output the evaluation
-		if [[ $EVALUTE==1 ]]
+		### output the evaluation (only once)
+
+		if [[ $EVALUTE == 1 && $EVALUATION == 0 ]]
 		then  
+		
+		### lock for evaluation (call only once)
+		EVALUATION=1
+
 		echo  EVALUATION=$EVALUATION
 		save_info "EVALUATION=$EVALUATION"
+
+		echo  NB_FILE_TO_CREATE=$NB_FILE_TO_CREATE
+		save_info "NB_FILE_TO_CREATE=$NB_FILE_TO_CREATE"
+
+
+		echo  TOTAL_TIME_EVALUATION=$TOTAL_TIME_EVALUATION
+		save_info "TOTAL_TIME_EVALUATION=$TOTAL_TIME_EVALUATION"
+
+		fi
+
+
+
+
+		### Check evolution of the process
+
+		if [[ $EVALUTE == 1 && $EVALUATION == 1 ]]
+		then  
+				### not finish
+
+				if [[  $NB_FILE_CREATED < $NB_FILE_TO_CREATE ]]
+				then
+
+				echo  -e ${RED}NB_FILE_CREATED=$NB_FILE_CREATED${NC}
+
+				### first time finish
+
+				elif [[  $NB_FILE_CREATED == $NB_FILE_TO_CREATE && -z $TOTAL_TIME_REALISATION  ]]
+				then
+
+				echo  -e ${GREEN}NB_FILE_CREATED=$NB_FILE_CREATED${NC}
+				save_info "NB_FILE_CREATED=$NB_FILE_CREATED"
+ 
+
+				### calulate te total time of realistion and remove the millisecondes
+
+				TOTAL_TIME_REALISATION=$(cat ${DIRECTORY}/${SUBDIR}/timer.txt |awk -F : '{ n++; M += $2*60 ; S += $3  } END { print M+S/1 } ')
+				save_info "TOTAL_TIME_REALISATION=${TOTAL_TIME_REALISATION%\.*}"
+
+				### over time finish
+
+				else
+ 
+				echo  -e ${GREEN}"done"${NC}
+
+				fi
+
+	       fi
+
+
+
 
 		### create info.xml 
 
 		echo -e "\\n<TR-ENCODER>\\n"$(sed  -e  s/^#.*// -e /^$/d  "${DIRECTORY}/${SUBDIR}/info.txt" | awk -F "=" '{print "<"$1">"$2"</"$1">\\n" }'|tr -d "\"")"</TR-ENCODER>" > "${DIRECTORY}/${SUBDIR}/info.xml"
 
-		fi
+
 
 
 
@@ -1014,8 +1077,9 @@ execute(){
 	      # create the dir
 	      [[ ! -d  "${DIRECTORY}/${SUBDIR}" ]] &&   mkdir  "${DIRECTORY}/${SUBDIR}"
 	      
-	      # clean  info if overwrite  != 1
-	      [[ $OVERWRITE == 1 && -f ${DIRECTORY}/${OUTPUT}/info.txt ]] && rm ${DIRECTORY}/${OUTPUT}/info.txt 
+	      # clean  info if overwrite  = Y
+
+	      [[ $OVERWRITE == 2 && -f ${DIRECTORY}/${OUTPUT}/info.txt ]] && rm ${DIRECTORY}/${OUTPUT}/info.txt 
 
 		 
 		 
@@ -1043,15 +1107,14 @@ execute(){
 		  check_comp 
 		  ### General informations 
 		  get_general_infos
-		  exit
 		  ### Video informations 
 		  get_video_infos      
-		  ### extra informations
-		  #get_extra_infos
 		  ### Audio Informations
 		  get_audio_infos
 		  ###
 		  get_format
+		  ### extra informations
+		  get_extra_infos
 		  
 		  
 		  stop
@@ -1094,31 +1157,41 @@ execute(){
 
 				# Get some infos about the fornat 1.77 pat ntsc ...
 				get_format 
-				
+
 				save_info "\\n# Format infos\\n"
 				save_info "DETECTED_FORMAT=\"$DETECTED_FORMAT\""
-				
+
 				save_info "FF_PAD=\"$FF_PAD\""
 				save_info "PADTOP=\"$PADTOP\""
 				save_info "PADBOTTOM=\"$PADBOTTOM\""	
-				
+
 				save_info "CROPTOP=\"$PADTOP\""
 				save_info "CROPBOTTOM=\"$PADBOTTOM\""	
 
 				save_info "CROPLEFT=\"$CROPLEFT\""				
 				save_info "CROPRIGHT=\"$CROPRIGHT\""	
-				
+
 				save_info "FF_CROP_WIDTH=\"$FF_CROP_WIDTH\""
 				save_info "FF_CROP_HEIGHT=\"$FF_CROP_HEIGHT\""
-				
+
 				save_info "DISTORTION=\"$DISTORTION\""
-				
+
 
 				save_info  "NEW_WIDTH=$NEW_WIDTH"
 				save_info  "NEW_HEIGHT=$NEW_HEIGHT"
 				save_info  "NEW_SIZE=$NEW_SIZE"
-				
+
+
+
+				### extra informations
+
+				get_extra_infos
+
 				fi
+
+
+
+
 	 
 				# check if the format is detected (pal 1.77 2.35 etc)
 				
@@ -1127,7 +1200,7 @@ execute(){
 						ERROR="# ERROR: This video format ($1) is not supported!"
 						echo -e "\\n${RED}${ERROR}${NC}\\n"
 						echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt
-						save_info "${ERROR}"						
+						#save_info "${ERROR}"						
 						
 						else
 						

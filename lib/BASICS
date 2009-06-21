@@ -50,6 +50,20 @@ function save_info(){
 }
 
 
+logTimer(){
+
+echo -e "${INPUT_SIZE_CATEGORY}TO$PREFIX-$FF_FORMAT-$PLAY_SIZE\\t $ENCODING_DURATION" >> ${DIRECTORY}/${OUTPUT}/timer.log
+
+### log infos for stat e evaluation
+
+EVALUATION_STAT=$( echo "((( $ENCODING_DURATION * 1000 ) / $DURATION_S )/ $CPUS_AVERAGE )"|bc)
+echo -e "${INPUT_SIZE_CATEGORY}TO$PREFIX-$FF_FORMAT-$PLAY_SIZE\\t$EVALUATION_STAT" >> ${APP_DIR}/log/timer.log
+
+}
+
+
+
+
 # promt for removing of the file		
 function clean(){
 REMOVE_FILE_CONFIRM="n"

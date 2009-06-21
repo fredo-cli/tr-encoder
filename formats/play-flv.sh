@@ -1,5 +1,11 @@
 #!/usr/bin/bash		
+	### start timer
 
+	TIME_START=$(date +%s)
+
+	### display the format 
+
+	echo -e "\\n${BLUE}$(box "format: $PREFIX-$FF_FORMAT-$PLAY_SIZE")${NC}"
   	
 	
 	### Recalculate the padding
@@ -50,7 +56,7 @@
 				  #COMMAND="lame -h --abr 48  ${DIRECTORY}/$SUBDIR/${OUTPUT}.wav  ${DIRECTORY}/${SUBDIR}/${OUTPUT}.mp3"
 				  COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/audio.wav -v 0 -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac ${FF_AC}  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.mp3"
 				  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-				  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+				  eval "/usr/bin/time -a -f \"createAudio : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}/usr/local/bin/time -a -f \"Create audio : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\"$COMMAND${NC} 
 		
 
 		fi
@@ -67,7 +73,7 @@
 			  echo -e "${yellow}# Resample video${NC}"
 			  COMMAND="${FFMPEG} -v 0 $DEINTERLACE -r   $FPS -f yuv4mpegpipe -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.yuv -b 900k $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK  -ss $SS  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.${FF_FORMAT}"
 			  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-			  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
+			  eval "/usr/bin/time -a -f \"resampleVideo : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 		
 		else
 			  
@@ -77,11 +83,11 @@
 			  echo -e "${yellow}# pass 1 ${NC}"
 			  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
 			  COMMAND="${FFMPEG} -an $DEINTERLACE -i ${INPUT} -passlogfile /tmp/${OUTPUT}.log  -pass 1  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25 -i_qfactor 0.71  -g 500     $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -ss $SS -f $FF_FORMAT -y /dev/null"
-			  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
+			  eval "/usr/bin/time -a -f \"createVideo1 : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 
 			  COMMAND="${FFMPEG} -an $DEINTERLACE -i ${INPUT} -passlogfile /tmp/${OUTPUT}.log   -pass 2  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25 -i_qfactor 0.71  -g 500     $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -ss $SS  -f $FF_FORMAT -y ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263"
 			  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-			  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
+			  eval "/usr/bin/time -a -f \"createVideo2 : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 		
 		fi
 
@@ -91,14 +97,14 @@
 		echo -e "${yellow}# Remux sound and video${NC}"
 		COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263 -i ${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.mp3 -acodec copy -vcodec copy -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}_tmp.${FF_FORMAT}"
 		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-		eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+		eval "/usr/bin/time -a -f \"remux : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 		
 		
 		### use flvtool2
 		echo -e "${yellow}# flvtool2${NC}"
 		COMMAND="flvtool2 -U  -comment:\"Encoded and delivered by previewnetworks.com\"  -metadatacreator:\"Previewnetworks Encoding System\"  ${DIRECTORY}/${SUBDIR}/${OUTPUT}_tmp.${FF_FORMAT} ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}"
 		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-		eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+		eval "/usr/bin/time -a -f \"addTags : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 		
 		
 		### clean up
@@ -113,10 +119,23 @@
 		FILE_INFOS=""
 		get_file_infos "${DIRECTORY}/$SUBDIR/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}"
 
-		if [[  $? == 1 ]]
+		if [[  $? == 0 ]]
 		then 
 		echo -e "${GREEN}${DIRECTORY}/$SUBDIR/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT} ${NC}"
 		[[ $DEBUG -gt 1 ]] && echo -e "$FILE_INFOS" ||echo -e "$FILE_INFOS" >  "${DIRECTORY}/$SUBDIR/sample.up"
+
+		### stop timer
+
+		TIME_END=$(date +%s)
+
+		### calculate duration
+
+		let "ENCODING_DURATION=$TIME_END - $TIME_START"
+
+		### quit timer infos to log files (for evaluation)
+
+		logTimer
+
 		else
 		echo -e "${RED}$FILE_INFOS${NC}"		
 		fi
