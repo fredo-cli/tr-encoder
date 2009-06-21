@@ -1,5 +1,5 @@
 #!/usr/local/bin/bash
-
+PREFIX="play"
 FF_FORMAT="mp4"
 PLAY_SIZE="_4"
 
@@ -22,14 +22,24 @@ FF_PRESET2="-vpre default -vpre main -refs 2 -bf 0"
 FF_PASS=2
 
 
-if [[ $EVALUTE == 1 ]]
+if [[ $EVALUTE == 1 && $EVALUATION == 0 ]]
 then
 
-EVALUATION=$(echo "$EVALUATION + ($FF_WIDTH * $FF_HEIGHT * $FF_FPS * $FF_PASS * ($DURATION_S - $SS))"|bc)
+### evalute only once or encode
+
+evaluation_ini
+
+### check the evolution of the encoding
+
+elif [[ $EVALUTE == 1 && $EVALUATION -gt 0 ]]
+then
+
+evaluation_check
 
 else
 
-echo -e "\\n${BLUE}$(box "format: play-$FF_FORMAT-$PLAY_SIZE")${NC}"
-. "$APP_DIR/formats/play-$FF_FORMAT.sh" 
+### encode the video
+
+. "$APP_DIR/formats/$PREFIX-$FF_FORMAT.sh" 
 
 fi
