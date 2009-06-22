@@ -9,9 +9,16 @@ evaluation_ini(){
 
 	  ### get average time for this format
 
-	  TIME_EVALUATION=$(cat ${APP_DIR}/log/timer.log  |grep "${INPUT_SIZE_CATEGORY}TO$PREFIX-$FF_FORMAT-$PLAY_SIZE" |awk -F "\t" '{ n++; SUM += $2 } END { print SUM/n }')
+	  TIME_EVALUATION=$(cat ${APP_DIR}/log/timer.log  |grep "${INPUT_SIZE_CATEGORY}TO$PREFIX-$FF_FORMAT-$PLAY_SIZE") 
+	  if [[ ! -z $TIME_EVALUATION ]] 
+	  then
+	  TIME_EVALUATION=$(echo "$TIME_EVALUATION" |awk -F "\t" '{ n++; SUM += $2 } END { print SUM/n }')
 	  TIME_EVALUATION=$(echo "$TIME_EVALUATION * $DURATION_S * $CPUS_AVERAGE/1000" |bc )
 	  let "TOTAL_TIME_EVALUATION =$TOTAL_TIME_EVALUATION + $TIME_EVALUATION"
+	  else
+	  TIME_EVALUATION=0
+	  let "TOTAL_TIME_EVALUATION =$TOTAL_TIME_EVALUATION + $TIME_EVALUATION"
+	  fi
 
 }
 

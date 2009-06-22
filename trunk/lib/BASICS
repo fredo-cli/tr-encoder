@@ -1,7 +1,7 @@
 #/usr/bin/bash
 
 
-Vert='\[\033[1;32m' 
+
 
 # Define some colors first:
 BLACK='\e[0;30m'

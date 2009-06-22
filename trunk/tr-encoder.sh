@@ -32,7 +32,7 @@ NB_FILE_TO_CREATE=0
 NB_FILE_CREATED=0
 
 ### in  Mhz
-CPUS_AVERAGE=8 
+CPUS_AVERAGE=12
 
 ### Path to ffmpeg
 
@@ -144,7 +144,7 @@ add_logo(){
 	    
 	    COMMAND="convert "${LOGO}" -resize ${LOGO_RESIZED_W}x${LOGO_RESIZED_H}\! -depth 8 $LOGO_RESIZED" 
 
-	    eval "/usr/bin/time -a -f \"CreateLogo : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND " && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
+	    eval "$COMMAND " && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 	    
 	    # get the exact size of the resized logo (imagemagick do not respect the exactly thr -resize parameter)
 	    LOGO_RESIZED_W=$(identify -format %w $LOGO_RESIZED )
@@ -199,7 +199,7 @@ dump_audio(){
 		echo -e "${yellow}# create audio.wav ${NC}"		
 		COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio.wav -vc null -vo null ${INPUT}"
 		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" > /dev/null  2>&1"
-		eval "/usr/bin/time -a -f \"dumpAudio : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+		eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 
 			  ### check the size audio.wav
 
@@ -218,7 +218,7 @@ dump_audio(){
 			  echo -e "${yellow}# create audio.wav ${NC}"		
 			  COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio.wav -vc dummy -vo null ${INPUT}"
 			  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" > /dev/null  2>&1"
-			  eval "/usr/bin/time -a -f \"dumpAudio : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+			  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 			  fi
 
 		fi
@@ -234,7 +234,7 @@ echo -e "${yellow}# Resampling PCM 8 bit to PCM 16 bit${NC}"
 COMMAND="${COMMAND}sox $SOX_B ${DIRECTORY}/${SUBDIR}/${OUTPUT}.wav -r 48000 $SOX_W ${DIRECTORY}/${SUBDIR}/resample.wav resample"
 #echo "sox: resampling PCM, 8 bi to PCM, 16 bit" 
 [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-eval "/usr/bin/time -a -f \"resampleAudio : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 fi
 }
 

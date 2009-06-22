@@ -52,7 +52,7 @@
 # 		#COMMAND="faac -q 500 -c $FF_AR -b $FF_AB --mpeg-vers 4 -o ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.aac ${DIRECTORY}/$SUBDIR/audio.wav"
 # 		COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/audio.wav  -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec libfaac  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.aac"
 # 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-# 		eval "/usr/bin/time -a -f \"dodo : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
+# 		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
 # 	
 # 
 # 	fi
@@ -68,7 +68,7 @@
 		echo -e "${yellow}# Resample video${NC}"
 		COMMAND="${FFMPEG} -v 0 $DEINTERLACE -r   $FPS -f yuv4mpegpipe -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.yuv -b 900k $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK    -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv"
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-		eval "/usr/bin/time -a -f \"resampleVideo : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
+		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 	else
 	
 		### create video_.h264
@@ -78,12 +78,12 @@
 		echo -e "${yellow}# pass 1 ${NC}"
 		COMMAND="${FFMPEG} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -aspect 16:9  -f $FF_FORMAT -y /dev/null "
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-		eval "/usr/bin/time -a -f \"createVideo1 : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
+		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 		
 		echo -e "${yellow}# pass 2 ${NC}"
 		COMMAND="${FFMPEG} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK    -f $FF_FORMAT -aspect 16:9 -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.mpeg4"
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-		eval "/usr/bin/time -a -f \"createVideo2 : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
+		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 	
 	fi
 
@@ -95,7 +95,7 @@
 	echo -e "${yellow}# Remux sound and video${NC}"
 	COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.mpeg4 -i ${DIRECTORY}/$SUBDIR/audio.wav  -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec libfaac -vcodec copy -y ${DIRECTORY}/${SUBDIR}/video_tmp.${FF_FORMAT}"
 	[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-	eval "/usr/bin/time -a -f \"remux : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
+	eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
 	
 	
 
@@ -105,7 +105,7 @@
 	echo -e "${yellow}# qt-faststart${NC}"
 	COMMAND="qt-faststart \"${DIRECTORY}/${SUBDIR}/video_tmp.${FF_FORMAT}\" \"${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}\""
 	[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  >/dev/null"
-	eval "/usr/bin/time -a -f \"addTags : %E\" -o \"${DIRECTORY}/$SUBDIR/timer.txt\" $COMMAND $QUIET" && echo -e ${green}$COMMAND $QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
+	eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND $QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
 	
 	
 
