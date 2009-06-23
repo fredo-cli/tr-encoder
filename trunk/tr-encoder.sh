@@ -988,32 +988,54 @@ encode(){
 
 		if [[ $EVALUTE == 1 && $EVALUATION == 1 ]]
 		then  
-				### not finish
+				### Working
 
-				if [[  $NB_FILE_CREATED < $NB_FILE_TO_CREATE ]]
+				if [[  $NB_FILE_CREATED -lt $NB_FILE_TO_CREATE ]]
 				then
+				echo "encode"
+				#echo  -en  NB_FILE_CREATED=$NB_FILE_CREATED
+				echo    "$NB_FILE_CREATED / $NB_FILE_TO_CREATE"
 
-				echo  -e ${RED}NB_FILE_CREATED=$NB_FILE_CREATED${NC}
 
-				### first time finish
+				TOTAL_TIME_REALISATION=$(cat ${DIRECTORY}/${SUBDIR}/timer.log |awk -F " " '{ n++;  S += $2  } END { print S } ')
+				let "EVOLUTION_PERCENT=$TOTAL_TIME_REALISATION *100 / $TOTAL_TIME_EVALUATION"	
+  
+                                ### if TOTAL_TIME_REALISATION gt TOTAL_TIME_EVALUATION --> 99%
 
-				elif [[  $NB_FILE_CREATED == $NB_FILE_TO_CREATE && -z $TOTAL_TIME_REALISATION  ]]
+				[[ $EVOLUTION_PERCENT -gt 99 ]] && EVOLUTION_PERCENT=99
+
+				#echo   "$TOTAL_TIME_REALISATION  / $TOTAL_TIME_EVALUATION = $EVOLUTION_PERCENT%"
+				echo   $EVOLUTION_PERCENT
+
+
+				### just finish
+
+				elif [[  $NB_FILE_CREATED == $NB_FILE_TO_CREATE &&  $TOTAL_TIME_REALISATION == 0  ]]
 				then
-
-				echo  -e ${GREEN}NB_FILE_CREATED=$NB_FILE_CREATED${NC}
+				echo "finish"
+				echo  "NB_FILE_CREATED=$NB_FILE_CREATED"
 				save_info "NB_FILE_CREATED=$NB_FILE_CREATED"
  
 
 				### calulate te total time of realistion and remove the millisecondes
 
-				TOTAL_TIME_REALISATION=$(cat ${DIRECTORY}/${SUBDIR}/timer.txt |awk -F : '{ n++; M += $2*60 ; S += $3  } END { print M+S/1 } ')
-				save_info "TOTAL_TIME_REALISATION=${TOTAL_TIME_REALISATION%\.*}"
+				### version time
+				#TOTAL_TIME_REALISATION=$(cat ${DIRECTORY}/${SUBDIR}/timer.txt |awk -F : '{ n++; M += $2*60 ; S += $3  } END { print M+S/1 } ')
+				#save_info "TOTAL_TIME_REALISATION=${TOTAL_TIME_REALISATION%\.*}"
+				### new version
+				TOTAL_TIME_REALISATION=$(cat ${DIRECTORY}/${SUBDIR}/timer.log |awk -F " " '{ n++;  S += $2  } END { print S } ')
+				save_info "TOTAL_TIME_REALISATION=${TOTAL_TIME_REALISATION%}"
 
-				### over time finish
+
+
+
+				### completly done
 
 				else
  
-				echo  -e ${GREEN}"done"${NC}
+				echo   "done"
+				echo    "$NB_FILE_CREATED / $NB_FILE_TO_CREATE"
+				echo 100
 
 				fi
 
@@ -1134,13 +1156,14 @@ execute(){
 		    
 				if [[ $MPLAYER_VIDEO_TEST == 0 || $MPLAYER_AUDIO_TEST == 0 ]] 
 				then
-				ERROR="# ERROR: This video ($1) is not supported!"
+				ERROR="ERROR: This video is not supported!"
 				echo -e "\\n${RED}${ERROR}${NC}\\n"
 				echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt
 				stop
 				else
 				
-				# try to read from the info file
+				### try to read from the info file
+
 				if  [[ $OVERWRITE == 2 ||  -z "$FILE_PATH" ]]
 				then
 			
@@ -1197,7 +1220,7 @@ execute(){
 				
 						if [[ -z $DETECTED_FORMAT  ]] 
 						then
-						ERROR="# ERROR: This video format ($1) is not supported!"
+						ERROR="ERROR: This video format is not supported!"
 						echo -e "\\n${RED}${ERROR}${NC}\\n"
 						echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt
 						#save_info "${ERROR}"						
@@ -1205,11 +1228,11 @@ execute(){
 						else
 						
 
+ 
 							   
-							   
-							   ### create the logo or logos
+							   ### create the logo or logos (don't do it for evaluation)
 							   VHOOK=""
-							   if [[ ! -z $LOGOS_ADD ]]
+							   if [[ ! -z $LOGOS_ADD && $EVALUTE == 0 ]]
 							   then
 							   
 						   
