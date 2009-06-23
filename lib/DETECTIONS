@@ -152,7 +152,7 @@ VIDEO_COUNT=0
 
 	      ERROR="ERROR: Duration of the video is ($DURATION_S secondes).The minimun duration for a video is ($MINIMUM_DURATION secondes)  "
 	      echo -e ${RED}${ERROR}${NC}
-	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt   
+	      echo "$ERROR" >> ${DIRECTORY}/${OUTPUT}/error.txt   
 
 	      else
 
@@ -239,9 +239,9 @@ VIDEO_COUNT=0
 
 	      else
 
-	      ERROR="#ERROR: 1 video stream is needed (Detection: $VIDEO_COUNT)."
+	      ERROR="ERROR: 1 video stream is needed (Detection: $VIDEO_COUNT)."
 	      echo -e ${RED}${ERROR}${NC}
-	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt 
+	      echo "$ERROR" >> ${DIRECTORY}/${OUTPUT}/error.txt 
 	      #save_info "$ERROR"
 
 	      fi
@@ -269,9 +269,9 @@ VIDEO_COUNT=0
 
 	      else
 
-	      ERROR="# ERROR: 1 audio stream is needed (Detection: $AUDIO_COUNT)"
+	      ERROR="ERROR: 1 audio stream is needed (Detection: $AUDIO_COUNT)"
 	      echo -e ${RED}${ERROR}${NC}
-	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt 
+	      echo "$ERROR" >> ${DIRECTORY}/${OUTPUT}/error.txt 
 
 	      fi
 
@@ -317,7 +317,7 @@ check_comp(){
 		### Video codec supported by ffmpeg
 
 		[[ $DEBUG > 0 ]] && echo  ${FFMPEG_TAIL}  
-		echo -e ${ERROR} ${FFMPEG_HEAD}  >> ${DIRECTORY}/${OUTPUT}/error.txt    
+		echo -e "${ERROR} ${FFMPEG_HEAD}"  >> ${DIRECTORY}/${OUTPUT}/error.txt    
 		  
 		fi
 			
@@ -360,7 +360,7 @@ check_comp(){
 		[[ $DEBUG > 0 ]] && echo  ${FFMPEG_TAIL}
 
 
-		echo -e ${ERROR} ${FFMPEG_HEAD}  >> ${DIRECTORY}/${OUTPUT}/error.txt    
+		echo -e "${ERROR} ${FFMPEG_HEAD}"  >> ${DIRECTORY}/${OUTPUT}/error.txt    
 
 		fi
 		  
@@ -417,7 +417,7 @@ check_comp(){
 		ERROR="MPLAYER_VIDEO=$MPLAYER_VIDEO"
 		save_info "$ERROR"
 		echo -e "${RED}${ERROR}${NC}\\n"
-		echo -e ${ERROR}  >> ${DIRECTORY}/${OUTPUT}/error.txt 
+		echo -e "${ERROR}"  >> ${DIRECTORY}/${OUTPUT}/error.txt 
 
 		fi
 
@@ -697,7 +697,7 @@ VCODEC=""
 	      then
 	      ERROR="Error: Duration of the video is ($VDURATION_S secondes).The minimun duration for a video is ($MINIMUM_DURATION secondes)  "
 	      echo -e ${RED}${ERROR}${NC}
-	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt   
+	      echo "$ERROR" >> ${DIRECTORY}/${OUTPUT}/error.txt   
 	      else
 	      [[ $DEBUG -gt 0 ]] && echo -e "VDURATION=${GREEN}$VDURATION_S${NC}"
 	      CROPSTART=`echo ${VDURATION_S} / 2|bc`
@@ -868,7 +868,7 @@ get_audio_infos() {
 		else
 		ERROR="Error: Duration of the audio is ($ADURATION_S secondes).The minimun duration for a audio is ($MINIMUM_DURATION secondes)  "
 		echo -e ${RED}${ERROR}${NC}
-		echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt 
+		echo "$ERROR" >> ${DIRECTORY}/${OUTPUT}/error.txt 
 		fi
 		save_info "ADURATION=$ADURATION"
 
@@ -1022,7 +1022,7 @@ cropdetection() {
 		 ERROR=${ERROR}$CROPDETECTION_CMD
 		 ERROR=${ERROR}`cat "${DIRECTORY}/${SUBDIR}/crop.txt" |tail -n 10`
 		 
-	      echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt   
+	      echo "$ERROR" >> ${DIRECTORY}/${OUTPUT}/error.txt   
 	      echo -e "${RED}${ERROR}${NC}\\n"
 
 	      fi
