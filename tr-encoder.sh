@@ -1138,7 +1138,7 @@ execute(){
 	      OUTPUT=${OUTPUT%%.???}
 		 
 		 
-		 NOTICE=""
+	      NOTICE=""
 	      WARNING=""
 	      ERROR=""
 	      
@@ -1174,23 +1174,31 @@ execute(){
 		 
 		 
 		case "$OPERATION" in
+
 		compatible) check_comp
 		stop
 		;;
+
+		getps)    
+		PS=$(ls "${DIRECTORY}/${OUTPUT}" |grep ps |tail -1)
+		echo ${PS#ps}
+		stop
+		;;
+
 		general)    
-		  get_general_infos
-		  stop
-		  ;;
-		
+		get_general_infos
+		stop
+		;;
+
 		video)	  
-		  get_video_infos 
-		  stop
-		  ;;
-		  
+		get_video_infos 
+		stop
+		;;
+
 		audio)
-		  get_audio_infos 
-		  stop
-		  ;;	
+		get_audio_infos 
+		stop
+		;;	
 		infos)
 		
 		  ### check if the video is compatible with ffmpeg or mplayer
