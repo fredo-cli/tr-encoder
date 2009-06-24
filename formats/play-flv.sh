@@ -6,7 +6,11 @@
 	### display the format 
 
 	echo -e "\\n${BLUE}$(box "format: $PREFIX-$FF_FORMAT-$PLAY_SIZE")${NC}"
-  	
+
+
+	### create the logo or logos 
+
+        add_logo 
 	
 	### Recalculate the padding
 	

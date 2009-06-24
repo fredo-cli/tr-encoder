@@ -8,11 +8,16 @@
 
 	echo -e "\\n${BLUE}$(box "format: $PREFIX-$FF_FORMAT-$PLAY_SIZE")${NC}"
 
-THREADS=1
+	### create the logo or logos 
 
-# change of directory  ( to avoid the x264_2pass.log issue )
-PWD=$(pwd)
-cd ${DIRECTORY}/${SUBDIR}/
+        add_logo 
+
+	THREADS=1
+
+	### change of directory  ( to avoid the x264_2pass.log issue )
+
+	PWD=$(pwd)
+	cd ${DIRECTORY}/${SUBDIR}/
 
 	### Recalculate the padding
 	
