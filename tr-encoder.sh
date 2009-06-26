@@ -316,46 +316,55 @@ mplayer $INPUT -fps 24 -ass -embeddedfonts -sid 0 -aid 1 -vf eq2=0.9:1:0:1.02 -v
 	
 pal-dar133(){
 	
-                                                                                                
-		CROP_PRESET=`grep  "^${TRY}1.25|${WIDTH}x${HEIGHT}|1.33|$CROPWIDTH_AV|$CROPHEIGHT_AV|.*" ${APP_DIR}/config/CROPS `
-		[[ $DEBUG -gt 1 ]] && echo $CROP_PRESET                                                                                        
+				### try to get a preset   
+                                                                      
+				CROP_PRESET=`grep  "^${TRY}1.25|${WIDTH}x${HEIGHT}|1.33|$CROPWIDTH_AV|$CROPHEIGHT_AV|.*" ${APP_DIR}/config/CROPS `
+				[[ $DEBUG -gt 1 ]] && echo $CROP_PRESET                                                                                        
 																									 
                                                                                                                                
                                                                                                                                         
                                                                                                                                         
-				# Width                                                                                                  
+				### for the Width                                                                                                  
                                                                                                                                         
 				CROP_PRESET_WIDTH=`echo $CROP_PRESET |awk -F "|" '{ print $7 }'`                                         
 				if [[ ! -z $CROP_PRESET_WIDTH ]] 
 				then
 				
-				# change to the preset values
+				### change to the preset values
+
 				eval "$CROP_PRESET_WIDTH"
 
 				FF_CROP_WIDTH="-cropleft $CROPLEFT -cropright $CROPRIGHT "
-				[[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Cropping W: $FF_CROP_WIDTH ${NC}\\t(preset)"				
+				[[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Cropping W: $FF_CROP_WIDTH ${NC}\\t(preset)"	
+			
 				else
 				
-				# keep the cropping detected values for the width (if not to big)
-				if [[ $CROPWIDTH_AV  -lt `echo "$WIDTH * 0.03 * 2 / 2" |bc` ]]
-				then
-				FF_CROP_WIDTH="-cropleft $CROPLEFT -cropright $CROPRIGHT "
-				else
-				FF_CROP_WIDTH="-cropleft 0 -cropright 0 "				
-				fi
+					#### keep the cropping detected values for the width (if not to big)
+
+					if [[ $CROPWIDTH_AV  -lt `echo "$WIDTH * 0.03 * 2 / 2" |bc` ]]
+					then
+
+					FF_CROP_WIDTH="-cropleft $CROPLEFT -cropright $CROPRIGHT "
+
+					else
+
+					FF_CROP_WIDTH="-cropleft 0 -cropright 0 "	
+				
+					fi
 				
 				[[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Cropping W: $FF_CROP_WIDTH ${NC}\\t(crop detection)"
 				
 				fi
 				
 				
-				# Height
+				### for the Height
 				
 				CROP_PRESET_HEIGHT=`echo $CROP_PRESET |awk -F "|" '{ print $6 }'`
 				if [[ ! -z $CROP_PRESET_HEIGHT ]]
 				then
 				
-				# change to the preset values
+				###  change to the preset values
+
 				eval "$CROP_PRESET_HEIGHT"
 				FF_CROP_HEIGHT="-croptop $CROPTOP -cropbottom $CROPBOTTOM "
 				[[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Cropping H: $FF_CROP_HEIGHT ${NC}\\t(preset)"
@@ -1060,20 +1069,26 @@ encode(){
 
 				if [[  $NB_FILE_CREATED -lt $NB_FILE_TO_CREATE ]]
 				then
-				echo "encode"
-				#echo  -en  NB_FILE_CREATED=$NB_FILE_CREATED
-				echo    "$NB_FILE_CREATED / $NB_FILE_TO_CREATE"
 
-
-				TOTAL_TIME_REALISATION=$(cat ${DIRECTORY}/${SUBDIR}/timer.log |awk -F " " '{ n++;  S += $2  } END { print S } ')
+				[[ -f ${DIRECTORY}/${SUBDIR}/timer.log ]] && TOTAL_TIME_REALISATION=$(cat ${DIRECTORY}/${SUBDIR}/timer.log |awk -F " " '{ n++;  S += $2  } END { print S } ')
+				[[ -z $TOTAL_TIME_REALISATION ]] && TOTAL_TIME_REALISATION=0
 				let "EVOLUTION_PERCENT=$TOTAL_TIME_REALISATION *100 / $TOTAL_TIME_EVALUATION"	
-  
-                                ### if TOTAL_TIME_REALISATION gt TOTAL_TIME_EVALUATION --> 99%
+
+                               ### if TOTAL_TIME_REALISATION gt TOTAL_TIME_EVALUATION --> 99%
 
 				[[ $EVOLUTION_PERCENT -gt 99 ]] && EVOLUTION_PERCENT=99
 
 				#echo   "$TOTAL_TIME_REALISATION  / $TOTAL_TIME_EVALUATION = $EVOLUTION_PERCENT%"
-				echo   $EVOLUTION_PERCENT
+				#echo   $EVOLUTION_PERCENT
+
+				echo "{'statusID': 5 , 'FileToCreateNB': $NB_FILE_TO_CREATE , 'fileCreatedNB' : $NB_FILE_CREATED , 'evolutionPC' : $EVOLUTION_PERCENT ,'realisationTime' : $TOTAL_TIME_REALISATION , 'evaluationTime' : $TOTAL_TIME_EVALUATION}"
+# 				echo  -n  NB_FILE_TO_CREATE=$NB_FILE_TO_CREATE
+# 				echo  -n  "NB_FILE_CREATED=$NB_FILE_CREATED"
+
+
+
+  
+ 
 
 
 				### just finish
@@ -1264,8 +1279,8 @@ execute(){
 				save_info "PADTOP=\"$PADTOP\""
 				save_info "PADBOTTOM=\"$PADBOTTOM\""	
 
-				save_info "CROPTOP=\"$PADTOP\""
-				save_info "CROPBOTTOM=\"$PADBOTTOM\""	
+				save_info "CROPTOP=\"$CROPTOP\""
+				save_info "CROPBOTTOM=\"$CROPBOTTOM\""	
 
 				save_info "CROPLEFT=\"$CROPLEFT\""				
 				save_info "CROPRIGHT=\"$CROPRIGHT\""	
