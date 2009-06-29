@@ -23,6 +23,6 @@
 . "$APP_DIR/formats/play-mp4-6.sh"
 . "$APP_DIR/formats/play-mp4-7.sh"
 
-#. "$APP_DIR/formats/play-mp4-8.sh"
+. "$APP_DIR/formats/play-mp4-8.sh"
 
 #. "$APP_DIR/formats/play-3gp-1.sh"
