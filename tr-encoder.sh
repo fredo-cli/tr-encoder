@@ -1081,7 +1081,7 @@ encode(){
 				#echo   "$TOTAL_TIME_REALISATION  / $TOTAL_TIME_EVALUATION = $EVOLUTION_PERCENT%"
 				#echo   $EVOLUTION_PERCENT
 
-				echo "{'statusID': 5 , 'FileToCreateNB': $NB_FILE_TO_CREATE , 'fileCreatedNB' : $NB_FILE_CREATED , 'evolutionPC' : $EVOLUTION_PERCENT ,'realisationTime' : $TOTAL_TIME_REALISATION , 'evaluationTime' : $TOTAL_TIME_EVALUATION}"
+				echo "{'statusID': 5 , 'filesToCreateNB': $NB_FILE_TO_CREATE , 'filesCreatedNB' : $NB_FILE_CREATED , 'evolutionPC' : $EVOLUTION_PERCENT ,'realisationTime' : $TOTAL_TIME_REALISATION , 'evaluationTime' : $TOTAL_TIME_EVALUATION}"
 # 				echo  -n  NB_FILE_TO_CREATE=$NB_FILE_TO_CREATE
 # 				echo  -n  "NB_FILE_CREATED=$NB_FILE_CREATED"
 
