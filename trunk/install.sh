@@ -5,10 +5,7 @@ INSTALL=0
 REINSTALL=0
 
 
-LAME_VERSION=3.98
-FFMPEG_VERSION=17768
-X264_VERSION=0.65
-MPLAYER_VERSION=29242
+
 
 usage() {
 echo >&2 "Usage: `basename $0` [-i install] [-i reinstall]"
