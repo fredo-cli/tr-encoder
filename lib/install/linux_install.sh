@@ -1,5 +1,11 @@
 #!/bin/bash
 
+LAME_VERSION=3.98
+FFMPEG_VERSION=17737
+X264_VERSION=0.65
+MPLAYER_VERSION=29242
+
+
 # create link to be compatible
 [[ -z $(readlink "/usr/local/bin/bash") ]] && sudo ln -s /bin/bash /usr/local/bin/bash
 
@@ -32,9 +38,7 @@ sudo echo "mplayer hold" |sudo  dpkg --set-selections
 
 
 
-## add medibuntu
-#wget -q http://fr.packages.medibuntu.org/medibuntu-key.gpg -O- | sudo apt-key add -
-#deb http://packages.medibuntu.org/ intrepid free non-free
+
 
 echo -e '\nUpdate Sources\n'
 for source in main universe restricted multiverse
@@ -118,7 +122,7 @@ function INSTALL_MPLAYER(){
 sudo apt-get -y purge mplayer 
 cd  
 svn checkout  -r $MPLAYER_VERSION  svn://svn.mplayerhq.hu/mplayer/trunk mplayer
-#svn checkout -r 29033 svn://svn.mplayerhq.hu/mplayer/trunk mplayer
+
 cd mplayer
 ./configure
 make
@@ -179,32 +183,31 @@ cd
 
 [[ -d "ffmpeg" ]] && rm -rf ffmpeg
 
-mkdir ffmpeg
 
 
-
-
-cd ~/ffmpeg
 
 wget http://dl.getdropbox.com/u/221284/ffmpeg.tar.gz
+
 tar -xzvf ffmpeg.tar.gz 
 
 
 cd ffmpeg
 
 # Version 0.5
-$FFMPEG_VERSION
+#FFMPEG_VERSION=17737
 svn checkout -r $FFMPEG_VERSION svn://svn.ffmpeg.org/ffmpeg/trunk ffmpeg
 
-## old release
+##  old release
 ## -r 10657
-## -r 14424
-
-## svm -r 17727 = version 0.5
-## svn -r 17768 = last version before removing vhook
+## -r 14424 freebsd
+## svn -r 17727 = version 0.5 -> not good
+## svn -r 17768 = last version before removing vhook -> not good
 ## svn -r 17792 =  version recommanded for libavfilter
 
-#patch wma3
+
+
+
+### patch wma3
 
 cd ffmpeg/libavcodec
 ln -s ../../wma3dec.c wma3dec.c
@@ -214,7 +217,7 @@ cd ../
 patch -p0 <../wmapro_ffmpeg.patch
 patch -p0 <../audioframesize.patch
 
-# patch pip
+### patch pip
 cd ./vhook
 ln -s  ../../pip1.2.1.c pip.c
 cd ../
@@ -223,8 +226,8 @@ patch -p0  <  ../pip.patch
 
 
 
-
-./configure  --enable-gpl --enable-postproc --enable-pthreads --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-nonfree --enable-x11grab --enable-libamr_nb --enable-libamr_wb
+# --disable-devices --enable-x11grab
+./configure  --enable-gpl --enable-postproc --enable-pthreads --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-nonfree  --enable-libamr_nb --enable-libamr_wb  
 
 make
 
@@ -239,7 +242,7 @@ cd tools
 cc qt-faststart.c -o qt-faststart
 sudo cp qt-faststart /usr/bin
 cd 
-sudo rm -Rf ffmpeg*
+# sudo rm -Rf ffmpeg*
 
 }
 
@@ -279,6 +282,23 @@ TEST_CONNEXION
 #rm debian-multimedia-keyring_2008.10.16_all.deb
 #
 #fi
+
+
+
+
+### add medibuntu 
+
+echo -en "medibuntu (jaunty)\t"
+if [[ -z $(cat /etc/apt/sources.list |grep "http://packages.medibuntu.org/ jaunty free non-free" ) ]]
+then
+echo -e "${yellow}false${NC}"
+sudo su -
+echo "deb http://packages.medibuntu.org/ jaunty free non-free" >> /etc/apt/sources.list
+wget -q http://fr.packages.medibuntu.org/medibuntu-key.gpg -O- | sudo apt-key add -
+else
+echo -e "${green}true${NC}"
+fi
+
 
 
 ACTIVER_SOURCES
