@@ -472,7 +472,7 @@ chmod +x /home/$USER/tr-encoder/tr-encoder.sh
 
 	echo -e "${yellow}false${NC}"
 
-	[[ $INSTALL == 1 ]] OPENCORE_AMR
+	[[ $INSTALL == 1 ]] && OPENCORE_AMR
 
 	fi
 
