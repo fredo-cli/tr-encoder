@@ -1,11 +1,14 @@
 #!/bin/bash
 
 LAME_VERSION=3.98
-FFMPEG_VERSION=19433
-FFMPEG_VERSION_TXT="-custom.0.1"
-X264_VERSION=0.65
-MPLAYER_VERSION=29242
 
+FFMPEG_VERSION=19433
+FFMPEG_VERSION_TXT="custom1"
+
+X264_VERSION=0.65
+
+MPLAYER_VERSION=29410
+MPLAYER_VERSION_TXT="custom1"
 
 # create link to be compatible
 [[ -z $(readlink "/usr/local/bin/bash") ]] && sudo ln -s /bin/bash /usr/local/bin/bash
@@ -30,10 +33,10 @@ svn checkout  -r $MPLAYER_VERSION  svn://svn.mplayerhq.hu/mplayer/trunk mplayer
 cd mplayer
 ./configure
 make
-sudo checkinstall -y --fstrans=no --install=yes --pkgname=mplayer --pkgversion "$MPLAYER_VERSION"
+sudo checkinstall -y --fstrans=no --install=yes --pkgname=mplayer --pkgversion "$MPLAYER_VERSION_TXT"
 sudo ldconfig
 cd 
-sudo rm -Rf mplayer*
+#sudo rm -Rf mplayer*
 }
 
 
@@ -182,12 +185,12 @@ svn checkout -r $FFMPEG_VERSION svn://svn.ffmpeg.org/ffmpeg/trunk .
 
 # --disable-devices --enable-x11grab
 #./configure  --enable-gpl --enable-postproc --enable-pthreads --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-nonfree  --enable-libamr_nb --enable-libamr_wb --enable-libopencore-amrwb --enable-version3 --enable-libopencore-amrnb --disable-ffplay --disable-ffserver --enable-avfilter --enable-avfilter-lavf --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-nonfree --enable-libtheora --enable-libvorbis --enable-gpl --enable-libx264 --enable-postproc --enable-pthreads
-./configure --disable-devices  --enable-libopencore-amrwb --enable-version3 --enable-libopencore-amrnb --disable-ffplay --disable-ffserver --enable-avfilter --enable-avfilter-lavf --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-nonfree --enable-libtheora --enable-libvorbis --enable-gpl --enable-libx264 --enable-postproc --enable-pthreads
+./configure --disable-devices --enable-shared  --enable-libopencore-amrwb --enable-version3 --enable-libopencore-amrnb --disable-ffplay --disable-ffserver --enable-avfilter --enable-avfilter-lavf --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-nonfree --enable-libtheora --enable-libvorbis --enable-gpl --enable-libx264 --enable-postproc --enable-pthreads
 make
 
 
 
-sudo checkinstall -y --fstrans=no --install=yes --pkgname=ffmpeg --pkgversion "$FFMPEG_VERSION+$FFMPEG_VERSION_TXT"
+sudo checkinstall -y --fstrans=no --install=yes --pkgname=ffmpeg --pkgversion "$FFMPEG_VERSION_TXT"
 
 
 
@@ -499,7 +502,7 @@ chmod +x /home/$USER/tr-encoder/tr-encoder.sh
 	### ffmpeg ###
 
 	echo -en "ffmpeg\t"
-	if [[ $(dpkg -s ffmpeg| grep Version:) != "Version: $FFMPEG_VERSION+$FFMPEG_VERSION_TXT" ]]
+	if [[ $(dpkg -s ffmpeg| grep Version:) != "Version: $FFMPEG_VERSION_TXT-1" ]]
 	then
 	echo -e "${yellow}false${NC}"
 
