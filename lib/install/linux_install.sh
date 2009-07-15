@@ -85,7 +85,8 @@ wget "http://dfn.dl.sourceforge.net/sourceforge/opencore-amr/opencore-amr-0.1.1.
 tar xzvf opencore-amr-0.1.1.tar.gz
 cd opencore-amr
 make
-sudo ldconfig
+sudo checkinstall -y --fstrans=no --install=yes --pkgname=opencore-mr --pkgversion "0.1.1"
+
 }
 
 
@@ -480,7 +481,7 @@ chmod +x /home/$USER/tr-encoder/tr-encoder.sh
 
 
 
-	### libopencore ###
+	### yasm ###
 
 	echo -en "yasm\t"
 	if [[ $(dpkg -s yasm| grep Version:) != "Version: 0.7.2-1" ]]
