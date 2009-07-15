@@ -471,7 +471,8 @@ chmod +x /home/$USER/tr-encoder/tr-encoder.sh
 	else
 
 	echo -e "${yellow}false${NC}"
-	OPENCORE_AMR
+
+	[[ $INSTALL == 1 ]] OPENCORE_AMR
 
 	fi
 
@@ -512,7 +513,7 @@ EOF
 
 
 		CHOICE=0
-		read -t 30 CHOICE
+		read CHOICE
 		echo $CHOICE
 		
 		case $CHOICE in
