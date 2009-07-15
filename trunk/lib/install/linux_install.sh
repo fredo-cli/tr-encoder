@@ -2,7 +2,7 @@
 
 LAME_VERSION=3.98
 FFMPEG_VERSION=19433
-FFMPEG_VERSION_TXT="opencore"
+FFMPEG_VERSION_TXT="-custom.0.1"
 X264_VERSION=0.65
 MPLAYER_VERSION=29242
 
@@ -49,7 +49,7 @@ make
 sudo checkinstall -y --fstrans=no --install=yes --pkgname=x264 --pkgversion "9.9.9"
 sudo ldconfig
 cd 
-sudo rm -Rf x264*
+#sudo rm -Rf x264*
 
 }
 
@@ -182,7 +182,7 @@ svn checkout -r $FFMPEG_VERSION svn://svn.ffmpeg.org/ffmpeg/trunk .
 
 # --disable-devices --enable-x11grab
 #./configure  --enable-gpl --enable-postproc --enable-pthreads --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-nonfree  --enable-libamr_nb --enable-libamr_wb --enable-libopencore-amrwb --enable-version3 --enable-libopencore-amrnb --disable-ffplay --disable-ffserver --enable-avfilter --enable-avfilter-lavf --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-nonfree --enable-libtheora --enable-libvorbis --enable-gpl --enable-libx264 --enable-postproc --enable-pthreads
-./configure --enable-libopencore-amrwb --enable-version3 --enable-libopencore-amrnb --disable-ffplay --disable-ffserver --enable-avfilter --enable-avfilter-lavf --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-nonfree --enable-libtheora --enable-libvorbis --enable-gpl --enable-libx264 --enable-postproc --enable-pthreads
+./configure --disable-devices  --enable-libopencore-amrwb --enable-version3 --enable-libopencore-amrnb --disable-ffplay --disable-ffserver --enable-avfilter --enable-avfilter-lavf --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-nonfree --enable-libtheora --enable-libvorbis --enable-gpl --enable-libx264 --enable-postproc --enable-pthreads
 make
 
 
@@ -336,7 +336,7 @@ chmod +x /home/$USER/tr-encoder/tr-encoder.sh
 
 		if [[ "$(lsb_release -si)" == "Ubuntu" ]]
 		then
-		LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac atomicparsley flvtool2 libamrnb-dev libamrwb-dev  sox realpath)
+		LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac atomicparsley flvtool2 libamrnb-dev libamrwb-dev  sox realpath libvorbis-dev)
 		elif [[ "$(lsb_release -si)" == "Debian" ]]
 		then
 		LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac  flvtool2 libamrnb-dev libamrwb-dev  sox realpath)
