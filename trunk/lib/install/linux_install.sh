@@ -68,7 +68,7 @@ cd
 
 function INSTALL_YASM(){
 cd
-wget http://www.tortall.net/projects/yasm/releases/yasm-0.7.2.tar.gz
+wget -nc http://www.tortall.net/projects/yasm/releases/yasm-0.7.2.tar.gz
 tar xzvf yasm-0.7.2.tar.gz
 cd yasm-0.7.2
 ./configure
@@ -80,7 +80,7 @@ sudo -rf rm yasm*
 
 function INSTALL_ATOMICPARSLEY(){
 cd
-wget http://archive.ubuntu.com/ubuntu/pool/universe/a/atomicparsley/atomicparsley_0.9.0.orig.tar.gz | tar xzvf
+wget -nc  http://archive.ubuntu.com/ubuntu/pool/universe/a/atomicparsley/atomicparsley_0.9.0.orig.tar.gz 
 tar xzvf atomicparsley_0.9.0.orig.tar.gz
 cd atomicparsley*
 ./build
@@ -111,9 +111,9 @@ sudo apt-get -y purge ffmpeg
 
 cd $HOME
 
-[[ -d "ffmpeg" ]] && rm -rf ffmpeg
+[[ -d "ffmpeg" ]] && sudo rm -rf ffmpeg
 
-wget http://dl.getdropbox.com/u/221284/ffmpeg.tar.gz
+wget -nc  http://dl.getdropbox.com/u/221284/ffmpeg.tar.gz
 tar -xzvf ffmpeg.tar.gz 
 
 
@@ -155,6 +155,7 @@ patch -p0  <  ../pip.patch
 #work!
 #./configure --prefix=/opt/ffmpeg --enable-gpl --enable-postproc --enable-pthreads --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-nonfree  --enable-libamr_nb --enable-libamr_wb  --disable-shared  --disable-debug  --enable-static --disable-devices --enable-swscale
 
+# work! --enable-libgsm pb
 ./configure --prefix=$HOME/ffmpip --enable-libfaac --enable-libfaad  --enable-libfaadbin --enable-libmp3lame --enable-libgsm  --enable-libamr_nb --enable-libamr_wb  --enable-libvorbis --enable-libtheora  --enable-libx264 --enable-libxvid  --enable-nonfree  --enable-swscale    --disable-shared  --disable-debug  --enable-static --disable-devices --enable-gpl --enable-postproc --enable-pthreads   --enable-memalign-hack --disable-mmx   --disable-ffplay  --disable-ffserver --disable-ipv6
 
 
@@ -220,7 +221,7 @@ cd
 
 function INSTALL_MEDIAINFO(){
 cd 
-wget http://ovh.dl.sourceforge.net/sourceforge/mediainfo/MediaInfo_CLI_0.7.8_GNU_FromSource.tar.bz2
+wget -nc  http://ovh.dl.sourceforge.net/sourceforge/mediainfo/MediaInfo_CLI_0.7.8_GNU_FromSource.tar.bz2
 tar xjvf MediaInfo_CLI_0.7.8_GNU_FromSource.tar.bz2
 cd MediaInfo_CLI_GNU_FromSource
 sh CLI_Compile.sh
@@ -277,7 +278,7 @@ chmod +x /home/$USER/tr-encoder/tr-encoder.sh
 	#sudo su -
 	#echo "deb http://www.debian-multimedia.org stable main" >> /etc/apt/sources.list
 	#exit
-	#wget http://www.debian-multimedia.org/pool/main/d/debian-multimedia-keyring/debian-multimedia-keyring_2008.10.16_all.deb
+	#wget -nc  http://www.debian-multimedia.org/pool/main/d/debian-multimedia-keyring/debian-multimedia-keyring_2008.10.16_all.deb
 	#sudo dpkg -i debian-multimedia-keyring_2008.10.16_all.deb
 	#rm debian-multimedia-keyring_2008.10.16_all.deb
 	#
@@ -352,7 +353,7 @@ chmod +x /home/$USER/tr-encoder/tr-encoder.sh
 
 		if [[ "$(lsb_release -si)" == "Ubuntu" ]]
 		then
-		LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac atomicparsley flvtool2 libamrnb-dev libamrwb-dev  sox realpath libvorbis-dev)
+		LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac atomicparsley flvtool2 libamrnb-dev libamrwb-dev  sox realpath libvorbis-dev imagemagick bc)
 		elif [[ "$(lsb_release -si)" == "Debian" ]]
 		then
 		LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac  flvtool2 libamrnb-dev libamrwb-dev  sox realpath)
