@@ -103,7 +103,7 @@ sudo checkinstall -y --fstrans=no --install=yes --pkgname=opencore-mr --pkgversi
 }
 
 
-function INSTALL_FFMPEG_old(){
+function INSTALL_FFMPIP(){
 
 
 
@@ -155,7 +155,7 @@ patch -p0  <  ../pip.patch
 #work!
 #./configure --prefix=/opt/ffmpeg --enable-gpl --enable-postproc --enable-pthreads --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-nonfree  --enable-libamr_nb --enable-libamr_wb  --disable-shared  --disable-debug  --enable-static --disable-devices --enable-swscale
 
-./configure --prefix=$HOME/ffmpeg-pip --enable-libfaac --enable-libfaad  --enable-libfaadbin --enable-libmp3lame --enable-libgsm  --enable-libamr_nb --enable-libamr_wb  --enable-libvorbis --enable-libtheora  --enable-libx264 --enable-libxvid  --enable-nonfree  --enable-swscale    --disable-shared  --disable-debug  --enable-static --disable-devices --enable-gpl --enable-postproc --enable-pthreads   --enable-memalign-hack --disable-mmx   --disable-ffplay  --disable-ffserver --disable-ipv6
+./configure --prefix=$HOME/ffmpip --enable-libfaac --enable-libfaad  --enable-libfaadbin --enable-libmp3lame --enable-libgsm  --enable-libamr_nb --enable-libamr_wb  --enable-libvorbis --enable-libtheora  --enable-libx264 --enable-libxvid  --enable-nonfree  --enable-swscale    --disable-shared  --disable-debug  --enable-static --disable-devices --enable-gpl --enable-postproc --enable-pthreads   --enable-memalign-hack --disable-mmx   --disable-ffplay  --disable-ffserver --disable-ipv6
 
 
 
@@ -164,7 +164,7 @@ make
 
 
 
-sudo checkinstall -y --fstrans=no --install=yes --pkgname=ffmpip --pkgversion "$FFMPEG_VERSION+vhook+pip+wm3a"
+sudo checkinstall -y --fstrans=no --install=yes --pkgname=ffmpip --pkgversion "custom1"
 
 
 
@@ -422,7 +422,7 @@ chmod +x /home/$USER/tr-encoder/tr-encoder.sh
 	### Mplayer ###
  
 	echo -en "mplayer (svn)\t"
-	if [[ $(dpkg -s mplayer| grep Version:) != "Version: $MPLAYER_VERSION-1" ]]
+	if [[ $(dpkg -s mplayer| grep Version:) != "Version: $MPLAYER_VERSION_TXT-1" ]]
 	then
 	echo -e "${yellow}false${NC}"
 	[[ $INSTALL == 1 ]] && INSTALL_MPLAYER
@@ -515,7 +515,7 @@ chmod +x /home/$USER/tr-encoder/tr-encoder.sh
 	### ffmpeg ###
 
 	echo -en "ffmpeg\t"
-	if [[ $(dpkg -s ffmpeg| grep Version:) != "Version: $FFMPEG_VERSION_TXT-1" ]]
+	if [[ $(dpkg -s ffmpeg| grep Version:) != "Version: $FFMPEG_VERSION_TXT-1" && $(dpkg -s ffmpip| grep Version:) != "Version: $FFMPEG_VERSION_TXT-1" ]]
 	then
 	echo -e "${yellow}false${NC}"
 
@@ -531,15 +531,15 @@ EOF
 
 		CHOICE=0
 		read CHOICE
-		echo $CHOICE
+
 		
 		case $CHOICE in
 
-		1)INSTALL_FFMPEG;;
+		1)INSTALL_FFMPIP;;
 
-		2)INSTALL_FFMPEG_old;;
+		2)INSTALL_FFMPEG;;
 
-		*)echo -e "${yellow}escape${NC}";;
+		*)echo -e "${yellow}ffmpeg install cancel ${NC}";;
 
 		esac
 
