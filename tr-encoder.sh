@@ -43,13 +43,13 @@ FFMPEG="ffmpeg"
 if [[ $SYSTEM == "FreeBSD" ]]
 then
 MP4BOX=mp4box
-FFMPEG="$HOME/ffmpeg-pip/bin/ffmpeg"
-VHOOK_PATH="$HOME/ffmpeg-pip/lib/vhook/pip.so"
+FFMPEG="$HOME/ffmpip/bin/ffmpeg"
+VHOOK_PATH="$HOME/ffmpip/lib/vhook/pip.so"
 elif  [[ $SYSTEM == "Linux" ]]
 then
 MP4BOX=MP4Box
-FFMPEG="/opt/ffmpeg/bin/ffmpeg"
-VHOOK_PATH="/opt/ffmpeg/lib/vhook/pip.so"
+FFMPEG="$HOME/ffmpip/bin/ffmpeg"
+VHOOK_PATH="$HOME/ffmpip/lib/vhook/pip.so"
 fi
 
 
