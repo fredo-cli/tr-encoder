@@ -7,7 +7,7 @@ FFMPEG_VERSION_TXT="custom1"
 
 X264_VERSION=0.65
 
-MPLAYER_VERSION=29410
+MPLAYER_VERSION=29418
 MPLAYER_VERSION_TXT="custom1"
 
 # create link to be compatible
@@ -26,15 +26,17 @@ MPLAYER_VERSION_TXT="custom1"
 
 
 function INSTALL_MPLAYER(){
-sudo apt-get -y purge mplayer 
+sudo apt-get -y purge mplayer mencoder
 cd  
 svn checkout  -r $MPLAYER_VERSION  svn://svn.mplayerhq.hu/mplayer/trunk mplayer
 
 cd mplayer
-./configure
+
+./configure --prefix=/usr
+
 make
 sudo checkinstall -y --fstrans=no --install=yes --pkgname=mplayer --pkgversion "$MPLAYER_VERSION_TXT"
-sudo ldconfig
+sudo ldconfig -v
 cd 
 #sudo rm -Rf mplayer*
 }
@@ -84,7 +86,7 @@ sudo rm  -Rf atomicparsley*
 function OPENCORE_AMR(){
 cd 
 
-wget "http://dfn.dl.sourceforge.net/sourceforge/opencore-amr/opencore-amr-0.1.1.tar.gz"
+wget -nc "http://dfn.dl.sourceforge.net/sourceforge/opencore-amr/opencore-amr-0.1.1.tar.gz"
 tar xzvf opencore-amr-0.1.1.tar.gz
 cd opencore-amr
 make
@@ -95,63 +97,69 @@ sudo checkinstall -y --fstrans=no --install=yes --pkgname=opencore-mr --pkgversi
 
 function INSTALL_FFMPEG_old(){
 
-sudo apt-get -y purge ffmpeg 
-
-cd
-
-[[ -d "ffmpeg" ]] && rm -rf ffmpeg
-
-
-
-
-wget http://dl.getdropbox.com/u/221284/ffmpeg.tar.gz
-
-tar -xzvf ffmpeg.tar.gz 
-
-
-cd ffmpeg
-
-# Version 0.5
-#FFMPEG_VERSION=17737
-svn checkout -r $FFMPEG_VERSION svn://svn.ffmpeg.org/ffmpeg/trunk ffmpeg
-
-##  old release
-## -r 10657
-## -r 14424 freebsd
+## -r 14424 old freebsd
 ## svn -r 17727 = version 0.5 -> not good
 ## svn -r 17768 = last version before removing vhook -> not good
 ## svn -r 17792 =  version recommanded for libavfilter
 
+sudo apt-get -y purge ffmpeg 
+
+cd $HOME
+
+[[ -d "ffmpeg" ]] && rm -rf ffmpeg
+
+wget http://dl.getdropbox.com/u/221284/ffmpeg.tar.gz
+tar -xzvf ffmpeg.tar.gz 
 
 
+cd $HOME/ffmpeg/
+
+
+FFMPEG_VERSION=17655
+svn checkout -r $FFMPEG_VERSION svn://svn.ffmpeg.org/ffmpeg/trunk ffmpeg
+
+
+cd $HOME/ffmpeg/ffmpeg/libswscale
+svn checkout -r 28999 svn://svn.ffmpeg.org/mplayer/trunk/libswscale .
 
 ### patch wma3
 
-cd ffmpeg/libavcodec
+cd $HOME/ffmpeg/ffmpeg/libavcodec
 ln -s ../../wma3dec.c wma3dec.c
 ln -s ../../wma3data.h wma3data.h
 ln -s ../../wma3.h wma3.h
-cd ../
+
+cd $HOME/ffmpeg/ffmpeg/
 patch -p0 <../wmapro_ffmpeg.patch
 patch -p0 <../audioframesize.patch
 
 ### patch pip
-cd ./vhook
+
+cd  $HOME/ffmpeg/ffmpeg/vhook
 ln -s  ../../pip1.2.1.c pip.c
-cd ../
+
+cd  $HOME/ffmpeg/ffmpeg
 patch -p0  <  ../pip.patch
 
 
 
 
 # --disable-devices --enable-x11grab
-./configure  --enable-gpl --enable-postproc --enable-pthreads --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-nonfree  --enable-libamr_nb --enable-libamr_wb  
+#./configure --prefix=/usr --enable-gpl --enable-postproc --enable-pthreads --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-nonfree  --enable-libamr_nb --enable-libamr_wb  
+
+#work!
+#./configure --prefix=/opt/ffmpeg --enable-gpl --enable-postproc --enable-pthreads --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-nonfree  --enable-libamr_nb --enable-libamr_wb  --disable-shared  --disable-debug  --enable-static --disable-devices --enable-swscale
+
+./configure --prefix=/opt/ffmpeg --enable-libfaac --enable-libfaad  --enable-libfaadbin --enable-libmp3lame --enable-libgsm  --enable-libamr_nb --enable-libamr_wb  --enable-libvorbis --enable-libtheora  --enable-libx264 --enable-libxvid  --enable-nonfree  --enable-swscale    --disable-shared  --disable-debug  --enable-static --disable-devices --enable-gpl --enable-postproc --enable-pthreads   --enable-memalign-hack --disable-mmx   --disable-ffplay  --disable-ffserver --disable-ipv6
+
+
+
 
 make
 
 
 
-sudo checkinstall -y --fstrans=no --install=yes --pkgname=ffmpeg --pkgversion "$FFMPEG_VERSION+vhook+pip+wm3a"
+sudo checkinstall -y --fstrans=no --install=yes --pkgname=ffmpip --pkgversion "$FFMPEG_VERSION+vhook+pip+wm3a"
 
 
 
@@ -191,7 +199,7 @@ make
 
 
 sudo checkinstall -y --fstrans=no --install=yes --pkgname=ffmpeg --pkgversion "$FFMPEG_VERSION_TXT"
-
+sudo ldconfig -v
 
 
 mv ffpresets/ .ffmpeg
@@ -339,7 +347,7 @@ chmod +x /home/$USER/tr-encoder/tr-encoder.sh
 
 		if [[ "$(lsb_release -si)" == "Ubuntu" ]]
 		then
-		LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac atomicparsley flvtool2 libamrnb-dev libamrwb-dev  sox realpath libvorbis-dev)
+		LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac atomicparsley flvtool2 libamrnb-dev libamrwb-dev  sox realpath libvorbis-dev apt-get build-dep mplayer-nogui mencoder)
 		elif [[ "$(lsb_release -si)" == "Debian" ]]
 		then
 		LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac  flvtool2 libamrnb-dev libamrwb-dev  sox realpath)
