@@ -43,9 +43,13 @@ FFMPEG="ffmpeg"
 if [[ $SYSTEM == "FreeBSD" ]]
 then
 MP4BOX=mp4box
+FFMPEG="$HOME/ffmpeg-pip/bin/ffmpeg"
+VHOOK_PATH="$HOME/ffmpeg-pip/lib/vhook/pip.so"
 elif  [[ $SYSTEM == "Linux" ]]
 then
 MP4BOX=MP4Box
+FFMPEG="/opt/ffmpeg/bin/ffmpeg"
+VHOOK_PATH="/opt/ffmpeg/lib/vhook/pip.so"
 fi
 
 
@@ -237,7 +241,7 @@ VHOOK=""
 		      LOGO_X=${LOGO_X%.???}
 		      LOGO_Y=${LOGO_Y%.???}
 		      [[ $DEBUG -gt 0 ]] && echo -e "# Position of the logo:\\tx = $LOGO_X Y = $LOGO_Y"
-		      VHOOK=$VHOOK" -vhook \"/usr/local/lib/vhook/pip.so -f  $LOGO_RESIZED -x $LOGO_X -y $LOGO_Y  -w $LOGO_RESIZED_W -h $LOGO_RESIZED_H  $LOGO_MODE   $LOGO_TRESHOLD -s $(echo "$SS + $LOGO_START  * $FPS "|bc) -e $(echo "($SS + $LOGO_START + $LOGO_DURATION) * $FPS "|bc) \" "
+		      VHOOK=$VHOOK" -vhook \"$VHOOK_PATH -f  $LOGO_RESIZED -x $LOGO_X -y $LOGO_Y  -w $LOGO_RESIZED_W -h $LOGO_RESIZED_H  $LOGO_MODE   $LOGO_TRESHOLD -s $(echo "$SS + $LOGO_START  * $FPS "|bc) -e $(echo "($SS + $LOGO_START + $LOGO_DURATION) * $FPS "|bc) \" "
 
 
 

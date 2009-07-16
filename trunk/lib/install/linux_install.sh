@@ -5,6 +5,12 @@ LAME_VERSION=3.98
 FFMPEG_VERSION=19433
 FFMPEG_VERSION_TXT="custom1"
 
+## -r 14424 old freebsd
+## svn -r 17727 = version 0.5 -> not good
+## svn -r 17768 = last version before removing vhook -> not good
+## svn -r 17792 =  version recommanded for libavfilter
+
+
 X264_VERSION=0.65
 
 MPLAYER_VERSION=29418
@@ -26,7 +32,9 @@ MPLAYER_VERSION_TXT="custom1"
 
 
 function INSTALL_MPLAYER(){
-sudo apt-get -y purge mplayer mencoder
+
+sudo apt-get build-dep mplayer-nogui mencoder
+sudo apt-get -y purge mplayer-nogui mencoder
 cd  
 svn checkout  -r $MPLAYER_VERSION  svn://svn.mplayerhq.hu/mplayer/trunk mplayer
 
@@ -97,10 +105,7 @@ sudo checkinstall -y --fstrans=no --install=yes --pkgname=opencore-mr --pkgversi
 
 function INSTALL_FFMPEG_old(){
 
-## -r 14424 old freebsd
-## svn -r 17727 = version 0.5 -> not good
-## svn -r 17768 = last version before removing vhook -> not good
-## svn -r 17792 =  version recommanded for libavfilter
+
 
 sudo apt-get -y purge ffmpeg 
 
@@ -150,7 +155,7 @@ patch -p0  <  ../pip.patch
 #work!
 #./configure --prefix=/opt/ffmpeg --enable-gpl --enable-postproc --enable-pthreads --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-nonfree  --enable-libamr_nb --enable-libamr_wb  --disable-shared  --disable-debug  --enable-static --disable-devices --enable-swscale
 
-./configure --prefix=/opt/ffmpeg --enable-libfaac --enable-libfaad  --enable-libfaadbin --enable-libmp3lame --enable-libgsm  --enable-libamr_nb --enable-libamr_wb  --enable-libvorbis --enable-libtheora  --enable-libx264 --enable-libxvid  --enable-nonfree  --enable-swscale    --disable-shared  --disable-debug  --enable-static --disable-devices --enable-gpl --enable-postproc --enable-pthreads   --enable-memalign-hack --disable-mmx   --disable-ffplay  --disable-ffserver --disable-ipv6
+./configure --prefix=$HOME/ffmpeg-pip --enable-libfaac --enable-libfaad  --enable-libfaadbin --enable-libmp3lame --enable-libgsm  --enable-libamr_nb --enable-libamr_wb  --enable-libvorbis --enable-libtheora  --enable-libx264 --enable-libxvid  --enable-nonfree  --enable-swscale    --disable-shared  --disable-debug  --enable-static --disable-devices --enable-gpl --enable-postproc --enable-pthreads   --enable-memalign-hack --disable-mmx   --disable-ffplay  --disable-ffserver --disable-ipv6
 
 
 
@@ -347,7 +352,7 @@ chmod +x /home/$USER/tr-encoder/tr-encoder.sh
 
 		if [[ "$(lsb_release -si)" == "Ubuntu" ]]
 		then
-		LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac atomicparsley flvtool2 libamrnb-dev libamrwb-dev  sox realpath libvorbis-dev apt-get build-dep mplayer-nogui mencoder)
+		LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac atomicparsley flvtool2 libamrnb-dev libamrwb-dev  sox realpath libvorbis-dev)
 		elif [[ "$(lsb_release -si)" == "Debian" ]]
 		then
 		LISTEDEPENDANCES=(build-essential subversion git-core checkinstall texi2html libfaad-dev libfaac-dev  libmp3lame-dev libtheora-dev gpac  flvtool2 libamrnb-dev libamrwb-dev  sox realpath)

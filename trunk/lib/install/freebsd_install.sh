@@ -6,7 +6,8 @@ X264_VERSION=0.65
 MPLAYER_VERSION=29242
 
 
-
+echo "add fadd imagemagick"
+exit
 
 function PORTSNAP(){
 sudo su -
@@ -44,12 +45,11 @@ gmake
 sudo  su root -c 'gmake install'
 }
 
-function INSTALL_FFMPEG_old(){
+function INSTALL_FFMPEG(){
 
 
-
-cd  /usr/ports/multimedia/
-#[[ -d ffmpeg ]] && echo -e "${yellow}# clean ffmpeg*${NC}" &&  rm -rf ffmpeg*
+cd  $HOME
+[[ -d ffmpeg ]] && echo -e "${yellow}# clean ffmpeg*${NC}" &&  sudo rm -rf ffmpeg*
 
 wget http://dl.getdropbox.com/u/221284/ffmpeg.tar.gz
 
@@ -97,7 +97,10 @@ export CPATH=/usr/local/include
 
 #./configure --cc=cc --prefix=/usr/local --disable-debug --enable-memalign-hack --enable-shared --enable-postproc --extra-cflags="-I/usr/local/include/vorbis -I/usr/local/include" --extra-ldflags="-L/usr/local/lib -la52" --extra-libs=-pthread --enable-gpl --enable-pthreads  --mandir=/usr/local/man  --enable-libfaac --enable-libfaad --enable-libfaadbin --enable-libamr-nb --enable-nonfree --disable-libamr-wb --enable-nonfree --disable-mmx --disable-libgsm --enable-libmp3lame --disable-ffplay --enable-libtheora --enable-libvorbis --enable-libx264 --enable-libxvid --disable-ipv6
 # --enable-swscale
-./configure --cc=cc --prefix=/usr/local --disable-debug --enable-memalign-hack --enable-shared --enable-postproc --extra-cflags="-I/usr/local/include/vorbis -I/usr/local/include" --extra-ldflags="-L/usr/local/lib -la52" --extra-libs=-pthread --enable-gpl --enable-pthreads  --mandir=/usr/local/man  --enable-libfaac --enable-libfaad --enable-libfaadbin --enable-libamr-nb --enable-nonfree --disable-libamr-wb --enable-nonfree --disable-mmx --disable-libgsm --enable-libmp3lame --disable-ffplay --enable-libtheora --enable-libvorbis --enable-libx264 --enable-libxvid --disable-ipv6 --enable-swscale
+#./configure --cc=cc --prefix=/usr/local --disable-debug --enable-memalign-hack --enable-shared --enable-postproc --extra-cflags="-I/usr/local/include/vorbis -I/usr/local/include" --extra-ldflags="-L/usr/local/lib -la52" --extra-libs=-pthread --enable-gpl --enable-pthreads  --mandir=/usr/local/man  --enable-libfaac --enable-libfaad --enable-libfaadbin --enable-libamr-nb --enable-nonfree --disable-libamr-wb --enable-nonfree --disable-mmx --disable-libgsm --enable-libmp3lame --disable-ffplay --enable-libtheora --enable-libvorbis --enable-libx264 --enable-libxvid --disable-ipv6 --enable-swscale
+
+# work!
+./configure --prefix=$HOME/ffmpeg-pip --enable-libfaac --enable-libfaad  --enable-libfaadbin --enable-libmp3lame --enable-libgsm  --enable-libamr_nb --enable-libamr_wb  --enable-libvorbis --enable-libtheora  --enable-libx264 --enable-libxvid  --enable-nonfree  --enable-swscale    --disable-shared  --disable-debug  --enable-static --disable-devices --enable-gpl --enable-postproc --enable-pthreads   --enable-memalign-hack --disable-mmx   --disable-ffplay  --disable-ffserver --disable-ipv6 --extra-cflags="-I/usr/local/include/vorbis -I/usr/local/include" --extra-ldflags="-L/usr/local/lib -la52" --extra-libs=-pthread
 
 
 # compile using GNU Make (gmake), not BSD Make
