@@ -117,33 +117,33 @@ wget -nc  http://dl.getdropbox.com/u/221284/ffmpeg.tar.gz
 tar -xzvf ffmpeg.tar.gz 
 
 
-cd $HOME/ffmpeg/
+cd "$HOME/ffmpeg/"
 
 
 FFMPEG_VERSION=17655
 svn checkout -r $FFMPEG_VERSION svn://svn.ffmpeg.org/ffmpeg/trunk ffmpeg
 
 
-cd $HOME/ffmpeg/ffmpeg/libswscale
-svn checkout -r 28999 svn://svn.ffmpeg.org/mplayer/trunk/libswscale .
+rm -rf libswscale
+svn checkout -r 28999 svn://svn.ffmpeg.org/mplayer/trunk/libswscale libswscale
 
 ### patch wma3
 
-cd $HOME/ffmpeg/ffmpeg/libavcodec
+cd "$HOME/ffmpeg/ffmpeg/libavcodec"
 ln -s ../../wma3dec.c wma3dec.c
 ln -s ../../wma3data.h wma3data.h
 ln -s ../../wma3.h wma3.h
 
-cd $HOME/ffmpeg/ffmpeg/
+cd "$HOME/ffmpeg/ffmpeg/"
 patch -p0 <../wmapro_ffmpeg.patch
 patch -p0 <../audioframesize.patch
 
 ### patch pip
 
-cd  $HOME/ffmpeg/ffmpeg/vhook
+cd  "$HOME/ffmpeg/ffmpeg/vhook"
 ln -s  ../../pip1.2.1.c pip.c
 
-cd  $HOME/ffmpeg/ffmpeg
+cd  "$HOME/ffmpeg/ffmpeg"
 patch -p0  <  ../pip.patch
 
 
