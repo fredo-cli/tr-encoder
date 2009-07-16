@@ -523,8 +523,8 @@ chmod +x /home/$USER/tr-encoder/tr-encoder.sh
 		then
 
 cat << EOF
-1  SVN $FFMPEG_VERSION+$FFMPEG_VERSION_TXT
-2  SVN $FFMPEG_VERSION_old
+1  ffmpeg + pip = ffmpip
+2  SVN ffmpeg latest
 
 EOF
 
