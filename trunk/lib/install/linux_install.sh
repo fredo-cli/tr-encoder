@@ -124,6 +124,8 @@ FFMPEG_VERSION=17655
 svn checkout -r $FFMPEG_VERSION svn://svn.ffmpeg.org/ffmpeg/trunk ffmpeg
 
 
+cd "$HOME/ffmpeg/ffmpeg/"
+
 rm -rf libswscale
 svn checkout -r 28999 svn://svn.ffmpeg.org/mplayer/trunk/libswscale libswscale
 
@@ -155,7 +157,7 @@ patch -p0  <  ../pip.patch
 #work!
 #./configure --prefix=/opt/ffmpeg --enable-gpl --enable-postproc --enable-pthreads --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-nonfree  --enable-libamr_nb --enable-libamr_wb  --disable-shared  --disable-debug  --enable-static --disable-devices --enable-swscale
 
-# work! --enable-libgsm pb
+# work!!! --enable-libgsm pb
 ./configure --prefix=$HOME/ffmpip --enable-libfaac --enable-libfaad  --enable-libfaadbin --enable-libmp3lame   --enable-libamr_nb --enable-libamr_wb  --enable-libvorbis --enable-libtheora  --enable-libx264 --enable-libxvid  --enable-nonfree  --enable-swscale    --disable-shared  --disable-debug  --enable-static --disable-devices --enable-gpl --enable-postproc --enable-pthreads   --enable-memalign-hack --disable-mmx   --disable-ffplay  --disable-ffserver --disable-ipv6
 
 
