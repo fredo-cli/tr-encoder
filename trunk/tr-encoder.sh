@@ -7,7 +7,7 @@ CONF_NAME=."$APP_NAME"rc
 #APP_DIR=`dirname "$0"`
 
 [[ SYSTEM == "Linux" ]] && APP_DIR=$(readlink -f $0 | xargs dirname) || APP_DIR=$(readlink -n $0 | xargs dirname)
- 
+
 
 # Import configuration file, possibly overriding defaults.
 [ -r ~/"$CONF_NAME" ] && . ~/"$CONF_NAME"
@@ -34,19 +34,20 @@ NB_FILE_CREATED=0
 ### in  Mhz
 CPUS_AVERAGE=12
 
-### Path to ffmpeg
 
-FFMPEG="ffmpeg"
 
-### Path to mp4box 
+
+### Path to mp4box  ffmpeg
 
 if [[ $SYSTEM == "FreeBSD" ]]
 then
+
 MP4BOX=mp4box
 FFMPEG="$HOME/ffmpip/bin/ffmpeg"
 VHOOK_PATH="$HOME/ffmpip/lib/vhook/pip.so"
 elif  [[ $SYSTEM == "Linux" ]]
 then
+
 MP4BOX=MP4Box
 FFMPEG="$HOME/ffmpip/bin/ffmpeg"
 VHOOK_PATH="$HOME/ffmpip/lib/vhook/pip.so"
