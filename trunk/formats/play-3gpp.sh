@@ -1,9 +1,5 @@
 #!/usr/local/bin/bash
 
-
-
-
-
 	### start timer
 
 	TIME_START=$(date +%s)
