@@ -1,5 +1,30 @@
 #!/usr/local/bin/bash
 
+LAME_VERSION=3.98
+
+FFMPEG_VERSION=17655
+FFMPEG_VERSION_TXT="custom1"
+
+
+## -r 14424 old freebsd
+## svn -r 17727 = version 0.5 -> not good
+## svn -r 17768 = last version before removing vhook -> not good
+## svn -r 17792 =  version recommanded for libavfilter
+
+
+X264_VERSION=0.65
+
+MPLAYER_VERSION=29418
+MPLAYER_VERSION_TXT="custom1"
+
+# config
+INSTALL=0
+REINSTALL=0
+
+
+
+
+
 # config
 INSTALL=0
 REINSTALL=0
