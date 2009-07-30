@@ -1,24 +1,5 @@
 #!/usr/local/bin/bash
 
-FF_FORMAT="3gp"
-PLAY_SIZE="_2"
-
-FF_WIDTH=176
-FF_HEIGHT=100 # +44
-
-FF_FPS=15
-
-FF_VBITRATE=80
-
-FF_AB=32
-FF_AC=1
-FF_AR=16000
-
-FF_PASS=2
-THREADS=1
-
-
-
 
 
 
