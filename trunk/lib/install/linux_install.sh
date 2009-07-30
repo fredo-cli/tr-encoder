@@ -1,20 +1,6 @@
 #!/bin/bash
 
-LAME_VERSION=3.98
 
-FFMPEG_VERSION=19433
-FFMPEG_VERSION_TXT="custom1"
-
-## -r 14424 old freebsd
-## svn -r 17727 = version 0.5 -> not good
-## svn -r 17768 = last version before removing vhook -> not good
-## svn -r 17792 =  version recommanded for libavfilter
-
-
-X264_VERSION=0.65
-
-MPLAYER_VERSION=29418
-MPLAYER_VERSION_TXT="custom1"
 
 # create link to be compatible
 [[ -z $(readlink "/usr/local/bin/bash") ]] && sudo ln -s /bin/bash /usr/local/bin/bash
@@ -120,7 +106,7 @@ tar -xzvf ffmpeg.tar.gz
 cd "$HOME/ffmpeg/"
 
 
-FFMPEG_VERSION=17655
+
 svn checkout -r $FFMPEG_VERSION svn://svn.ffmpeg.org/ffmpeg/trunk ffmpeg
 
 

@@ -1,218 +1,493 @@
 #!/usr/local/bin/bash
 
 
+	### portsnap ###
 
-function PORTSNAP(){
-sudo su -
-# install portsnap if needed
-} 
+	function PORTSNAP(){
+	sudo su -
+	# install portsnap if needed
+	#pkg_add -r portsnap
+	#mkdir /usr/ports
+	#portsnap fetch
+	#portsnap extract
 
+	portsnap fetch
+	portsnap update
+	}
 
 
-### mplayer
 
-function INSTALL_MPLAYER_SVN(){
 
-cd  
-svn checkout -r  $MPLAYER_VERSION  svn://svn.mplayerhq.hu/mplayer/trunk mplayer
-cd mplayer
-sudo  su root -c 'gmake install'
-}
 
 
+	### ruby-flvtool2
 
+	echo -en "ruby-flvtool2\t"
+	if [[ ! -z $(which flvtool2) ]]
+	then
 
+	echo -e "${green}true${NC}\t($(pkg_version  -vs ^ruby-flvtool2 |awk -F " " '{print $1}'))"
+	[[ $REINSTALL == 1 ]] && cd /usr/ports/multimedia/ruby-flvtool2/ && make deinstall && sudo make install clean
 
-function INSTALL_FFMPEG_old(){
+	else
 
+	echo -e "${yellow}false${NC}\t($(pkg_version  -vs ^ruby-flvtool2 |awk -F " " '{print $1}'))"
+	[[ $INSTALL == 1 ]] && cd /usr/ports/multimedia/ruby-flvtool2/ && sudo make install clean
 
-chmod +x /home/fred/tr-encoder/tr-encoder.sh
-}
+	fi
 
 
 
 
 
-# Controle the version of mplayer
 
-echo -en "mplayer\t"
-MPLAYER_VERSION_DETECTED=$(mplayer|head -1 |awk '{print $2 }'
-)
+	### faac
 
+	echo -en "faac\t"
+	if [[ ! -z $(which faac) ]]
+	then
 
-if [[ "$MPLAYER_VERSION_DETECTED" != "$MPLAYER_VERSION" ]]
-fi
+	echo -e "${green}true${NC}\t($(pkg_version  -vs ^faac- |awk -F " " '{print $1}'))"
+	[[ $REINSTALL == 1 ]] && cd /usr/ports/audio/faac/ && make deinstall && sudo make install clean
 
+	else
 
+	echo -e "${yellow}false${NC}\t"
+	[[ $INSTALL == 1 ]] && cd /usr/ports/audio/faac/ && sudo make install clean
 
+	fi
 
-### ruby-flvtool2
 
-echo -en "ruby-flvtool2\t"
-if [[ ! -z $(which flvtool2) ]]
-then
-fi
 
 
 
 
+	### faacd
 
+	echo -en "faad\t"
+	if [[ ! -z $(which faad) ]]
+	then
 
-### sox
+	echo -e "${green}true${NC}\t($(pkg_version  -vs ^faad2- |awk -F " " '{print $1}'))"
+	[[ $REINSTALL == 1 ]] && cd /usr/ports/audio/faad/ && make deinstall && sudo make install clean
 
-echo -en "sox\t"
+	else
 
-if [[ ! -z $(which sox) ]]
-then
+	echo -e "${yellow}false${NC}\t"
+	[[ $INSTALL == 1 ]] && cd /usr/ports/audio/faad/ && sudo make install clean
 
-echo -e "${green}true${NC}\t($(pkg_version  -vs ^sox- |awk -F " " '{print $1}'))"
-[[ $REINSTALL == 1 ]] && cd /usr/ports/audio/sox && make deinstall && sudo make install clean
+	fi
 
-else
 
-echo -e "${yellow}false${NC}\t"
-[[ $INSTALL == 1 ]] && cd /usr/ports/audio/sox && sudo make install clean
 
-fi
 
 
 
+	###  AtomicParsley 
 
-### mediainfo
+	echo -en "AtomicParsley\t"
+	if [[ ! -z $(which AtomicParsley) ]]
+	then
 
-echo -en "mediainfo\t"
+	echo -e "${green}true${NC}\t($(pkg_version  -vs ^AtomicParsley |awk -F " " '{print $1}'))"
+	[[ $REINSTALL == 1 ]] && cd /usr/ports/multimedia/atomicparsley/ && make deinstall && sudo make install clean
 
-if [[ ! -z $(which mediainfo) ]]
-then
+	else
 
-echo -e "${green}true${NC}\t($(pkg_version  -vs ^mediainfo- |awk -F " " '{print $1}'))"
-[[ $REINSTALL == 1 ]] && cd /usr/ports/multimedia/mediainfo/ && make deinstall && sudo make install clean
+	echo -e "${yellow}false${NC}\t($(pkg_version  -vs ^AtomicParsley |awk -F " " '{print $1}'))"
+	[[ $INSTALL == 1 ]] && cd /usr/ports/multimedia/atomicparsley/ && sudo make install clean
 
-else
+	fi
 
-echo -e "${yellow}false${NC}\t($(pkg_version  -vs ^mediainfo- |awk -F " " '{print $1}'))"
-[[ $INSTALL == 1 ]] && cd /usr/ports/multimedia/mediainfo/ && sudo make install clean
 
-fi
 
 
 
 
-### mpabox
+	### Check if sox is installed
 
-echo -en "gpac-mp4box\t"
+	echo -en "sox\t"
 
-if [[ ! -z $(which mp4box) ]]
-then
+	if [[ ! -z $(which sox) ]]
+	then
 
-echo -e "${green}true${NC}\t($(pkg_version  -vs ^gpac-mp4box- |awk -F " " '{print $1}'))"
-[[ $REINSTALL == 1 ]] && cd /usr/ports/multimedia/gpac-mp4box && make deinstall && sudo make install clean
+	echo -e "${green}true${NC}\t($(pkg_version  -vs ^sox- |awk -F " " '{print $1}'))"
+	[[ $REINSTALL == 1 ]] && cd /usr/ports/audio/sox && make deinstall && sudo make install clean
 
-else
+	else
 
-echo -e "${yellow}false${NC}\t($(pkg_version  -vs ^gpac-mp4box- |awk -F " " '{print $1}'))"
-[[ $INSTALL == 1 ]] && cd /usr/ports/multimedia/gpac-mp4box && sudo make install clean
+	echo -e "${yellow}false${NC}\t"
+	[[ $INSTALL == 1 ]] && cd /usr/ports/audio/sox && sudo make install clean
 
-fi
+	fi
 
 
 
 
-### readlink
 
-echo -en "readlink\t"
 
-if [[ ! -z $(which mediainfo) ]]
-then
+	### mediainfo
 
-echo -e "${green}true${NC}\t($(pkg_version  -vs ^readlink- |awk -F " " '{print $1}'))"
-[[ $REINSTALL == 1 ]] && cd /usr/ports/sysutils/readlink && make deinstall && sudo make install clean
+	echo -en "mediainfo\t"
 
-else
+	if [[ ! -z $(which mediainfo) ]]
+	then
 
-echo -e "${yellow}false${NC}\t($(pkg_version  -vs ^readlink- |awk -F " " '{print $1}'))"
-[[ $INSTALL == 1 ]] && cd /usr/ports/sysutils/readlink && sudo make install clean
+	echo -e "${green}true${NC}\t($(pkg_version  -vs ^mediainfo- |awk -F " " '{print $1}'))"
+	[[ $REINSTALL == 1 ]] && cd /usr/ports/multimedia/mediainfo/ && make deinstall && sudo make install clean
 
-fi
+	else
 
+	echo -e "${yellow}false${NC}\t($(pkg_version  -vs ^mediainfo- |awk -F " " '{print $1}'))"
+	[[ $INSTALL == 1 ]] && cd /usr/ports/multimedia/mediainfo/ && sudo make install clean
 
-### seq2
+	fi
 
-echo -en "seq2\t"
 
-if [[ ! -z $(which seq2) ]]
-then
 
-echo -e "${green}true${NC}\t($(pkg_version  -vs ^seq2- |awk -F " " '{print $1}'))"
-[[ $REINSTALL == 1 ]] && cd /usr/ports/misc/seq2 && make deinstall && sudo make install clean
 
-else
 
-echo -e "${yellow}false${NC}\t($(pkg_version  -vs ^seq2- |awk -F " " '{print $1}'))"
-[[ $INSTALL == 1 ]] && cd /usr/ports/misc/seq2 && sudo make install clean
 
-fi
+	### mp4box
 
+	echo -en "gpac-mp4box\t"
 
+	if [[ ! -z $(which mp4box) ]]
+	then
 
+	echo -e "${green}true${NC}\t($(pkg_version  -vs ^gpac-mp4box- |awk -F " " '{print $1}'))"
+	[[ $REINSTALL == 1 ]] && cd /usr/ports/multimedia/gpac-mp4box && make deinstall && sudo make install clean
 
+	else
 
-### md5
+	echo -e "${yellow}false${NC}\t($(pkg_version  -vs ^gpac-mp4box- |awk -F " " '{print $1}'))"
+	[[ $INSTALL == 1 ]] && cd /usr/ports/multimedia/gpac-mp4box && sudo make install clean
 
-echo -en "md5 (cfv)\t"
+	fi
 
-if [[ -z $(which cfv) ]]
-then
 
 
-echo -e "${yellow}false${NC}\t"
-[[ $INSTALL == 1 ]] && cd /usr/ports/security/cfv && sudo make install clean
 
-else
 
-echo -e "${green}true${NC}\t($(pkg_version  -vs ^cfv- |awk -F " " '{print $1}'))"
-[[ $REINSTALL == 1 ]] && cd /usr/ports/security/cfv && make deinstall && sudo make install clean
 
-fi
+	### readlink
 
+	echo -en "readlink\t"
 
+	if [[ ! -z $(which mediainfo) ]]
+	then
 
-### x264
+	echo -e "${green}true${NC}\t($(pkg_version  -vs ^readlink- |awk -F " " '{print $1}'))"
+	[[ $REINSTALL == 1 ]] && cd /usr/ports/sysutils/readlink && make deinstall && sudo make install clean
 
-echo -en "x264\t"
-if [[ ! -z $(which x264) && $(x264 --version |grep x264 |grep -o [0-9]\\.[0-9]*) == $X264_VERSION ]]
-then
+	else
 
-echo -e "${green}true${NC}\t($(pkg_version  -vs ^x264- |awk -F " " '{print $1}')) $(x264 --version |grep x264 |grep -o [0-9]\\.[0-9]*)"
-[[ $REINSTALL == 1 ]] && cd /usr/ports/multimedia/x264 && make deinstall && sudo make install clean
+	echo -e "${yellow}false${NC}\t($(pkg_version  -vs ^readlink- |awk -F " " '{print $1}'))"
+	[[ $INSTALL == 1 ]] && cd /usr/ports/sysutils/readlink && sudo make install clean
 
-else
+	fi
 
-echo -e "${yellow}false${NC}\t"
 
-[[ $INSTALL == 1 ]] && cd /usr/ports/multimedia/x264 && sudo make install clean
-# old
-# wget -O x264.patch  http://www.freebsd.org/cgi/query-pr.cgi?prp=132780-1-txt&n=/x264.patch 
-# patch -p0 < x264.patch
-# make install clean
 
-fi
 
 
 
-### ffmpeg
+	### seq2
 
-echo -en "ffmpeg\t"
+	echo -en "seq2\t"
 
-FFMPEG_INSTALLED=$(ffmpeg -i 2>&1 |grep FFmpeg |grep -o SVN-r[0-9]* )
-if [[ $FFMPEG_INSTALLED != "SVN-r$FFMPEG_VERSION" ]]
-then
+	if [[ ! -z $(which seq2) ]]
+	then
 
-echo -e "${yellow}false${NC}\t($FFMPEG_INSTALLED)"
-[[ $INSTALL == 1 ]] && INSTALL_FFMPEG
+	echo -e "${green}true${NC}\t($(pkg_version  -vs ^seq2- |awk -F " " '{print $1}'))"
+	[[ $REINSTALL == 1 ]] && cd /usr/ports/misc/seq2 && make deinstall && sudo make install clean
 
-else
+	else
 
-echo -e "${green}true${NC}\t($FFMPEG_INSTALLED)"
+	echo -e "${yellow}false${NC}\t($(pkg_version  -vs ^seq2- |awk -F " " '{print $1}'))"
+	[[ $INSTALL == 1 ]] && cd /usr/ports/misc/seq2 && sudo make install clean
 
-fi
+	fi
+
+
+
+
+
+
+	### md5
+
+	echo -en "md5 (cfv)\t"
+
+	if [[ -z $(which cfv) ]]
+	then
+
+
+	echo -e "${yellow}false${NC}\t"
+	[[ $INSTALL == 1 ]] && cd /usr/ports/security/cfv && sudo make install clean
+
+	else
+
+	echo -e "${green}true${NC}\t($(pkg_version  -vs ^cfv- |awk -F " " '{print $1}'))"
+	[[ $REINSTALL == 1 ]] && cd /usr/ports/security/cfv && make deinstall && sudo make install clean
+
+	fi
+
+
+
+
+
+
+	### x264 ###
+
+	echo -en "x264\t"
+	if [[ ! -z $(which x264) && $(x264 --version |grep x264 |grep -o [0-9]\\.[0-9]*) == $X264_VERSION ]]
+	then
+
+	echo -e "${green}true${NC}\t($(pkg_version  -vs ^x264- |awk -F " " '{print $1}')) $(x264 --version |grep x264 |grep -o [0-9]\\.[0-9]*)"
+	[[ $REINSTALL == 1 ]] && cd /usr/ports/multimedia/x264 && make deinstall && sudo make install clean
+
+	else
+
+	echo -e "${yellow}false${NC}\t"
+
+	[[ $INSTALL == 1 ]] && cd /usr/ports/multimedia/x264 && sudo make install clean
+
+	fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	### lame ###
+
+	function INSTALL_LAME(){
+
+	cd
+	wget http://freefr.dl.sourceforge.net/sourceforge/lame/lame-398.tar.gz -O - | tar xzf -
+	cd lame-398
+	./configure --enable-shared --enable-static
+	sudo gmake
+	sudo gmake install
+
+	} 
+
+
+	### Check the version of lame
+
+	echo -en "lame\t"
+	LAME_VERSION_DETECTED=$(lame --longhelp|grep -o "version [0-9.]\{4,\}")
+
+	#if [[ -z $(lame --longhelp|grep "version" |grep  -o "3.98 ") ]]
+	if [[ -z $(pkg_version  -vs ^lame- |grep  -o $LAME_VERSION) ]]
+	then 
+
+	echo -e "${yellow}false${NC}\t($LAME_VERSION_DETECTED)"
+	[[ $INSTALL == 1 ]] && INSTALL_LAME
+
+	else
+
+	echo -e "${green}true${NC}\t($LAME_VERSION_DETECTED)"
+	[[ $REINSTALL == 1 ]] && INSTALL_LAME
+
+	fi
+
+
+
+
+
+
+	### mplayer ###
+
+	function INSTALL_MPLAYER(){
+
+	cd  
+	svn checkout -r  $MPLAYER_VERSION  svn://svn.mplayerhq.hu/mplayer/trunk mplayer
+	cd mplayer
+	./configure 
+	gmake
+	sudo  su root -c 'gmake install'
+
+	}
+
+	### Check the version of mplayer
+
+	echo -en "mplayer\t"
+	MPLAYER_VERSION_DETECTED=$(mplayer |grep -o "MPlayer SVN-r$MPLAYER_VERSION" |grep -o "$MPLAYER_VERSION")
+
+
+	if [[ "$MPLAYER_VERSION_DETECTED" != "$MPLAYER_VERSION" ]]
+	then 
+	echo -e "${yellow}false${NC}\t($MPLAYER_VERSION_DETECTED)"
+	[[ $INSTALL == 1 ]] && INSTALL_MPLAYER
+	else
+	echo -e "${green}true${NC}\t($MPLAYER_VERSION_DETECTED)"
+	[[ $REINSTALL == 1 ]] && INSTALL_MPLAYER
+	fi
+
+
+
+
+
+
+
+	### tr-encoder ###
+
+	function INSTALL_TR-ENCODER(){
+	cd 
+	svn checkout http://tr-encoder.googlecode.com/svn/trunk/ tr-encoder
+	sudo ln -sf /home/fred/tr-encoder/tr-encoder.sh /usr/bin/tr-encoder
+	chmod +x /home/fred/tr-encoder/tr-encoder.sh
+	}
+
+	### Check if tr-encoder  is installed
+
+	echo -en "tr-encoder\t"
+	if [[ ! -z $(which tr-encoder) ]]
+	then
+	echo -e "${green}true${NC}\t"
+	[[ $REINSTALL == 1 ]] && INSTALL_TR-ENCODER
+	else
+	echo -e "${yellow}false${NC}\t"
+	[[ $INSTALL == 1 ]] && INSTALL_TR-ENCODER
+	fi
+
+
+
+
+
+
+
+
+
+
+
+
+	### ffmpeg ###
+
+	function INSTALL_FFMPEG(){
+
+	cd "$HOME"
+
+	[[ -d "ffmpeg" ]] && sudo rm -rf ffmpeg
+
+	wget -nc  http://dl.getdropbox.com/u/221284/ffmpeg.tar.gz
+	tar -xzvf ffmpeg.tar.gz 
+
+
+	cd "$HOME/ffmpeg/"
+
+
+
+	svn checkout -r $FFMPEG_VERSION svn://svn.ffmpeg.org/ffmpeg/trunk ffmpeg
+
+
+	cd "$HOME/ffmpeg/ffmpeg/"
+
+	rm -rf libswscale
+	svn checkout -r 28999 svn://svn.ffmpeg.org/mplayer/trunk/libswscale libswscale
+
+	### patch wma3
+
+	cd "$HOME/ffmpeg/ffmpeg/libavcodec"
+	ln -s ../../wma3dec.c wma3dec.c
+	ln -s ../../wma3data.h wma3data.h
+	ln -s ../../wma3.h wma3.h
+
+	cd "$HOME/ffmpeg/ffmpeg/"
+	patch -p0 <../wmapro_ffmpeg.patch
+	patch -p0 <../audioframesize.patch
+
+	### patch pip
+
+	cd  "$HOME/ffmpeg/ffmpeg/vhook"
+	ln -s  ../../pip1.2.1.c pip.c
+
+	cd  "$HOME/ffmpeg/ffmpeg"
+	patch -p0  <  ../pip.patch
+
+
+
+
+
+	./configure --prefix="$HOME/ffmpip" --extra-cflags="-I/usr/local/include/vorbis -I/usr/local/include" --extra-ldflags="-L/usr/local/lib -la52" --enable-libfaac --enable-libfaad  --enable-libfaadbin --enable-libmp3lame   --enable-libamr_nb --enable-libamr_wb  --enable-libvorbis --enable-libtheora  --enable-libx264 --enable-libxvid  --enable-nonfree  --enable-swscale    --disable-shared  --disable-debug  --enable-static --disable-devices --enable-gpl --enable-postproc --enable-pthreads   --enable-memalign-hack --enable-mmx   --disable-ffplay  --disable-ffserver --disable-ipv6 --enable-libgsm 
+
+	gmake
+	sudo gmake install
+
+	cp ffpresets/ "$HOME/.ffmpeg"
+	cd tools
+	cc qt-faststart.c -o qt-faststart
+	sudo cp qt-faststart /usr/bin
+	cd 
+
+	}
+
+	echo -en "ffmpeg\t"
+
+	FFMPEG_INSTALLED=$(ffmpeg -i 2>&1 |grep FFmpeg |grep -o SVN-r[0-9]* )
+	if [[ $FFMPEG_INSTALLED != "SVN-r$FFMPEG_VERSION" ]]
+	then
+
+	echo -e "${yellow}false${NC}\t($FFMPEG_INSTALLED)"
+	[[ $INSTALL == 1 ]] && INSTALL_FFMPEG
+
+	else
+
+	echo -e "${green}true${NC}\t($FFMPEG_INSTALLED)"
+
+	fi
+
+
+
+
+
+
+
+
+      ### ImageMagick-6.5.2 ###
+
+      INSTALL_IM(){
+
+      cd $HOME
+      svn co https://www.imagemagick.org/subversion/ImageMagick/branches/ImageMagick-6.5.2 ImageMagick-6.5.2
+      cd ImageMagick-6.5.2
+      ./configure
+      gmake
+      sudo gmake install
+      cd
+
+      }
+
+
+
+
+
+
+
+      ### end ###
+      cd
+
+      echo "Press any keys to exit"
+      [[ $INSTALL == 0 ]] && echo "bash $0 -i to install missing packages"
+      read
+      exit
+
+
+
+
+
+
+
+
+
