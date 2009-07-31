@@ -425,6 +425,9 @@
 	gmake
 	sudo gmake install
 
+	sudo ln -s "$HOME/ffmpip/bin/ffmpeg"  "/usr/local/bin/ffmpip"
+
+
 	cp ffpresets/ "$HOME/.ffmpeg"
 	cd tools
 	cc qt-faststart.c -o qt-faststart
