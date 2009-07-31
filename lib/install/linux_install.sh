@@ -155,7 +155,7 @@ make
 
 sudo checkinstall -y --fstrans=no --install=yes --pkgname=ffmpip --pkgversion "custom1"
 
-
+sudo ln -s "$HOME/ffmpip/bin/ffmpeg"  "/usr/bin/ffmpip"
 
 mv ffpresets/ .ffmpeg
 cd tools
