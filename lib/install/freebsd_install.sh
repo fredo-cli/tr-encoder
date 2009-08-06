@@ -472,17 +472,13 @@
 
       }
 
-	echo -en "tr-encoder\t"
-
-
-
 	echo -en "ImageMagick\t"
 
 	IMAGEMAGICK_INSTALLED=$(convert -v|grep Version:|grep -o "[0-9]*\.[0-9]*\.[0-9]*")
 	if [[ $IMAGEMAGICK_INSTALLED != $IMAGEMAGICK_VERSION ]]
 	then
 
-	echo -e "${yellow}false${NC}\t($IMAGEMAGICK_INSTALLED)"
+	echo -e "${yellow}false${NC}\t($IMAGEMAGICK_INSTALLED <> $IMAGEMAGICK_VERSION )"
 	[[ $INSTALL == 1 ]] && INSTALL_IMAGEMAGICK
 
 	else
