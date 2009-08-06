@@ -532,7 +532,7 @@ get_format() {
 
 		DETECTED_FORMAT=""
 		RATIO_I=`echo "($RATIO * 100) /1"|bc `
-		
+		DAR_I=$(echo "$DAR*100/1" |bc )
 		
 		[[ $DEBUG -gt 0 ]] && echo -e "\\n${cyan}$(box "Format detection")${NC}\\n"
 
@@ -661,8 +661,9 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 
 
 	      # PAL DAR 1.33
-		 
-	      if [[ ($RATIO_I -eq 125 || $RATIO_I -eq 122 ) && $DAR == 1.33 ]]
+	  
+
+	      if [[ ($RATIO_I -eq 125 || $RATIO_I -eq 122 ) && ( $DAR_I  -lt 136  ||  $DAR_I -gt 130 ) ]]
 	      then
 	      # get a  cropdetection 
 	      cropdetection $CROP_FRAMES_L
