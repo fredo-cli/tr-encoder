@@ -436,7 +436,7 @@
 
 	}
 
-	echo -en "ffmpeg\t"
+	echo -en "ffmpeg (alias ffmpip)\t"
 
 	FFMPEG_INSTALLED=$(ffmpip -i 2>&1 |grep FFmpeg |grep -o SVN-r[0-9]* )
 	if [[ $FFMPEG_INSTALLED != "SVN-r$FFMPEG_VERSION" ]]
@@ -463,8 +463,8 @@
       INSTALL_IMAGEMAGICK(){
 
       cd $HOME
-      svn co https://www.imagemagick.org/subversion/ImageMagick/branches/ImageMagick-6.5.2 ImageMagick-6.5.2
-      cd ImageMagick-6.5.2
+      svn co https://www.imagemagick.org/subversion/ImageMagick/branches/ImageMagick-6.5.1 ImageMagick-6.5.1
+      cd ImageMagick-6.5.1
       ./configure
       gmake
       sudo gmake install
