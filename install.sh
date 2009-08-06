@@ -12,13 +12,13 @@ FFMPEG_VERSION_TXT="custom1"
 ## svn -r 17792 =  version recommanded for libavfilter
 
 
-X264_VERSION=0.65
+X264_VERSION="0.65"
 
 MPLAYER_VERSION=29418
 MPLAYER_VERSION_TXT="custom1"
 
 
-IMAGEMAGICK_VERSION="6-5-1"
+IMAGEMAGICK_VERSION="6.5.1"
 
 # config
 INSTALL=0
