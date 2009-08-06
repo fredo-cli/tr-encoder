@@ -428,7 +428,7 @@
 	sudo ln -s "$HOME/ffmpip/bin/ffmpeg"  "/usr/local/bin/ffmpip"
 
 
-	cp ffpresets/ "$HOME/.ffmpeg"
+	cp  -r ffpresets "$HOME/.ffmpeg"
 	cd tools
 	cc qt-faststart.c -o qt-faststart
 	sudo cp qt-faststart /usr/bin
@@ -438,7 +438,7 @@
 
 	echo -en "ffmpeg\t"
 
-	FFMPEG_INSTALLED=$(ffmpeg -i 2>&1 |grep FFmpeg |grep -o SVN-r[0-9]* )
+	FFMPEG_INSTALLED=$(ffmpip -i 2>&1 |grep FFmpeg |grep -o SVN-r[0-9]* )
 	if [[ $FFMPEG_INSTALLED != "SVN-r$FFMPEG_VERSION" ]]
 	then
 
@@ -460,7 +460,7 @@
 
       ### ImageMagick-6.5.2 ###
 
-      INSTALL_IM(){
+      INSTALL_IMAGEMAGICK(){
 
       cd $HOME
       svn co https://www.imagemagick.org/subversion/ImageMagick/branches/ImageMagick-6.5.2 ImageMagick-6.5.2
@@ -471,6 +471,26 @@
       cd
 
       }
+
+	echo -en "tr-encoder\t"
+
+
+
+	echo -en "ImageMagick\t"
+
+	IMAGEMAGICK_INSTALLED=$(convert -v|grep Version:|grep -o "[0-9]*\.[0-9]*\.[0-9]*")
+	if [[ $IMAGEMAGICK_INSTALLED != $IMAGEMAGICK_VERSION ]]
+	then
+
+	echo -e "${yellow}false${NC}\t($IMAGEMAGICK_INSTALLED)"
+	[[ $INSTALL == 1 ]] && INSTALL_IMAGEMAGICK
+
+	else
+
+	echo -e "${green}true${NC}\t($IMAGEMAGICK_INSTALLED)"
+
+	fi
+
 
 
 
