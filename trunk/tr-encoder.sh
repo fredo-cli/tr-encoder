@@ -792,7 +792,46 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 		 # get new sizes
 		 calc_new_sizes
 
-	      fi		 		 
+	      fi	
+
+	      # 1.50 ntsc DAR 1.77
+		 
+	      if [[ $RATIO_I == 150  &&  $DAR == 1.33 ]]
+	      then 
+		 DETECTED_FORMAT="1.50 - ntsc DAR 1.33"
+		 echo -e "${green}# Format: $DETECTED_FORMAT${NC}"
+
+	      # Cropping: no
+		 
+	      [[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Cropping: no${NC}"		 
+	      CROPLEFT=0              
+	      CROPRIGHT=0
+	      FF_CROP_WIDTH=""
+	      CROPTOP=80
+	      CROPBOTTOM=80
+	      FF_CROP_HEIGHT="-croptop $CROPTOP -cropbottom $CROPBOTTOM "
+		 
+		  # distortion 1.768
+		  DISTORTION="`echo "scale=3; $ID_VIDEO_ASPECT  / $RATIO "|bc` "
+		  [[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Distortion: $DISTORTION${NC}"				
+    
+		  # Padding: no
+		  [[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Padding: no${NC}"
+		 
+		 
+		 # get new sizes
+		 calc_new_sizes
+
+	      fi
+
+
+
+
+
+
+
+
+	 		 
 		 
 	      # 1.33
 		 

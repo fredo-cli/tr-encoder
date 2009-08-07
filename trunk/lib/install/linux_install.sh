@@ -2,91 +2,123 @@
 
 
 
-# create link to be compatible
-[[ -z $(readlink "/usr/local/bin/bash") ]] && sudo ln -s /bin/bash /usr/local/bin/bash
 
+	### create link to be compatible
+	[[ -z $(readlink "/usr/local/bin/bash") ]] && sudo ln -s /bin/bash /usr/local/bin/bash
 
+	### checkout tr-encoder
 
+	[[ ! -d  "/home/$USER/tr-encoder/" ]] && svn checkout http://tr-encoder.googlecode.com/svn/trunk/ tr-encoder
 
+	### create a link
 
-
-
-
+	[[ -z $(which tr-encoder) ]]  && sudo ln -sf /home/$USER/tr-encoder/tr-encoder.sh /usr/bin/tr-encoder && chmod +x /home/$USER/tr-encoder/tr-encoder.sh
+	
 
 
  
+	### mplayer
+
+	function INSTALL_MPLAYER(){
+
+	#sudo apt-get build-dep mplayer-nogui mencoder
+	sudo apt-get -y purge mplayer-nogui mencoder
+
+	cd "$HOME"
+	svn checkout  -r $MPLAYER_VERSION  svn://svn.mplayerhq.hu/mplayer/trunk mplayer
+
+	cd "$HOME/mplayer"
+
+	./configure --prefix=/usr
+
+	make
+	sudo checkinstall -y --fstrans=no --install=yes --pkgname=mplayer --pkgversion "$MPLAYER_VERSION_TXT"
+	sudo ldconfig -v
+	sudo echo "mplayer hold" |sudo  dpkg --set-selections
+	sudo echo "mencoder hold" |sudo  dpkg --set-selections
+	cd "$HOME"
+	#sudo rm -Rf "$HOME/mplayer"*
+	}
 
 
-function INSTALL_MPLAYER(){
-
-sudo apt-get build-dep mplayer-nogui mencoder
-sudo apt-get -y purge mplayer-nogui mencoder
-cd  
-svn checkout  -r $MPLAYER_VERSION  svn://svn.mplayerhq.hu/mplayer/trunk mplayer
-
-cd mplayer
-
-./configure --prefix=/usr
-
-make
-sudo checkinstall -y --fstrans=no --install=yes --pkgname=mplayer --pkgversion "$MPLAYER_VERSION_TXT"
-sudo ldconfig -v
-cd 
-#sudo rm -Rf mplayer*
-}
 
 
 
-function INSTALL_X264 (){
-sudo apt-get purge  x264 libx264-dev
-
-cd 
-git clone git://git.videolan.org/x264.git
-cd x264
-./configure --enable-shared
-make
-sudo checkinstall -y --fstrans=no --install=yes --pkgname=x264 --pkgversion "9.9.9"
-sudo ldconfig
-cd 
-#sudo rm -Rf x264*
-
-}
-
-function INSTALL_YASM(){
-cd
-wget -nc http://www.tortall.net/projects/yasm/releases/yasm-0.7.2.tar.gz
-tar xzvf yasm-0.7.2.tar.gz
-cd yasm-0.7.2
-./configure
-make
-sudo checkinstall -y
-cd 
-sudo -rf rm yasm* 
-}
-
-function INSTALL_ATOMICPARSLEY(){
-cd
-wget -nc  http://archive.ubuntu.com/ubuntu/pool/universe/a/atomicparsley/atomicparsley_0.9.0.orig.tar.gz 
-tar xzvf atomicparsley_0.9.0.orig.tar.gz
-cd atomicparsley*
-./build
-sudo cp AtomicParsley /usr/bin
-sudo ldconfig
-cd 
-sudo rm  -Rf atomicparsley* 
-}
 
 
-function OPENCORE_AMR(){
-cd 
 
-wget -nc "http://dfn.dl.sourceforge.net/sourceforge/opencore-amr/opencore-amr-0.1.1.tar.gz"
-tar xzvf opencore-amr-0.1.1.tar.gz
-cd opencore-amr
-make
-sudo checkinstall -y --fstrans=no --install=yes --pkgname=opencore-mr --pkgversion "0.1.1"
+	  ### x264
 
-}
+	  function INSTALL_X264 (){
+	  sudo apt-get purge  x264 libx264-dev
+
+	  cd "$HOME"
+	  git clone git://git.videolan.org/x264.git
+	  cd x264
+	  ./configure --enable-shared
+	  make
+	  sudo checkinstall -y --fstrans=no --install=yes --pkgname=x264 --pkgversion "9.9.9"
+	  sudo ldconfig
+	  sudo echo "ffmpeg x264" |sudo  dpkg --set-selections
+	  cd "$HOME"
+	  #sudo rm -Rf x264*
+
+	  }
+
+
+
+
+
+	### yasm
+
+	function INSTALL_YASM(){
+	  cd "$HOME"
+	wget -nc http://www.tortall.net/projects/yasm/releases/yasm-0.7.2.tar.gz
+	tar xzvf yasm-0.7.2.tar.gz
+	cd yasm-0.7.2
+	./configure
+	make
+	sudo checkinstall -y
+	  cd "$HOME"
+	sudo -rf rm yasm* 
+	}
+
+
+
+
+	### atomicparsley
+
+	function INSTALL_ATOMICPARSLEY(){
+	  cd "$HOME"
+	wget -nc  http://archive.ubuntu.com/ubuntu/pool/universe/a/atomicparsley/atomicparsley_0.9.0.orig.tar.gz 
+	tar xzvf atomicparsley_0.9.0.orig.tar.gz
+	cd atomicparsley*
+	./build
+	sudo cp AtomicParsley /usr/bin
+	sudo ldconfig
+	  cd "$HOME"
+	sudo rm  -Rf atomicparsley* 
+	}
+
+
+
+
+
+
+	### opencore
+
+	function OPENCORE_AMR(){
+
+	cd "$HOME"
+
+	wget -nc "http://dfn.dl.sourceforge.net/sourceforge/opencore-amr/opencore-amr-0.1.1.tar.gz"
+	tar xzvf opencore-amr-0.1.1.tar.gz
+	cd "$HOME/opencore-amr"
+
+	make
+	sudo checkinstall -y --fstrans=no --install=yes --pkgname=opencore-mr --pkgversion "0.1.1"
+
+	}
 
 
 function INSTALL_FFMPIP(){
@@ -144,7 +176,7 @@ patch -p0  <  ../pip.patch
 #./configure --prefix=/opt/ffmpeg --enable-gpl --enable-postproc --enable-pthreads --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-nonfree  --enable-libamr_nb --enable-libamr_wb  --disable-shared  --disable-debug  --enable-static --disable-devices --enable-swscale
 
 # work!!! --enable-libgsm pb
-./configure --prefix=$HOME/ffmpip --enable-libfaac --enable-libfaad  --enable-libfaadbin --enable-libmp3lame   --enable-libamr_nb --enable-libamr_wb  --enable-libvorbis --enable-libtheora  --enable-libx264 --enable-libxvid  --enable-nonfree  --enable-swscale    --disable-shared  --disable-debug  --enable-static --disable-devices --enable-gpl --enable-postproc --enable-pthreads   --enable-memalign-hack --disable-mmx   --disable-ffplay  --disable-ffserver --disable-ipv6
+./configure --prefix=$HOME/ffmpip --enable-libfaac --enable-libfaad  --enable-libfaadbin --enable-libmp3lame   --enable-libamr_nb --enable-libamr_wb  --enable-libvorbis --enable-libtheora  --enable-libx264 --enable-libxvid  --enable-nonfree  --enable-swscale    --disable-shared  --disable-debug  --enable-static --disable-devices --enable-gpl --enable-postproc --enable-pthreads   --enable-memalign-hack --enable-mmx   --disable-ffplay  --disable-ffserver --disable-ipv6 --enable-libgsm
 
 
 
@@ -157,20 +189,25 @@ sudo checkinstall -y --fstrans=no --install=yes --pkgname=ffmpip --pkgversion "c
 
 sudo ln -s "$HOME/ffmpip/bin/ffmpeg"  "/usr/bin/ffmpip"
 
+
 mv ffpresets/ .ffmpeg
 cd tools
 cc qt-faststart.c -o qt-faststart
 sudo cp qt-faststart /usr/bin
-cd 
+cd $HOME
 # sudo rm -Rf ffmpeg*
 
 }
+
+
+
+### ffmpeg latest
 
 function INSTALL_FFMPEG(){
 
 sudo apt-get -y purge ffmpeg 
 
-cd
+cd $HOME
 
 [[ -d "ffmpeg" ]] && sudo rm -rf ffmpeg
 
@@ -194,15 +231,17 @@ make
 
 sudo checkinstall -y --fstrans=no --install=yes --pkgname=ffmpeg --pkgversion "$FFMPEG_VERSION_TXT"
 sudo ldconfig -v
-
+sudo echo "ffmpeg hold" |sudo  dpkg --set-selections
 
 mv ffpresets/ .ffmpeg
 cd tools
 cc qt-faststart.c -o qt-faststart
 sudo cp qt-faststart /usr/bin
-cd 
-# sudo rm -Rf ffmpeg*
 
+cd "$HOME"
+
+
+# sudo rm -Rf ffmpeg*
 }
 
 
@@ -220,15 +259,7 @@ sudo rm -rf MediaInfo_CLI*
 }
 
 
-
-function INSTALL_TR-ENCODER(){
-cd 
-[[ ! -d  "/home/$USER/tr-encoder/" ]] && svn checkout http://tr-encoder.googlecode.com/svn/trunk/ tr-encoder
-
-sudo ln -sf /home/$USER/tr-encoder/tr-encoder.sh /usr/bin/tr-encoder
-chmod +x /home/$USER/tr-encoder/tr-encoder.sh
-}
-
+	
 
 
 
@@ -309,9 +340,11 @@ chmod +x /home/$USER/tr-encoder/tr-encoder.sh
 		sudo apt-get update
 
 		### hold some pakages
+
 		sudo echo "x264 hold" |sudo  dpkg --set-selections
 		sudo echo "ffmpeg hold" |sudo  dpkg --set-selections
 		sudo echo "mplayer hold" |sudo  dpkg --set-selections
+		sudo echo "mencoder hold" |sudo  dpkg --set-selections
 
 		echo -e '\nUpdate Sources\n'
 		for source in main universe restricted multiverse
