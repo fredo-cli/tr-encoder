@@ -393,7 +393,7 @@ check_comp(){
 								  
 	
 		
-		MPLAYER_TEST=`mplayer -identify "$INPUT" -quiet -frames 1 -vo null -ao null  2>&1 /dev/nul | grep - -e "ID_VIDEO" -e "ID_AUDIO_" -e "ID_LENGTH" -e "ID_DEMUXER" `  
+		MPLAYER_TEST=`mplayer -identify "$INPUT" -quiet -frames 1 -vo null -ao null  2>&1 /dev/null | grep - -e "ID_VIDEO" -e "ID_AUDIO_" -e "ID_LENGTH" -e "ID_DEMUXER" `  
 		
 		if [[ $DEBUG > 1 ]]
 		then
