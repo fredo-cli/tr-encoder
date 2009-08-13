@@ -102,6 +102,7 @@ VIDEO_COUNT=0
 
 	      fi
 
+
 	      save_info "FILE_SIZE=$FILE_SIZE"
 
 
@@ -574,6 +575,8 @@ VCODEC=""
 	      else
 	      echo -e "SIZE=${YELLOW}$SIZE${NC}"
 	      fi
+	      save_info  "WIDTH=$WIDTH
+	      save_info  "HEIGHT=$HEIGHT	      
 	      save_info  "SIZE=$SIZE"
 	      
 	      

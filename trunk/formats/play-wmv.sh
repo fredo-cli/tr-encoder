@@ -1,38 +1,31 @@
 #!/usr/local/bin/bash
 
-	### start timer
+	### display the format ### 
+
+	echo -e "\\n${BLUE}$(box "format: $PREFIX-$FF_FORMAT-$PLAY_SIZE")${NC}"
+	
+	
+	### Start timer ###
 
 	TIME_START=$(date +%s)
 
-	### display the format 
 
-	echo -e "\\n${BLUE}$(box "format: $PREFIX-$FF_FORMAT-$PLAY_SIZE")${NC}"
+	### Create the logo or logos ###
 
-	### create the logo or logos 
+    add_logo 
+    
 
-        add_logo 
+	### Check the sub ###
+        
+    check_sub
 
-	### Recalculate the padding
+
+	### Calculate the padding for ffmpeg ###
 	
-       if [[ ! -z $FF_PAD ]]
-           then
-
-           PAD=`echo "scale=3;(($FF_WIDTH / 1.777 ) - ($FF_WIDTH / $RATIO )) / 2"|bc`
-           PAD=`round2 $PAD`
-           FF_PAD=" -padtop $PAD -padbottom $PAD "
-		 echo -e "${yellow}# Recalculate the padding  ${NC}"	
-		 echo -e "${green}# $FF_PAD ${NC}"
-
-        fi   
-	
-	### Recalculate the FF_HEIGHT_BP 
-	
-	FF_HEIGHT_BP=$( echo "${FF_HEIGHT} - ( 2*${PAD} )"|bc)
-	echo -e "${yellow}# Recalculate the FF_HEIGHT_BP  ${NC}"	
-	echo -e "${green}# FF_HEIGHT_BP=$FF_HEIGHT_BP ${NC}"
+	calculate_padding   
 		
 
-        ### Create audio.wav
+    ### Create audio.wav ###
 
 	dump_audio
 		
@@ -82,15 +75,23 @@
 		
 		echo -e "${yellow}# Create the video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.asf ${NC}"
 		
-		echo -e "${yellow}# pass 1 ${NC}"
-		COMMAND="${FFMPEG} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -ss $SS  -f asf -vcodec  msmpeg4 -y /dev/null "
+		echo -e "${yellow}# pass 1${NC}"
+		
+		INPUT_VIDEO=$INPUT 
+		[[ ! -z $SUB_FILE ]] && burn_subtitle		
+		
+		COMMAND="${FFMPEG} -threads 1 -i  ${INPUT_VIDEO} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -ss $SS  -f asf -vcodec  msmpeg4 -y /dev/null "
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
 		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 
 		### create video_.h264 pass2	
 
 		echo -e "${yellow}# pass 2 ${NC}"
-		COMMAND="${FFMPEG} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -ss $SS  -f asf -vcodec  msmpeg4 -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.asf"
+		
+
+		[[ ! -z $SUB_FILE ]] && burn_subtitle
+					
+		COMMAND="${FFMPEG} -threads 1 -i  ${INPUT_VIDEO} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -ss $SS  -f asf -vcodec  msmpeg4 -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.asf"
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
 		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 	
@@ -113,7 +114,7 @@
 	
 	[[ -f  ${DIRECTORY}/${SUBDIR}/test.jpg ]] && rm  ${DIRECTORY}/${SUBDIR}/test.jpg
 	[[ -f  ${DIRECTORY}/${SUBDIR}/test.mp3 ]] && rm  ${DIRECTORY}/${SUBDIR}/test.mp3
-		      
+	[[ ! -z $SUB_FILE && -f "$FIFO" ]] && rm  "$FIFO"	 		      
 	  
 	### check the file 
 	
