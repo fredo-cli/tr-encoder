@@ -7,8 +7,11 @@ APP_NAME=`basename "$0"`
 CONF_NAME=."$APP_NAME"rc
 #APP_DIR=`dirname "$0"`
 
+
+
 [[ SYSTEM == "Linux" ]] && APP_DIR=$(readlink -f $0 | xargs dirname) || APP_DIR=$(readlink -n $0 | xargs dirname)
 
+SUB_DIRECTORY="$APP_DIR/fonts"
 
 
 ### Import configuration file, possibly overriding defaults.
