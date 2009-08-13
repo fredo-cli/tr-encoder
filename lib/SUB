@@ -131,7 +131,7 @@
       	
 		      	### interlaced Video fix ###	
 		  
-				 if [[ ! -z $INTERLACED ]]
+				 if [[ ! -z $INTERLACED  ]]
 				 then
 				 
 				 	[[ $DEBUG -gt 0 ]] && echo -e "${yellow}# Add  '-vf lavcdeint' to mplayer and remove  '-deinterlace' to ffmpeg ${NC}"
