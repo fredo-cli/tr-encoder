@@ -725,6 +725,11 @@ VCODEC=""
 	      DEINTERLACE=" -deinterlace "
 	      [[ $DEBUG -gt 0 ]] && echo -e "INTERLACED=${GREEN}$INTERLACED${NC}"
 	      save_info  "INTERLACED=$INTERLACED"
+	      else
+	      DEINTERLACE=""
+	      INTERLACED=""
+	      [[ $DEBUG -gt 0 ]] && echo -e "INTERLACED=${GREEN}{NC}"
+	      save_info  "INTERLACED=$INTERLACED"
 	      fi
 	      
 	      
