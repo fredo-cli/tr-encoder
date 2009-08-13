@@ -1,0 +1,59 @@
+#!/usr/local/bin/bash
+
+		### dump_audio
+
+		dump_audio(){
+
+		if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio.wav" ]]
+		then
+		
+		echo -e "${yellow}# Create audio.wav ${NC}"		
+		echo -e "${green}# This file (audio.wav) already exit.We going to use it${NC}"
+		
+		else
+
+		echo -e "${yellow}# create audio.wav ${NC}"		
+		COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio.wav -vc null -vo null ${INPUT}"
+		[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" > /dev/null  2>&1"
+		eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+
+			  ### check the size audio.wav
+
+			  if [[ -f "${DIRECTORY}/$SUBDIR/audio.wav" &&  $SYSTEM == "Linux" ]]
+			  then
+			  RESULTS_SIZE=`stat -c '%s' "${DIRECTORY}/$SUBDIR/audio.wav"` 
+			  elif [[ -f "${DIRECTORY}/$SUBDIR/audio.wav" && $SYSTEM == "FreeBSD" ]] 
+			  then
+			  RESULTS_SIZE=`stat -f '%z' "${DIRECTORY}/$SUBDIR/audio.wav"`
+			  fi
+
+			  ### try one more time if failed
+
+			  if [ "$RESULTS_SIZE" -lt 1014000 ]
+			  then
+			  echo -e "${yellow}# create audio.wav ${NC}"		
+			  COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio.wav -vc dummy -vo null ${INPUT}"
+			  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" > /dev/null  2>&1"
+			  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+			  fi
+
+		fi
+		
+			### resample_audio 
+				
+			resample_audio(){
+			
+			file ${DIRECTORY}/${SUBDIR}/${OUTPUT}.wav | grep -qs 'PCM, 8 bit'
+			if [ $? = 0 ]; then
+			    SOX_B="-b -u"
+			    SOX_W="-w"
+			echo -e "${yellow}# Resampling PCM 8 bit to PCM 16 bit${NC}"    
+			COMMAND="${COMMAND}sox $SOX_B ${DIRECTORY}/${SUBDIR}/${OUTPUT}.wav -r 48000 $SOX_W ${DIRECTORY}/${SUBDIR}/resample.wav resample"
+			#echo "sox: resampling PCM, 8 bi to PCM, 16 bit" 
+			[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
+			eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
+			
+			fi
+			}
+
+}

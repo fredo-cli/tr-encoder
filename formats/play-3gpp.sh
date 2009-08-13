@@ -1,55 +1,36 @@
 #!/usr/local/bin/bash
 
-	### start timer
+	### display the format ### 
+
+	echo -e "\\n${BLUE}$(box "format: $PREFIX-$FF_FORMAT-$PLAY_SIZE")${NC}"
+	
+	
+	### Start timer ###
 
 	TIME_START=$(date +%s)
 
-	### display the format 
 
-	echo -e "\\n${BLUE}$(box "format: $PREFIX-$FF_FORMAT-$PLAY_SIZE")${NC}"
+	### Create the logo or logos ###
+
+    add_logo 
+    
+
+	### Check the sub ###
+        
+    check_sub
 
 
-	### create the logo or logos 
-
-        add_logo 
+	### Calculate the padding for ffmpeg ###
 	
-	### Recalculate the padding
-	
-       if [[ ! -z $FF_PAD ]]
-           then
+	calculate_padding  
 
-           PAD=`echo "scale=3;(($FF_WIDTH / 1.777 ) - ($FF_WIDTH / $RATIO )) / 2"|bc`
-		 
 
-		 
-           PAD=`round2 $PAD`
-           FF_PAD=" -padtop $PAD -padbottom $PAD "
-		 echo -e "${yellow}# Recalculate the padding  ${NC}"	
-		 echo -e "${green}# $FF_PAD ${NC}"
-
-        fi   
+	### Create audio.wav ###
 	
-	
-	### Recalculate the FF_HEIGHT_BP 
-	FF_HEIGHT_BP=$( echo "${FF_HEIGHT} - ( 2*${PAD} )"|bc)
-	echo -e "${yellow}# Recalculate the FF_HEIGHT_BP  ${NC}"	
-	echo -e "${green}# FF_HEIGHT_BP=$FF_HEIGHT_BP ${NC}"
-
-	### add 22 pad
-
-	echo -e "${yellow}# add 22 to the paddding${NC}"	
-	PAD=`echo "$PAD + 22"|bc`
-	PAD=`round2 $PAD`
-	FF_PAD=" -padtop $PAD -padbottom $PAD "
-	echo -e "${green}# $FF_PAD ${NC}"
-	
-	
-	
-	# Create audio.wav
 	dump_audio
 
 	
-	### create audio
+	### create audio ###
 	
 	if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.aac" ]]
 	then
@@ -71,11 +52,23 @@
 			  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 
 	fi
+	
+	
+	
 
 	
 	
+	### Change to the video directory  ( to avoid the x264_2pass.log issue ) ###
+
+	PWD=$(pwd)
+	cd ${DIRECTORY}/${SUBDIR}/
 	
-	### create the video
+	
+	
+	
+	
+	
+	### Create the video ###
 	
 	if [[  $FFMPEG_VIDEO == 0 ]]
 	then
@@ -87,33 +80,44 @@
  		#eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 	else
 	
-		### create video
+
 
 		
 		if [[ $FF_PASS == 2 ]]
 		then
+		
+
 		
 		### create video_${FF_WIDTH}x${FF_HEIGHT}.h264
 		
 		echo -e "${yellow}# Create the video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264 ${NC}"
 		
 		echo -e "${yellow}# pass 1 ${NC}"
+		
+		INPUT_VIDEO=$INPUT 
+		[[ ! -z $SUB_FILE ]] && burn_subtitle		
 
-		COMMAND="${FFMPEG} -threads $THREADS -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1 -vcodec libx264 $FF_PRESET1  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP}   $VHOOK  -r $FF_FPS  -ss $SS  -f $FF_FORMAT -aspect 16:9  -y /dev/null "
+		COMMAND="${FFMPEG} -threads $THREAD -i  ${INPUT_VIDEO} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1 -vcodec libx264 $FF_PRESET1  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP}   $VHOOK  -r $FF_FPS  -ss $SS  -f $FF_FORMAT -aspect 16:9  -y /dev/null "
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
 		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 		
 		echo -e "${yellow}# pass 2 ${NC}"
+		
 
-		COMMAND="${FFMPEG} -threads $THREADS -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2 -vcodec libx264 $FF_PRESET2 $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP}   $VHOOK  -r $FF_FPS -ss $SS  -f $FF_FORMAT -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264"
+		[[ ! -z $SUB_FILE ]] && burn_subtitle		
+
+		COMMAND="${FFMPEG} -threads $THREAD -i  ${INPUT_VIDEO} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2 -vcodec libx264 $FF_PRESET2 $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP}   $VHOOK  -r $FF_FPS -ss $SS  -f $FF_FORMAT -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264"
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
 		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 
 		else 
 		
 		echo -e "${yellow}# Only one pass ${NC}"
+		
+		INPUT_VIDEO=$INPUT 
+		[[ ! -z $SUB_FILE ]] && burn_subtitle
 
-		COMMAND="${FFMPEG} -threads $THREADS -i  ${INPUT} -an -b ${FF_VBITRATE}k -vcodec libx264 $FF_PRESET2 $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP}   $VHOOK  -r $FPS -ss $SS  -f $FF_FORMAT -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264"
+		COMMAND="${FFMPEG} -threads $THREADS -i  ${INPUT_VIDEO} -an -b ${FF_VBITRATE}k -vcodec libx264 $FF_PRESET2 $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP}   $VHOOK  -r $FPS -ss $SS  -f $FF_FORMAT -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264"
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
 		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 		fi
@@ -135,7 +139,7 @@
 	
 	[[ -f  ${DIRECTORY}/${SUBDIR}/test.jpg ]] && rm  ${DIRECTORY}/${SUBDIR}/test.jpg
 	[[ -f  ${DIRECTORY}/${SUBDIR}/test.mp3 ]] && rm  ${DIRECTORY}/${SUBDIR}/test.mp3
-		      
+	[[ ! -z $SUB_FILE && -f "$FIFO" ]] && rm  "$FIFO"	      
 	  
 		 
 	### check the file 
@@ -163,3 +167,6 @@
 	else
 	echo -e "${RED}$FILE_INFOS${NC}"		
 	fi
+	
+	# Go back to the pwd ( to avoid the x264_2pass.log issue ) ###
+	cd $PWD

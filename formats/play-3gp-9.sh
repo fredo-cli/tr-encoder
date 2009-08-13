@@ -5,7 +5,7 @@ FF_FORMAT="3gp"
 PLAY_SIZE="_9"
 
 FF_WIDTH=176
-FF_HEIGHT=100 # +44
+FF_HEIGHT=144
 
 FF_FPS=15
 
@@ -16,6 +16,8 @@ FF_AC=1
 FF_AR=8000
 
 FF_PASS=2
+
+MPLAYER_SUB=" -subfont-text-scale 5.0 -sub-bg-color 0 -sub-bg-alpha 150 -font /usr/share/fonts/truetype/msttcorefonts/arial.ttf -utf8 "
 
 
 if [[ $EVALUTE == 1 && $EVALUATION == 0 ]]
