@@ -17,24 +17,39 @@
 				elif [[ ! -z $SUB  ]]
 				then
 				
-				[[ $DEBUG -gt 0 ]] && echo "looking for a subtile"
+				[[ $DEBUG -gt 0 ]] && echo -e "${yellow}# Looking for a subtitle ($SUB) ${NC}"
 				
+				
+						### .ass
+						
+						if [[ -f  "${DIRECTORY}/${OUTPUT}.srt" && ( $SUB == "srt" || $SUB == "all" )  ]]
+						then
+						
+						[[ $DEBUG -gt 0 ]] && echo -e "${green}SubtiTle ${DIRECTORY}/${OUTPUT}.srt detected!${NC}"
+						
+						SUB="${DIRECTORY}/${OUTPUT}.srt"
+						check_sub_is_supported
+						
 		
-						if [[ -f  ${OUTPUT}.ass ]]
+						### .srt
+						
+						elif [[ -f  "${DIRECTORY}/${OUTPUT}.ass" && ( $SUB == "ass" || $SUB == "all" )  ]]
 						then
 						
-						[[ $DEBUG -gt 1 ]] && echo "SubtiTle ${OUTPUT}.ass detected!"
-						SUB=${OUTPUT}.ass	
+						[[ $DEBUG -gt 0 ]] && echo -e "${green}SubtiTle ${DIRECTORY}/${OUTPUT}.ass detected!${NC}"
+						SUB="${DIRECTORY}/${OUTPUT}.ass"	
 						check_sub_is_supported
 						
-						elif [[ -f  ${OUTPUT}.srt ]]
-						then
+						else
 						
-						[ $DEBUG -gt 1 ]] && echo "SubtiTle ${OUTPUT}.srt detected!"
-						SUB=${OUTPUT}.srt
-						check_sub_is_supported
+						[[ $DEBUG -gt 0 ]] && echo -e "${red}SubtiTle ${DIRECTORY}/${OUTPUT}.[srt|ass] not detected!${NC}"
 						
 						fi
+						
+						
+						
+						
+
 						
 				fi
 
