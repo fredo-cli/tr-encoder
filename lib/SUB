@@ -120,7 +120,7 @@
 				SUB_POSITION_PC=$(echo "scale=3;((($HEIGHT - $CROPBOTTOM) / $HEIGHT   ) * 98  )"|bc)
 				SUB_POSITION_PC=$(echo "$SUB_POSITION_PC/1"|bc)
 				      
-				[[ $DEBUG -gt 0 ]] && echo -e "SUB_POSITION_PC=${GREEN}\"$SUB_POSITION_PC\"${NC}"
+				[[ $DEBUG -gt 0 ]] && echo -e "SUB_POSITION_PC2=${GREEN}\"$SUB_POSITION_PC\"${NC}"
 				save_info SUB_POSITION_PC=\"$SUB_POSITION_PC\"
 			
 				fi
@@ -186,8 +186,8 @@
 			  ### add the subtitle
 
 			  COMMAND="mplayer  $MPLAYER_SUB -nosound -quiet  -vo yuv4mpeg:file=$FIFO  ${INPUT} "
-			  [[ $DEBUG -gt 1 ]] && QUEIT="&"  || QUEIT="  2> /dev/null &"
-			  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
+			  [[ $DEBUG -gt 1 ]] && QUIET="&"  || QUIET="   2>/dev/null  &"
+			  eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 		
 			  INPUT_VIDEO=$FIFO 
 		

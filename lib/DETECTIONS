@@ -575,8 +575,8 @@ VCODEC=""
 	      else
 	      echo -e "SIZE=${YELLOW}$SIZE${NC}"
 	      fi
-	      save_info  "WIDTH=$WIDTH
-	      save_info  "HEIGHT=$HEIGHT	      
+	      save_info  "WIDTH=$WIDTH"
+	      save_info  "HEIGHT=$HEIGHT"	      
 	      save_info  "SIZE=$SIZE"
 	      
 	      

@@ -169,13 +169,7 @@ patch -p0  <  ../pip.patch
 
 
 
-# --disable-devices --enable-x11grab
-#./configure --prefix=/usr --enable-gpl --enable-postproc --enable-pthreads --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-nonfree  --enable-libamr_nb --enable-libamr_wb  
-
-#work!
-#./configure --prefix=/opt/ffmpeg --enable-gpl --enable-postproc --enable-pthreads --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-nonfree  --enable-libamr_nb --enable-libamr_wb  --disable-shared  --disable-debug  --enable-static --disable-devices --enable-swscale
-
-# work!!! --enable-libgsm pb
+### work!!! 
 ./configure --prefix=$HOME/ffmpip --enable-libfaac --enable-libfaad  --enable-libfaadbin --enable-libmp3lame   --enable-libamr_nb --enable-libamr_wb  --enable-libvorbis --enable-libtheora  --enable-libx264 --enable-libxvid  --enable-nonfree  --enable-swscale    --disable-shared  --disable-debug  --enable-static --disable-devices --enable-gpl --enable-postproc --enable-pthreads   --enable-memalign-hack --enable-mmx   --disable-ffplay  --disable-ffserver --disable-ipv6 --enable-libgsm
 
 
@@ -218,19 +212,22 @@ cd ffmpeg
 
 svn checkout -r $FFMPEG_VERSION svn://svn.ffmpeg.org/ffmpeg/trunk .
 
-
+#svn checkout svn://svn.mplayerhq.hu/soc/libavfilter vfilter
 
 
 
 # --disable-devices --enable-x11grab
 #./configure  --enable-gpl --enable-postproc --enable-pthreads --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-nonfree  --enable-libamr_nb --enable-libamr_wb --enable-libopencore-amrwb --enable-version3 --enable-libopencore-amrnb --disable-ffplay --disable-ffserver --enable-avfilter --enable-avfilter-lavf --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-nonfree --enable-libtheora --enable-libvorbis --enable-gpl --enable-libx264 --enable-postproc --enable-pthreads
-./configure --disable-devices --enable-shared  --enable-libopencore-amrwb --enable-version3 --enable-libopencore-amrnb --disable-ffplay --disable-ffserver --enable-avfilter --enable-avfilter-lavf --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-nonfree --enable-libtheora --enable-libvorbis --enable-gpl --enable-libx264 --enable-postproc --enable-pthreads
+
+# try --enable-cross-compile 
+./configure --prefix=$HOME/ffmpap --disable-devices   --enable-libopencore-amrwb --enable-version3 --enable-libopencore-amrnb --enable-ffplay --disable-ffserver --enable-avfilter --enable-avfilter-lavf --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-nonfree --enable-libtheora --enable-libvorbis --enable-gpl --enable-libx264 --enable-postproc --enable-pthreads  --enable-static  --disable-shared  
 make
 
 
 
-sudo checkinstall -y --fstrans=no --install=yes --pkgname=ffmpeg --pkgversion "$FFMPEG_VERSION_TXT"
+sudo checkinstall -y --fstrans=no --install=yes --pkgname=ffmpap --pkgversion "vfilter1"
 sudo ldconfig -v
+#sudo ldconfig -p
 sudo echo "ffmpeg hold" |sudo  dpkg --set-selections
 
 mv ffpresets/ .ffmpeg
