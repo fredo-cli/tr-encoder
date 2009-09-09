@@ -134,9 +134,11 @@
 		echo -e "${green}# This file already exit. We going to use it${NC}"		
 
 	else
+	
+	
 		### Resample Audio
 
-		resample_audio
+		# resample_audio
 
 		### Create Audio 
 

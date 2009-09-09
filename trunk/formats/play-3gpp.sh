@@ -42,7 +42,7 @@
 
 
 			  ### check if resample 8bit to 16 is needed  (sox)
-			  resample_audio
+			  # resample_audio
 			  
 			  ### create audio_${FF_AB}_${FF_AC}_$FF_AR.amr
 
