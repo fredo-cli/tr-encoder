@@ -10,7 +10,7 @@
 		fi
 		
 		# check if resample 8bit to 16 is needed  (sox)
-		resample_audio
+		# resample_audio
 		
 		# make a sample audio
 		COMMAND="${COMMAND}${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.wav -ss $SS -t 20 -r 24 -ar 44100 -ab 128000 -ac 2  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.mp3;\\n"

@@ -17,9 +17,19 @@ FF_PASS=2
 MPLAYER_SUB=" -subfont-text-scale 2 -sub-bg-color 0 -sub-bg-alpha 150 -font ${SUB_DIRECTORY}/arial.ttf -utf8 "
 
 THREADS=1	   
-FF_PRESET1="-vpre default -vpre main -refs 2 -bf 0"
-FF_PRESET2="-vpre default -vpre main -refs 2 -bf 0"
 
+
+
+
+FF_PRESET1="-vpre default -coder 0 -bf 0 -refs 1 -flags2 -wpred-dct8x8 -level 20 -maxrate 10000000 -bufsize 10000000"
+FF_PRESET2="-vpre default -coder 0 -bf 0 -refs 1 -flags2 -wpred-dct8x8 -level 20 -maxrate 10000000 -bufsize 10000000"
+
+### old domt work on iphone
+#FF_PRESET1="-vpre default -vpre main -refs 2 -bf 0"
+#FF_PRESET2="-vpre default -vpre main -refs 2 -bf 0"
+
+
+#FF_PRESET1="-vpre default -vpre main -refs 2 -bf 0"
 
 
 

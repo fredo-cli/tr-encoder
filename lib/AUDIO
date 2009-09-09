@@ -39,17 +39,23 @@
 
 		fi
 		
-			### resample_audio 
+			### resample_audio (old)
 				
 			resample_audio(){
 			
 			file ${DIRECTORY}/${SUBDIR}/${OUTPUT}.wav | grep -qs 'PCM, 8 bit'
-			if [ $? = 0 ]; then
-			    SOX_B="-b -u"
-			    SOX_W="-w"
+			
+			if [ $? = 0 ]; 
+			then
+			
+			SOX_B="-b -u"
+			SOX_W="-w"
+			
 			echo -e "${yellow}# Resampling PCM 8 bit to PCM 16 bit${NC}"    
+			
 			COMMAND="${COMMAND}sox $SOX_B ${DIRECTORY}/${SUBDIR}/${OUTPUT}.wav -r 48000 $SOX_W ${DIRECTORY}/${SUBDIR}/resample.wav resample"
-			#echo "sox: resampling PCM, 8 bi to PCM, 16 bit" 
+		
+
 			[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
 			eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 			

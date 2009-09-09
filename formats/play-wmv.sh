@@ -44,7 +44,7 @@
 	
 		### check if resample 8bit to 16 is needed  (sox)
 
-		resample_audio
+		# resample_audio
 		
 
 		### create Audio
