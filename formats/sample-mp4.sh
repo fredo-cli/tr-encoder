@@ -8,7 +8,7 @@
 		then
 		COMMAND="${COMMAND}mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/${OUTPUT}_ch6.wav -channels 6 -vc dummy -vo null   ${INPUT} > /dev/null;###"
 		
-		# dump the audia !!! use mp4creator
+		# dump the audio !! use mp4creator
 		#COMMAND="${COMMAND}mplayer -dumpaudio -dumpfile ${DIRECTORY}/$SUBDIR/${OUTPUT}_ch6.aac ${INPUT} > /dev/null;###"
 		
 		#faac -X  -P  -q 100 -c 44100 -b 128 --mpeg-vers 4 -o ../exemple/apple/h720/h720_ch6.aac -C 6 -R 48000 -B 16

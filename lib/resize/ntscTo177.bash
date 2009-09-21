@@ -2,7 +2,7 @@
 	 
 	      # 1.50 ntsc DAR 1.77
 		 
-	      if [[ $RATIO_I == 150  &&  $DAR == 1.77 ]]
+	      if [[ $RATIO_I == 150  &&   ( $DAR_I  -lt 170  ||  $DAR_I -gt 185 )]]
 	      then 
 		 DETECTED_FORMAT="1.50 - ntsc DAR 1.77"
 		 echo -e "${green}# Format: $DETECTED_FORMAT${NC}"
