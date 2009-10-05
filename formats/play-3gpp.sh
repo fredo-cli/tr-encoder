@@ -80,7 +80,10 @@
  		#eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 	else
 	
-
+		 PADTOP=$(echo "$PADTOP + 22"|bc)
+		 PADBOTTOM=$(echo "$PADBOTTOM + 22"|bc)
+	     FF_PAD="-padtop $PADTOP -padbottom $PADBOTTOM "
+		 echo -e "${yellow}# Adding 2*22 px to the video: $FF_PAD ${NC}"
 
 		
 		if [[ $FF_PASS == 2 ]]

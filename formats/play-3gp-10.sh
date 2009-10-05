@@ -5,7 +5,7 @@ FF_FORMAT="3gp"
 PLAY_SIZE="_10"
 
 FF_WIDTH=176
-FF_HEIGHT=144 
+FF_HEIGHT=100 ### we add 2*22 just before the video encoding
 
 FF_FPS=15
 

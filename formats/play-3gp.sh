@@ -73,6 +73,12 @@
 		
 		echo -e "${yellow}# Create the video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263 ${NC}"
 		
+
+		 PADTOP=$(echo "$PADTOP + 22"|bc)
+		 PADBOTTOM=$(echo "$PADBOTTOM + 22"|bc)
+	     FF_PAD="-padtop $PADTOP -padbottom $PADBOTTOM "
+		 echo -e "${yellow}# Adding 2*22 px to the video: $FF_PAD ${NC}"
+		
 		if [[ $FF_PASS == 2 ]]
 		then
 		
@@ -80,6 +86,10 @@
 		
 		INPUT_VIDEO=$INPUT 
 		[[ ! -z $SUB_FILE ]] && burn_subtitle	
+		
+
+
+
 		
 		COMMAND="${FFMPEG} -threads 1 -i  ${INPUT_VIDEO} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK -f $FF_FORMAT -y /dev/null "
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
