@@ -16,7 +16,9 @@
 	
 		 
 	       PAD=`round2 $PAD`
-	       FF_PAD=" -padtop $PAD -padbottom $PAD "
+	       PADTOP=$PAD
+	       PADBOTTOM=$PAD
+	       FF_PAD=" -padtop $PAD -padbottom $PADBOTTOM "
 	       
 		   echo -e "${yellow}# Recalculate the padding  ${NC}"	
 		   echo -e "${green}# $FF_PAD ${NC}"
@@ -28,8 +30,10 @@
 		   elif [[ ! -z $FF_PAD ]]
 		   then
 		
-			PAD=0
-			FF_PAD=" -padtop $PAD -padbottom $PAD "
+		   PAD=0
+	       PADTOP=$PAD
+	       PADBOTTOM=$PAD
+	       FF_PAD=" -padtop $PAD -padbottom $PADBOTTOM "
 			   
 			echo -e "${yellow}# Recalculate the padding ( canceled due to the subtitle ) ${NC}"	
 			echo -e "${green}# $FF_PAD ${NC}"		 	
