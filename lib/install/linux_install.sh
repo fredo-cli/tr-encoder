@@ -180,7 +180,7 @@ make
 
 
 sudo checkinstall -y --fstrans=no --install=yes --pkgname=ffmpip --pkgversion "custom1"
-
+sudo ldconfig -v
 sudo ln -s "$HOME/ffmpip/bin/ffmpeg"  "/usr/bin/ffmpip"
 
 
