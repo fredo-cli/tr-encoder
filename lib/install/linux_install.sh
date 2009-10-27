@@ -21,7 +21,7 @@
 
 	function INSTALL_MPLAYER(){
 
-	#sudo apt-get build-dep mplayer-nogui mencoder
+	sudo apt-get build-dep mplayer-nogui mencoder
 	sudo apt-get -y purge mplayer-nogui mencoder
 
 	cd "$HOME"
