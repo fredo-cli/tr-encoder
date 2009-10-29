@@ -122,7 +122,19 @@
 	fi
 
 
+        function INSTALL_MEDIAINFO(){
 
+            cd $HOME
+            wget -nc  http://ovh.dl.sourceforge.net/sourceforge/mediainfo/MediaInfo_CLI_0.7.8_GNU_FromSource.tar.bz2
+            tar xjvf MediaInfo_CLI_0.7.8_GNU_FromSource.tar.bz2
+            cd MediaInfo_CLI_GNU_FromSource
+            sh CLI_Compile.sh
+            cd MediaInfo/Project/GNU/CLI
+            sudo make install
+            cd $HOME
+            sudo rm -rf MediaInfo_CLI*
+
+        }
 
 
 
@@ -134,14 +146,17 @@
 	then
 
 	echo -e "${green}true${NC}\t($(pkg_version  -vs ^mediainfo- |awk -F " " '{print $1}'))"
-	[[ $REINSTALL == 1 ]] && cd /usr/ports/multimedia/mediainfo/ && make deinstall && sudo make install clean
-
+	#   [[ $REINSTALL == 1 ]] && cd /usr/ports/multimedia/mediainfo/ && make deinstall && sudo make install clean
+            [[ $REINSTALL == 1 ]] && MEDIAINFO
 	else
 
 	echo -e "${yellow}false${NC}\t($(pkg_version  -vs ^mediainfo- |awk -F " " '{print $1}'))"
-	[[ $INSTALL == 1 ]] && cd /usr/ports/multimedia/mediainfo/ && sudo make install clean
-
+            #[[ $INSTALL == 1 ]] && cd /usr/ports/multimedia/mediainfo/ && sudo make install clean
+             [[ $INSTALL == 1 ]] && MEDIAINFO
 	fi
+
+
+
 
 
 
@@ -174,7 +189,7 @@
 
 	echo -en "readlink\t"
 
-	if [[ ! -z $(which mediainfo) ]]
+	if [[ ! -z $(which readlink) ]]
 	then
 
 	echo -e "${green}true${NC}\t($(pkg_version  -vs ^readlink- |awk -F " " '{print $1}'))"
