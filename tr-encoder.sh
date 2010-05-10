@@ -49,7 +49,7 @@ CPUS_AVERAGE=12
 
 ### minimum duration of the video 
 
-MINIMUM_DURATION=12
+MINIMUM_DURATION=8
 
 ### minimum general biterate accepted 
 
