@@ -89,15 +89,15 @@ FPS=12000/1001
 		then
 		
 		MP4BOX=mp4box
-		FFMPEG="$HOME/ffmpip/bin/ffmpeg"
-		VHOOK_PATH="$HOME/ffmpip/lib/vhook/pip.so"
+		FFMPEG="/usr/local/bin/ffmpip"
+		VHOOK_PATH="/home/fred/ffmpip/lib/vhook/pip.so"
 		
 		elif  [[ $SYSTEM == "Linux" ]]
 		then
 		
 		MP4BOX=MP4Box
-		FFMPEG="$HOME/ffmpip/bin/ffmpeg"
-		VHOOK_PATH="$HOME/ffmpip/lib/vhook/pip.so"
+		FFMPEG="/usr/bin/ffmpip"
+		VHOOK_PATH="/home/fred/ffmpip/lib/vhook/pip.so"
 		
 		fi
 
@@ -526,7 +526,7 @@ FPS=12000/1001
 		then
 		
 		SCAN_TYPE=1
-		EXTENTION=$(echo $1  |grep -o -e "\..*$")
+		EXTENTION=$(echo $1  |grep -o  -E "\..{2,4}$")
 		
 		execute  "$(realpath "${1}")" 
 		
