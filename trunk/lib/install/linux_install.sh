@@ -111,12 +111,14 @@
 
 	cd "$HOME"
 
-	wget -nc "http://dfn.dl.sourceforge.net/sourceforge/opencore-amr/opencore-amr-0.1.1.tar.gz"
-	tar xzvf opencore-amr-0.1.1.tar.gz
-	cd "$HOME/opencore-amr"
+	#wget -nc "http://dfn.dl.sourceforge.net/sourceforge/opencore-amr/opencore-amr-0.1.1.tar.gz"
+  wget -nc "http://ftp.de.debian.org/debian/pool/main/o/opencore-amr/opencore-amr_0.1.2.orig.tar.gz"
+	tar xzvf opencore-amr*
+	cd "$HOME/opencore-amr*"
 
+  ./configure
 	make
-	sudo checkinstall -y --fstrans=no --install=yes --pkgname=opencore-mr --pkgversion "0.1.1"
+	sudo checkinstall -y --fstrans=no --install=yes --pkgname=opencore-mr --pkgversion "0.1.2"
 
 	}
 
