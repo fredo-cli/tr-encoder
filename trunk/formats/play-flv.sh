@@ -87,7 +87,7 @@
 			
 			  
 			 [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2> /dev/null"
-			 COMMAND="${FFMPEG} -an $DEINTERLACE -i ${INPUT_VIDEO} -passlogfile /tmp/${OUTPUT}.log  -pass 1  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25 -i_qfactor 0.70  -g 500     $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -ss $SS -f $FF_FORMAT -y /dev/null"
+			 COMMAND="${FFMPEG} -an $DEINTERLACE -i ${INPUT_VIDEO} -passlogfile /tmp/${OUTPUT}.log  -pass 1  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25  -g 500     $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP} -r $FF_FPS  $VHOOK  -ss $SS -f $FF_FORMAT -y /dev/null"
 			 eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 			
 			
@@ -98,7 +98,7 @@
 			 [[ ! -z $SUB_FILE ]] && burn_subtitle
 			
 			
-			 COMMAND="${FFMPEG} -an $DEINTERLACE -i ${INPUT_VIDEO} -passlogfile /tmp/${OUTPUT}.log   -pass 2  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25 -i_qfactor 0.70  -g 500     $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP}  -r $FF_FPS  $VHOOK  -ss $SS  -f $FF_FORMAT -y ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263"
+			 COMMAND="${FFMPEG} -an $DEINTERLACE -i ${INPUT_VIDEO} -passlogfile /tmp/${OUTPUT}.log   -pass 2  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25  -g 500     $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP}  -r $FF_FPS  $VHOOK  -ss $SS  -f $FF_FORMAT -y ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263"
 			 [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
 			 eval "$COMMAND " && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 	
