@@ -43,22 +43,26 @@
 				
 			resample_audio(){
 			
-			file ${DIRECTORY}/${SUBDIR}/${OUTPUT}.wav | grep -qs 'PCM, 8 bit'
-			
-			if [ $? = 0 ]; 
+
+      BITS=`file ${DIRECTORY}/${SUBDIR}/audio.wav| grep -oE "PCM, 8 bit|PCM, 24 bit"|grep -oE "8|24"`
+
+			if [[ ! -z  $BITS ]];
 			then
-			
-			SOX_B="-b -u"
-			SOX_W="-w"
+echo $BITS
+
 			
 			echo -e "${yellow}# Resampling PCM 8 bit to PCM 16 bit${NC}"    
 			
-			COMMAND="${COMMAND}sox $SOX_B ${DIRECTORY}/${SUBDIR}/${OUTPUT}.wav -r 48000 $SOX_W ${DIRECTORY}/${SUBDIR}/resample.wav resample"
+			COMMAND="sox -b $BITS ${DIRECTORY}/${SUBDIR}/audio.wav -r 48000 -s ${DIRECTORY}/${SUBDIR}/resample.wav && cp ${DIRECTORY}/${SUBDIR}/resample.wav ${DIRECTORY}/${SUBDIR}/audio.wav "
 		
 
 			[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-			eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
-			
+			eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
+
+			else
+
+  			echo -e "${yellow}# No audio resampling needed ${NC}"
+
 			fi
 			}
 
