@@ -90,6 +90,7 @@ FPS=12000/1001
 		
 		MP4BOX=mp4box
 		FFMPEG="/usr/local/bin/ffmpip"
+		FFMPEG_WEBM="/usr/local/bin/ffmpeg"
 		VHOOK_PATH="/home/fred/ffmpip/lib/vhook/pip.so"
 		
 		elif  [[ $SYSTEM == "Linux" ]]
@@ -97,9 +98,27 @@ FPS=12000/1001
 		
 		MP4BOX=MP4Box
 		FFMPEG="/usr/bin/ffmpip"
-		VHOOK_PATH="/home/fred/ffmpip/lib/vhook/pip.so"
-		
-		fi
+    FFMPEG_WEBM="/usr/bin/ffmpeg-webm"
+
+      # older version
+      if [[ -f /home/fred/ffmpip/lib/vhook/pip.so ]]
+      then
+        VHOOK_PATH=/home/fred/ffmpip/lib/vhook/pip.so
+
+      # newer version
+      elif [[ -f /opt/pip/lib/vhook/pip.so ]]
+      then
+
+        VHOOK_PATH="/opt/pip/lib/vhook/pip.so"
+
+
+
+      else
+
+        echo -e "{RED}Can' find Vhookt{NC}"
+
+      fi
+    fi
 
 
 

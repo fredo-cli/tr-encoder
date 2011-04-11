@@ -43,7 +43,7 @@
 		else
 		
 				  ### check if resample 8bit to 16 is needed  (sox)
-				  # resample_audio
+				  resample_audio
 				  
 				  ### create audio_96ch2.mp3
 				  echo -e "${yellow}# Create audio_${FF_AB}_${FF_AC}_$FF_AR.mp3 ${NC}"
