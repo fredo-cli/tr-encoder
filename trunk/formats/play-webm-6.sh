@@ -1,7 +1,7 @@
 #!/usr/local/bin/bash
 
 PREFIX="play"
-FF_FORMAT="mp4"
+FF_FORMAT="webm"
 PLAY_SIZE="_6"
 
 FF_WIDTH=848
@@ -14,11 +14,38 @@ FF_AC=6
 FF_AR=48000
 
 FF_PASS=2
-MPLAYER_SUB=" -subfont-text-scale 2 -sub-bg-color 0 -sub-bg-alpha 150 -font ${SUB_DIRECTORY}/arial.ttf -utf8 "
-
 THREADS=1
-FF_PRESET1="-vpre default -vpre main -level 30 -refs 2 "
-FF_PRESET2="-vpre default -vpre main -level 30 -refs 2 "
+
+
+
+
+
+
+
+FF_PRESET1=" -f webm -aspect 16:9 -vcodec libvpx -g 120 \
+-profile 0 \
+-qmax 51 \
+-qmin 10 \
+-rc_buf_aggressivity 0.95 \
+-rc_lookahead 16 \
+-maxrate 2.4M \
+-minrate 100k \
+-level 216 -vb ${FF_VBITRATE}k -ac ${FF_AC} -ar ${FF_AR} -ab ${FF_AB}k  -acodec libvorbis -aq 4 "
+
+FF_PRESET2=" -f webm -aspect 16:9 -vcodec libvpx -g 120 \
+-profile 0 \
+-qmax 51 \
+-qmin 10 \
+-rc_buf_aggressivity 0.95 \
+-rc_lookahead 16 \
+-maxrate 2.4M \
+-minrate 100k \
+-vb ${FF_VBITRATE}k -ac ${FF_AC} -ar ${FF_AR} -ab ${FF_AB}k  -acodec libvorbis -aq 4 "
+
+
+
+
+
 
 
 	if [[ $NEW_WIDTH -ge  $FF_WIDTH ]]
@@ -50,6 +77,3 @@ FF_PRESET2="-vpre default -vpre main -level 30 -refs 2 "
 
     fi
 
-
-
-	

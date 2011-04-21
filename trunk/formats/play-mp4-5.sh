@@ -23,31 +23,32 @@ FF_PRESET2="-vpre default -vpre ipod640"
 
 
 
-
-		if [[ $NEW_WIDTH -ge 640 ]]
+	if [[ $NEW_WIDTH -ge  $FF_WIDTH ]]
 		then
-		
-				if [[ $EVALUTE == 1 && $EVALUATION == 0 ]]
-				then
-				
-				### evalute only once or encode
-				
-				evaluation_ini
-				
-				### check the evolution of the encoding
-				
-				elif [[ $EVALUTE == 1 && $EVALUATION -gt 0 ]]
-				then
-				
-				evaluation_check
-				
-				else
-				
-				### encode the video
-				
-				. "$APP_DIR/formats/$PREFIX-$FF_FORMAT.sh" 
-				
-				fi
-		
-		
-		fi
+
+
+        if [[ $EVALUTE == 1 && $EVALUATION == 0 ]]
+        then
+
+        ### evalute only once or encode
+
+        evaluation_ini
+
+        ### check the evolution of the encoding
+
+        elif [[ $EVALUTE == 1 && $EVALUATION -gt 0 ]]
+        then
+
+        evaluation_check
+
+        else
+
+        ### encode the video
+
+        . "$APP_DIR/formats/$PREFIX-$FF_FORMAT.sh"
+
+        fi
+
+
+    fi
+
