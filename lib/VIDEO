@@ -67,7 +67,7 @@
 		rm -f ${DIRECTORY}/${SUBDIR}/${OUTPUT}.yuv
 		mkfifo ${DIRECTORY}/${SUBDIR}/${OUTPUT}.yuv
 		
-		mplayer $INPUT -fps 24 -ass -embeddedfonts -sid 0 -aid 1 -vf eq2=0.9:1:0:1.02 -vo yuv4mpeg:file=${DIRECTORY}/${SUBDIR}/${OUTPUT}.yuv   -ao null -quiet < /dev/null &
+		${MPLAYER_LATEST} $INPUT -fps 24 -ass -embeddedfonts -sid 0 -aid 1 -vf eq2=0.9:1:0:1.02 -vo yuv4mpeg:file=${DIRECTORY}/${SUBDIR}/${OUTPUT}.yuv   -ao null -quiet < /dev/null &
 		 
 		}
 		

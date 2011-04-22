@@ -154,7 +154,7 @@ function get_vbitrate_mplayer () {
 # Return VBITERATE_MPLAYER=VBITERATE_MPLAYER=4324320   or  (90 %  $BITERATE_CALC )
 
 #echo "get the video bitrate from mplayer"
-VBITERATE_MPLAYER=`mplayer  $INPUT  -frames 0 -identify -quiet -vo null -ao null  2>&1 |grep  "ID_VIDEO_BITRATE=" |tail -1`   
+VBITERATE_MPLAYER=`${MPLAYER_OLD} $INPUT  -frames 0 -identify -quiet -vo null -ao null  2>&1 |grep  "ID_VIDEO_BITRATE=" |tail -1`
 VBITERATE_MPLAYER=${VBITERATE_MPLAYER#ID_VIDEO_BITRATE=}
 
 		# check the value != null
@@ -171,7 +171,7 @@ VBITERATE_MPLAYER=${VBITERATE_MPLAYER#ID_VIDEO_BITRATE=}
 
 function get_abitrate_mplayer () {	      
 #echo  get the audio bitrate from mplayer
-ABITERATE_MPLAYER=`mplayer  $INPUT  -frames 0 -identify -quiet -vo null -ao null  2>&1 |grep  "ID_AUDIO_BITRATE=" |tail -1`   ABITERATE_MPLAYER=${ABITERATE_MPLAYER#ID_AUDIO_BITRATE=}
+ABITERATE_MPLAYER=`${MPLAYER_OLD} $INPUT  -frames 0 -identify -quiet -vo null -ao null  2>&1 |grep  "ID_AUDIO_BITRATE=" |tail -1`   ABITERATE_MPLAYER=${ABITERATE_MPLAYER#ID_AUDIO_BITRATE=}
 
 		# check the value != null
 		
@@ -187,7 +187,7 @@ ABITERATE_MPLAYER=`mplayer  $INPUT  -frames 0 -identify -quiet -vo null -ao null
 function get_fps_mplayer () {	
 
 # get the FPS from mplayer
-FPS_MPLAYER=`mplayer  $INPUT  -frames 0 -identify -quiet -vo null -ao null  2>&1 |grep  "ID_VIDEO_FPS=" |tail -1`   
+FPS_MPLAYER=`${MPLAYER_OLD} $INPUT  -frames 0 -identify -quiet -vo null -ao null  2>&1 |grep  "ID_VIDEO_FPS=" |tail -1`
 FPS_MPLAYER=${FPS_MPLAYER#ID_VIDEO_FPS=}
 #echo "FPS_MPLAYER=$FPS_MPLAYER"
 }
@@ -197,7 +197,7 @@ function get_duration_mplayer () {
 # return  DURATION_MPLAYER=0 or DURATION_MPLAYER=345.78
 
 # echo " get the DURATION from mplayer"
-DURATION_MPLAYER=`mplayer  $INPUT  -frames 0 -identify -quiet -vo null -ao null  2>&1 |grep  "ID_LENGTH=" |tail -1`   
+DURATION_MPLAYER=`${MPLAYER_OLD} $INPUT  -frames 0 -identify -quiet -vo null -ao null  2>&1 |grep  "ID_LENGTH=" |tail -1`
 
 		# check the value != null
 		if [[  ! -z $DURATION_MPLAYER ||  $DURATION_MPLAYER != 0 ]] 

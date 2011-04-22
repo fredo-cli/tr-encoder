@@ -85,20 +85,26 @@ FPS=12000/1001
 
 		### Path to mp4box  ffmpeg 
 		
-		if [[ $SYSTEM == "FreeBSD" ]]
-		then
-		
-		MP4BOX=mp4box
-		FFMPEG="/usr/local/bin/ffmpip"
-		FFMPEG_WEBM="/usr/local/bin/ffmpeg"
-		VHOOK_PATH="/home/fred/ffmpip/lib/vhook/pip.so"
-		
-		elif  [[ $SYSTEM == "Linux" ]]
-		then
+	
 		
 		MP4BOX=MP4Box
+
+    # ffmpip old version of ffmpeg with pip addon
+
 		FFMPEG="/usr/bin/ffmpip"
+
+    # latest verion of ffmpeg with webm
+
     FFMPEG_WEBM="/usr/bin/ffmpeg-webm"
+
+    # old version of ffmpeg only for detection (crop detection)
+
+    MPLAYER_OLD="/usr/bin/mplayer-old"
+
+    # latest version of mplayer
+
+    MPLAYER_LATEST="/usr/bin/mplayer"
+
 
       # older version
       if [[ -f /home/fred/ffmpip/lib/vhook/pip.so ]]
@@ -118,7 +124,7 @@ FPS=12000/1001
         echo -e "{RED}Can' find Vhookt{NC}"
 
       fi
-    fi
+    
 
 
 

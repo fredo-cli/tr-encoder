@@ -394,7 +394,7 @@ check_comp(){
 								  
 	
 		
-		MPLAYER_TEST=`mplayer -identify "$INPUT" -quiet -frames 1 -vo null -ao null  2>&1 /dev/null | grep - -e "ID_VIDEO" -e "ID_AUDIO_" -e "ID_LENGTH" -e "ID_DEMUXER" `  
+		MPLAYER_TEST=`${MPLAYER_LATEST} -identify "$INPUT" -quiet -frames 1 -vo null -ao null  2>&1 /dev/null | grep - -e "ID_VIDEO" -e "ID_AUDIO_" -e "ID_LENGTH" -e "ID_DEMUXER" `
 		
 		if [[ $DEBUG > 1 ]]
 		then
@@ -933,7 +933,7 @@ cropdetection() {
 		 
 				###  Run mplayer to get somme parameters of the video.
 				
-				CROPDETECTION_CMD="mplayer \"$INPUT\" -ss $CROPSTART_TMP -frames $CROPFRAMES_TMP -vf cropdetect -ac dummy -quiet -vo null -ao null > ${DIRECTORY}/${SUBDIR}/crop.txt 2>&1"
+				CROPDETECTION_CMD="${MPLAYER_OLD} \"$INPUT\" -ss $CROPSTART_TMP -frames $CROPFRAMES_TMP -vf cropdetect -ac dummy -quiet -vo null -ao null > ${DIRECTORY}/${SUBDIR}/crop.txt 2>&1"
 				eval $CROPDETECTION_CMD 
 				if [[  $DEBUG -gt 1 ]]
 				then
