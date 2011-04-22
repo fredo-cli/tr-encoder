@@ -185,7 +185,7 @@
 
 			  ### add the subtitle
 
-			  COMMAND="mplayer  $MPLAYER_SUB -nosound -quiet  -vo yuv4mpeg:file=$FIFO  ${INPUT} "
+			  COMMAND="${MPLAYER_LATEST} $MPLAYER_SUB -nosound -quiet  -vo yuv4mpeg:file=$FIFO  ${INPUT} "
 			  [[ $DEBUG -gt 1 ]] && QUIET="&"  || QUIET="   2>/dev/null  &"
 			  eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 		

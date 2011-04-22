@@ -1,12 +1,12 @@
 #!/usr/bin/bash		
 
 		# transform to pcm
-		COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/${OUTPUT}.wav -vc dummy -vo null   ${INPUT} > /dev/null;\\n"
+		COMMAND="${MPLAYER_LATEST} -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/${OUTPUT}.wav -vc dummy -vo null   ${INPUT} > /dev/null;\\n"
 		
 		
 		if [[ $CHANNELS == 6 ]]
 		then
-		COMMAND="${COMMAND}mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/${OUTPUT}_ch6.wav -channels 6 -vc null -vo null   ${INPUT} > /dev/null;\\n"
+		COMMAND="${COMMAND}${MPLAYER_LATEST} -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/${OUTPUT}_ch6.wav -channels 6 -vc null -vo null   ${INPUT} > /dev/null;\\n"
 		fi
 		
 		# check if resample 8bit to 16 is needed  (sox)

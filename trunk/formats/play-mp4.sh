@@ -47,7 +47,7 @@
 
 			 else
 
-			 COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -channels 6 -vc null -vo null  ${INPUT}"
+			 COMMAND="${MPLAYER_LATEST} -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -channels 6 -vc null -vo null  ${INPUT}"
 			 [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET=" >/dev/null  2>&1"
 			 eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
 
@@ -66,7 +66,7 @@
 				  if [ "$RESULTS_SIZE" -lt 1014000 ]
 				  then
 				  echo -e "${yellow}# create audio.wav ${NC}"		
-				  COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -channels 6  -vc dummy -vo null ${INPUT}"
+				  COMMAND="${MPLAYER_LATEST} -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -channels 6  -vc dummy -vo null ${INPUT}"
 				  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" > /dev/null  2>&1"
 				  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 				  fi
@@ -89,7 +89,7 @@
 
 			 else
 
-				COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -vc null -vo null ${INPUT}"
+				COMMAND="${MPLAYER_LATEST} -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -vc null -vo null ${INPUT}"
 				[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET=" > /dev/null  2>&1"
 				eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
 
@@ -108,7 +108,7 @@
 				  if [ "$RESULTS_SIZE" -lt 1014000 ]
 				  then
 				  echo -e "${yellow}# create audio.wav ${NC}"		
-				  COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -vc dummy -vo null ${INPUT}"
+				  COMMAND="${MPLAYER_LATEST} -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -vc dummy -vo null ${INPUT}"
 				  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" > /dev/null  2>&1"
 				  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
 				  fi

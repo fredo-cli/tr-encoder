@@ -1,15 +1,15 @@
 #!/usr/bin/bash		
 
 		# transform to pcm
-		COMMAND="mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/${OUTPUT}.wav -vc dummy -vo null   ${INPUT} > /dev/null;###"
+		COMMAND="${MPLAYER_LATEST} -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/${OUTPUT}.wav -vc dummy -vo null   ${INPUT} > /dev/null;###"
 		
 		
 		if [[ $CHANNELS == 6 ]]
 		then
-		COMMAND="${COMMAND}mplayer -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/${OUTPUT}_ch6.wav -channels 6 -vc dummy -vo null   ${INPUT} > /dev/null;###"
+		COMMAND="${COMMAND}${MPLAYER_LATEST} -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/${OUTPUT}_ch6.wav -channels 6 -vc dummy -vo null   ${INPUT} > /dev/null;###"
 		
 		# dump the audio !! use mp4creator
-		#COMMAND="${COMMAND}mplayer -dumpaudio -dumpfile ${DIRECTORY}/$SUBDIR/${OUTPUT}_ch6.aac ${INPUT} > /dev/null;###"
+		#COMMAND="${COMMAND}${MPLAYER_LATEST} -dumpaudio -dumpfile ${DIRECTORY}/$SUBDIR/${OUTPUT}_ch6.aac ${INPUT} > /dev/null;###"
 		
 		#faac -X  -P  -q 100 -c 44100 -b 128 --mpeg-vers 4 -o ../exemple/apple/h720/h720_ch6.aac -C 6 -R 48000 -B 16
 		#COMMAND="${COMMAND}faac -X -q 100 -c 44100 -b 128   --mpeg-vers 4 -o a${DIRECTORY}/$SUBDIR/${OUTPUT}_ch6.aac  ${DIRECTORY}/$SUBDIR/${OUTPUT}_ch6.wav > /dev/null;###"
