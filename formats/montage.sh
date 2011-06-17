@@ -37,7 +37,7 @@
 		if [[  $? == 1 ]]
 		then 
 		echo -e "${GREEN}${DIRECTORY}/$SUBDIR/montage.png${NC}"
-		[[ $DEBUG -gt 1 ]] && echo -e "$FILE_INFOS" ||echo -e "$FILE_INFOS" >  "${DIRECTORY}/$SUBDIR/montage.up"
+		[[ $DEBUG -gt 1 ]] && echo -e "$FILE_INFOS" ||echo -e "$FILE_INFOS" >>  "${DIRECTORY}/$SUBDIR/montage.up"
 		else
 		echo -e "${RED}$FILE_INFOS${NC}"		
 		fi

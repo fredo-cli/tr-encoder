@@ -266,7 +266,7 @@ FPS=12000/1001
 				[[ $EVOLUTION_PERCENT -gt 99 ]] && EVOLUTION_PERCENT=99
 				[[ $EVOLUTION_PERCENT -eq 0 ]] && EVOLUTION_PERCENT=1
 
-				echo "{'statusID': 5 , 'filesToCreateNB': $NB_FILE_TO_CREATE , 'filesCreatedNB' : $NB_FILE_CREATED , 'evolutionPC' : $EVOLUTION_PERCENT ,'realisationTime' : $TOTAL_TIME_REALISATION , 'evaluationTime' : $TOTAL_TIME_EVALUATION}"
+				echo '{"statusID": 5 , "filesToCreateNB": '$NB_FILE_TO_CREATE' , "filesCreatedNB" : '$NB_FILE_CREATED' , "evolutionPC" : '$EVOLUTION_PERCENT' ,"realisationTime" : '$TOTAL_TIME_REALISATION' , "evaluationTime" : '$TOTAL_TIME_EVALUATION'}'
 
 
 

@@ -51,7 +51,7 @@
 		if [[  $? == 1 ]]
 		then 
 		echo -e "${GREEN}${DIRECTORY}/$SUBDIR/sample.flv${NC}"
-		[[ $DEBUG -gt 1 ]] && echo -e "$FILE_INFOS" ||echo -e "$FILE_INFOS" >  "${DIRECTORY}/$SUBDIR/sample.up"
+		[[ $DEBUG -gt 1 ]] && echo -e "$FILE_INFOS" ||echo -e "$FILE_INFOS" >>  "${DIRECTORY}/$SUBDIR/sample.up"
 		else
 		echo -e "${RED}$FILE_INFOS${NC}"		
 		fi

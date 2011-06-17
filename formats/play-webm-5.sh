@@ -24,7 +24,7 @@ THREADS=1
 
 FF_PRESET1=" -f webm -aspect 16:9 -vcodec libvpx -g 120 \
 -profile 0 \
--qmax 63 \
+-qmax 51 \
 -qmin 0 \
 -rc_buf_aggressivity 0.95 \
 -rc_lookahead 16 \
@@ -34,7 +34,7 @@ FF_PRESET1=" -f webm -aspect 16:9 -vcodec libvpx -g 120 \
 
 FF_PRESET2=" -f webm -aspect 16:9 -vcodec libvpx -g 120 \
 -profile 0 \
--qmax 63 \
+-qmax 51 \
 -qmin 0 \
 -rc_buf_aggressivity 0.95 \
 -rc_lookahead 16 \
