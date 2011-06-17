@@ -1,0 +1,272 @@
+#!/usr/local/bin/bash
+
+		add_logo(){
+		VHOOK=""
+
+	  for LOGO_ADD in $(echo $LOGOS_ADD)
+	  do
+		    
+	  ### get the preset from LOGOS + SIZE file if possible
+
+	  LOGOS_PRESET=$(grep  "^LOGO_RESIZED=$LOGO_ADD${PLAY_SIZE} .*" ${APP_DIR}/config/LOGOS)
+
+	  ### get the preset from LOGOS  file if possible
+
+	  [[ -z $LOGOS_PRESET ]] && LOGOS_PRESET=$(grep  "^LOGO_RESIZED=$LOGO_ADD .*" ${APP_DIR}/config/LOGOS )
+
+
+			
+
+		    if [[ ! -z $LOGOS_PRESET ]]
+			then
+			
+		    ### eval the preset values
+
+		    eval "${LOGOS_PRESET}"
+		    
+
+		    
+
+				if [[ ! -z $(echo  "$LOGO_FILE"|grep -o flv$) ]]
+				then
+				
+				
+					LOGO_DIR="$APP_DIR/logos"
+					LOGO="${LOGO_DIR}/${LOGO_FILE}"		
+					
+					[[ $DEBUG -gt 0 ]] && echo -e "\\n${cyan}$(box "Logo informations")${NC}\\n"						
+					
+					[[ $DEBUG -gt 0 ]] && echo -e "${yellow}# The logo it's a video${NC}"
+					
+					
+				      ### find the new size for the logo exemple 10% of the new size 
+				      
+				      #LOGO_RESIZED_W=$(echo "($NEW_WIDTH) * $LOGO_PC_W / 100 "|bc)
+				      #LOGO_RATIO=$(echo "scale=2;$LOGO_W / $LOGO_RESIZED_W" |bc) 
+				      #LOGO_RESIZED_H=$(echo "$LOGO_H / $LOGO_RATIO "|bc)
+		
+				      [[ $DEBUG -gt 0 ]] && echo -e "# Resize the logo to 10% (base on the new Width $NEW_WIDTH):\\t${LOGO_W}x${LOGO_H} -> ${LOGO_RESIZED_W}x${LOGO_RESIZED_H}" 
+				    
+				      ### if the video is anamorphe -> the logo need a distortion to fit
+				      
+					      if [[  $DISTORTION != "1" ]]
+					      then
+			
+					      LOGO_RESIZED_W=$(echo "$LOGO_RESIZED_W / $DISTORTION "|bc)
+					      [[ $DEBUG -gt 0 ]] && echo -e "# Add the Distortion ($DISTORTION):\\t ${LOGO_W}x${LOGO_H} -> ${LOGO_RESIZED_W}x${LOGO_RESIZED_H}" 
+			
+					      fi
+		
+		
+		
+	
+		
+		
+		
+				      
+
+		
+		
+		
+				    
+				      ### find the logo position ###
+		
+		
+		
+				      
+					      ### the position of the logo is base on the original size of the video
+					      
+					      if [[ $PAD -ne 0 ]]
+					      then
+			
+					      [[ $DEBUG -gt 0 ]] && echo "# The logo can not be on the paddind area"
+					      LOGO_X=$(echo "(($NEW_WIDTH * $LOGO_PC_X ) / 100) "|bc)
+					      LOGO_Y=$(echo "scale=3;(($NEW_HEIGHT * $LOGO_PC_Y) / 100  )  - $PADTOP "|bc)
+			
+					      else
+			
+					      LOGO_X=$(echo "scale=3;(($NEW_WIDTH *  $LOGO_PC_X )/ 100 ) + $CROPLEFT"|bc)
+					      LOGO_Y=$(echo "scale=3;(($NEW_HEIGHT * $LOGO_PC_Y ) / 100 ) + $CROPTOP"|bc)
+			
+					      fi
+			      
+		
+					      ### if the video is anamorphe -> the position need a ajustment base on the distortion
+					      
+					      if [[ $DISTORTION != "1" ]]
+					      then
+			
+					      LOGO_X=$(echo "$LOGO_X  / $DISTORTION "|bc)
+		
+				    	  fi					
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					#VHOOK=$VHOOK" -vhook \"$VHOOK_PATH -f  $LOGO -x $LOGO_X -y $LOGO_Y  -w $LOGO_RESIZED_W -h $LOGO_RESIZED_H  $LOGO_MODE   $LOGO_TRESHOLD -s $(echo "$SS + $LOGO_START  * $FPS "|bc) -e $(echo "($SS + $LOGO_START + $LOGO_DURATION) * $FPS "|bc) \" "
+					VHOOK=$VHOOK" -vhook \"$VHOOK_PATH -f  $LOGO -x $LOGO_X -y $LOGO_Y  -w $LOGO_RESIZED_W -h $LOGO_RESIZED_H  -m 2  \" "
+							
+					[[ $DEBUG -gt 0 ]] && echo -e "${green}$VHOOK${NC}"
+					
+				
+				
+				else
+		    
+		    
+
+				    LOGO_RESIZED=${DIRECTORY}/${SUBDIR}/$LOGO_RESIZED.png
+				    LOGO_DIR="$APP_DIR/logos"
+				    LOGO="${LOGO_DIR}/${LOGO_FILE}"
+		
+				      
+				    [[ $DEBUG -gt 0 ]] && echo -e "\\n${cyan}$(box "Logo informations")${NC}\\n"
+				      
+		
+				    [[ $DEBUG -gt 0 ]] && echo -e "LOGO_FILE=$LOGO_FILE\\nLOGO_PC_W=$LOGO_PC_W\\nLOGO_PC_X=$LOGO_PC_X\\nLOGO_PC_Y=$LOGO_PC_Y\\nLOGO_MODE=$LOGO_MODE\\nLOGO_TRESHOLD=$LOGO_TRESHOLD\\nLOGO_START=$LOGO_START\\nLOGO_DURATION=$LOGO_DURATION\\n"
+				      
+		
+				      ### get the logo size
+		
+				      LOGO_W=$(identify -format %w $LOGO )
+				      LOGO_H=$(identify -format %h $LOGO ) 
+				      
+				      ### find the new size for the logo exemple 10% of the new size 
+				      
+				      LOGO_RESIZED_W=$(echo "($NEW_WIDTH) * $LOGO_PC_W / 100 "|bc)
+				      LOGO_RATIO=$(echo "scale=2;$LOGO_W / $LOGO_RESIZED_W" |bc) 
+				      LOGO_RESIZED_H=$(echo "$LOGO_H / $LOGO_RATIO "|bc)
+		
+				      [[ $DEBUG -gt 0 ]] && echo -e "# Resize the logo to 10% (base on the new Width $NEW_WIDTH):\\t${LOGO_W}x${LOGO_H} -> ${LOGO_RESIZED_W}x${LOGO_RESIZED_H}" 
+				    
+				      ### if the video is anamorphe -> the logo need a distortion to fit
+				      
+					      if [[  $DISTORTION != "1" ]]
+					      then
+			
+					      LOGO_RESIZED_W=$(echo "$LOGO_RESIZED_W / $DISTORTION "|bc)
+					      [[ $DEBUG -gt 0 ]] && echo -e "# Add the Distortion ($DISTORTION):\\t ${LOGO_W}x${LOGO_H} -> ${LOGO_RESIZED_W}x${LOGO_RESIZED_H}" 
+			
+					      fi
+		
+		
+		
+				      
+					      ### create the resized logo
+			
+					      echo -e "${yellow}# Create the logo $LOGO_RESIZED ${NC}"
+			
+					      if [[ $OVERWRITE == 0 && -f "$LOGO_RESIZED" ]]
+					      then
+						  
+					      echo -e "${green}# This logo $LOGO_RESIZED already exit. We going to use it${NC}"		
+			
+					      else
+					      
+					      COMMAND="convert "${LOGO}" -resize ${LOGO_RESIZED_W}x${LOGO_RESIZED_H}\! -depth 8 $LOGO_RESIZED" 
+					      eval "$COMMAND " && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
+			
+					      fi
+		
+		
+		
+				      
+				      ### get the exact size of the resized logo (imagemagick do not respect the exactly thr -resize parameter)
+		
+				      LOGO_RESIZED_W=$(identify -format %w $LOGO_RESIZED )
+				      LOGO_RESIZED_H=$(identify -format %h $LOGO_RESIZED )
+		
+				      [[ $DEBUG -gt 0 ]] && echo -e "# The final size of the logo:\\t${LOGO_RESIZED_W}x${LOGO_RESIZED_H}" 
+			  
+		
+		
+		
+				    
+				      ### find the logo position ###
+		
+		
+		
+				      
+					      ### the position of the logo is base on the original size of the video
+					      
+					      if [[ $PAD -ne 0 ]]
+					      then
+			
+					      [[ $DEBUG -gt 0 ]] && echo "# The logo can not be on the paddind area"
+					      LOGO_X=$(echo "(($NEW_WIDTH * $LOGO_PC_X ) / 100) "|bc)
+					      LOGO_Y=$(echo "scale=3;(($NEW_HEIGHT * $LOGO_PC_Y) / 100  )  - $PADTOP "|bc)
+			
+					      else
+			
+					      LOGO_X=$(echo "scale=3;(($NEW_WIDTH *  $LOGO_PC_X )/ 100 ) + $CROPLEFT"|bc)
+					      LOGO_Y=$(echo "scale=3;(($NEW_HEIGHT * $LOGO_PC_Y ) / 100 ) + $CROPTOP"|bc)
+			
+					      fi
+			      
+		
+					      ### if the video is anamorphe -> the position need a ajustment base on the distortion
+					      
+					      if [[ $DISTORTION != "1" ]]
+					      then
+			
+					      LOGO_X=$(echo "$LOGO_X  / $DISTORTION "|bc)
+		
+				    	  fi
+				    	  
+				      
+				      LOGO_X=${LOGO_X%.???}
+				      LOGO_Y=${LOGO_Y%.???}
+				      [[ $DEBUG -gt 0 ]] && echo -e "# Position of the logo:\\tx = $LOGO_X Y = $LOGO_Y"
+				      VHOOK=$VHOOK" -vhook \"$VHOOK_PATH -f  $LOGO_RESIZED -x $LOGO_X -y $LOGO_Y  -w $LOGO_RESIZED_W -h $LOGO_RESIZED_H  $LOGO_MODE   $LOGO_TRESHOLD -s $(echo "$SS + $LOGO_START  * $FPS "|bc) -e $(echo "($SS + $LOGO_START + $LOGO_DURATION) * $FPS "|bc) \" "
+
+
+				fi
+
+		  fi
+								      
+	  done
+}
