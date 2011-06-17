@@ -1,0 +1,196 @@
+#!/usr/local/bin/bash
+
+		### add_sub ###
+		
+		
+
+		
+		function check_sub(){
+			
+				if [[ -f  $SUB ]]
+				then
+			
+				[[ $DEBUG -gt 0 ]] && echo "# $SUB is a file"
+				
+				check_sub_is_supported
+					
+				elif [[ ! -z $SUB  ]]
+				then
+				
+				[[ $DEBUG -gt 0 ]] && echo -e "${yellow}# Looking for a subtitle ($SUB) ${NC}"
+				
+				
+						### .ass
+						
+						if [[ -f  "${DIRECTORY}/${OUTPUT}.srt" && ( $SUB == "srt" || $SUB == "all" )  ]]
+						then
+						
+						[[ $DEBUG -gt 0 ]] && echo -e "${green}SubtiTle ${DIRECTORY}/${OUTPUT}.srt detected!${NC}"
+						
+						SUB="${DIRECTORY}/${OUTPUT}.srt"
+						check_sub_is_supported
+						
+		
+						### .srt
+						
+						elif [[ -f  "${DIRECTORY}/${OUTPUT}.ass" && ( $SUB == "ass" || $SUB == "all" )  ]]
+						then
+						
+						[[ $DEBUG -gt 0 ]] && echo -e "${green}SubtiTle ${DIRECTORY}/${OUTPUT}.ass detected!${NC}"
+						SUB="${DIRECTORY}/${OUTPUT}.ass"	
+						check_sub_is_supported
+						
+						else
+						
+						[[ $DEBUG -gt 0 ]] && echo -e "${red}SubtiTle ${DIRECTORY}/${OUTPUT}.[srt|ass] not detected!${NC}"
+						
+						fi
+						
+						
+						
+						
+
+						
+				fi
+
+		
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		function check_sub_is_supported(){
+
+				### check the extension
+				
+				SUB_EXT=$(echo "$SUB" |grep -o -E "\.(srt|ass)$")
+
+
+				if [[ -z $SUB_EXT ]]
+				then
+				
+				echo -e "\\n${RED}$(box "Subtitle $SUB format not supported")${NC}"
+				
+				else
+				
+				[[ $DEBUG -gt 0 ]] &&  echo -e "\\n${BLUE}$(box "Subtitle")${NC}"
+				
+				SUB_EXT=${SUB_EXT#\.}
+				    [[ $DEBUG -gt 0 ]] && echo -e "SUB_EXT=${GREEN}\"$SUB_EXT\"${NC}"
+				save_info SUB_EXT=\"$SUB_EXT\"
+				
+				SUB_FILE=$(realpath "$SUB")
+				    [[ $DEBUG -gt 0 ]] && echo -e "SUB_FILE=${GREEN}\"$SUB_FILE\"${NC}"
+				save_info SUB_FILE=\"$SUB_FILE\"
+				fi
+		
+		
+		
+		
+		
+		
+				### Find the SUB position ###
+				### The position of the SUB is base on the original size of the video
+		
+				if [[ ! -z $FF_PAD  ]]
+				then
+			
+				[[ $DEBUG -gt 0 ]] && echo -e "${yellow}# expand mplayer${NC}"
+			  
+			  
+				### ADD  padding to mplayer ###
+			
+				MPLAYER_SUB=" -vf expand=$WIDTH:$(round2 $(echo "($WIDTH*100)/(($FF_WIDTH*100)/$FF_HEIGHT) "|bc )) $MPLAYER_SUB "
+			  
+				### set the standart SUB_POSITION_PC (98)
+			  
+			  
+				SUB_POSITION_PC=98
+			  
+				[[ $DEBUG -gt 0 ]] && echo -e "SUB_POSITION_PC=${GREEN}\"$SUB_POSITION_PC\"${NC}"
+				save_info SUB_POSITION_PC=\"$SUB_POSITION_PC\"
+				
+				else
+			
+			
+				SUB_POSITION_PC=$(echo "scale=3;((($HEIGHT - $CROPBOTTOM) / $HEIGHT   ) * 98  )"|bc)
+				SUB_POSITION_PC=$(echo "$SUB_POSITION_PC/1"|bc)
+				      
+				[[ $DEBUG -gt 0 ]] && echo -e "SUB_POSITION_PC2=${GREEN}\"$SUB_POSITION_PC\"${NC}"
+				save_info SUB_POSITION_PC=\"$SUB_POSITION_PC\"
+			
+				fi
+      	
+      	
+      	
+      	
+      	
+		      	### interlaced Video fix ###	
+		  
+				 if [[ ! -z $INTERLACED ]]
+				 then
+				 
+				 	[[ $DEBUG -gt 0 ]] && echo -e "${yellow}# Add  '-vf lavcdeint' to mplayer and remove  '-deinterlace' to ffmpeg ${NC}"
+				 	
+				 	DEINTERLACE=""
+					MPLAYER_SUB=" -vf lavcdeint $MPLAYER_SUB"
+					
+				 fi
+
+				
+
+		
+		
+				### to cases srt and ass ###
+				
+				if [[ $SUB_EXT == "ass" ]]
+				then
+				
+				MPLAYER_SUB=" -ass -sub  $SUB_FILE -subpos $SUB_POSITION_PC $MPLAYER_SUB  "
+				[[ $DEBUG -gt 0 ]] && echo -e "MPLAYER_SUB=${GREEN}\"$MPLAYER_SUB\"${NC}"
+				save_info MPLAYER_SUB=\"$MPLAYER_SUB\"
+				
+				elif [[ $SUB_EXT == "srt" ]]
+				then
+				
+				MPLAYER_SUB=" -sub  $SUB_FILE -subpos $SUB_POSITION_PC $MPLAYER_SUB "
+				[[ $DEBUG -gt 0 ]] && echo -e "MPLAYER_SUB=${GREEN}\"$MPLAYER_SUB\"${NC}"
+				save_info MPLAYER_SUB=\"$MPLAYER_SUB\"
+				
+				fi
+
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		function burn_subtitle(){
+		
+			 ### create a fifo
+
+			  echo -e "${yellow}# fifo pass1 subtitle${NC}"
+
+			  FIFO="${DIRECTORY}/${SUBDIR}/fifo.y4m"
+			  rm -f "$FIFO"
+			  echo -e "${green}mkfifo $FIFO${NC}"
+			  mkfifo "$FIFO"
+
+			  ### add the subtitle
+
+			  COMMAND="${MPLAYER_LATEST} $MPLAYER_SUB -nosound -quiet  -vo yuv4mpeg:file=$FIFO  ${INPUT} "
+			  [[ $DEBUG -gt 1 ]] && QUIET="&"  || QUIET="   2>/dev/null  &"
+			  eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
+		
+			  INPUT_VIDEO=$FIFO 
+		
+		}
+		
+				
