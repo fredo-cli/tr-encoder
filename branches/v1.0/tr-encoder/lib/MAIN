@@ -1,8 +1,0 @@
-#!/usr/local/bin/bash
-
-. "$APP_DIR/lib/BASICS"
-. "$APP_DIR/lib/DETECTIONS"
-. "$APP_DIR/lib/AUDIO"
-. "$APP_DIR/lib/VIDEO"
-. "$APP_DIR/lib/LOGO"
-. "$APP_DIR/lib/SUB"
