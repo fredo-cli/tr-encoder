@@ -47,29 +47,14 @@
 
 			 else
 
-			 COMMAND="${MPLAYER_LATEST} -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -channels 6 -vc null -vo null  ${INPUT}"
+			 COMMAND="${MPLAYER_LATEST} -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -channels 6 -vc dummy -vo null  ${INPUT}"
 			 [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET=" >/dev/null  2>&1"
 			 eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
 
-				  ### check the size audio.wav
 
-				  if [[ -f "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav" &&  $SYSTEM == "Linux" ]]
-				  then
-				  RESULTS_SIZE=`stat -c '%s' "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav"` 
-				  elif [[ -f "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav" && $SYSTEM == "FreeBSD" ]] 
-				  then
-				  RESULTS_SIZE=`stat -f '%z' "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav"`
-				  fi
 
-				  ### try one more time if failed
 
-				  if [ "$RESULTS_SIZE" -lt 1014000 ]
-				  then
-				  echo -e "${yellow}# create audio.wav ${NC}"		
-				  COMMAND="${MPLAYER_LATEST} -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -channels 6  -vc dummy -vo null ${INPUT}"
-				  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" > /dev/null  2>&1"
-				  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
-				  fi
+
 			 fi
 
 	   else
@@ -93,25 +78,9 @@
 				[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET=" > /dev/null  2>&1"
 				eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
 
-				  ### check the size audio.wav
 
-				  if [[ -f "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav" &&  $SYSTEM == "Linux" ]]
-				  then
-				  RESULTS_SIZE=`stat -c '%s' "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav"` 
-				  elif [[ -f "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav" && $SYSTEM == "FreeBSD" ]] 
-				  then
-				  RESULTS_SIZE=`stat -f '%z' "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav"`
-				  fi
 
-				  ### try one more time if failed
 
-				  if [ "$RESULTS_SIZE" -lt 1014000 ]
-				  then
-				  echo -e "${yellow}# create audio.wav ${NC}"		
-				  COMMAND="${MPLAYER_LATEST} -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -vc dummy -vo null ${INPUT}"
-				  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT=" > /dev/null  2>&1"
-				  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC} 
-				  fi
 
 
 
@@ -166,15 +135,7 @@
 	
 	### Create the video ###
 	
-	if [[  $FFMPEG_VIDEO == 0 ]]
-	then
-		### pipe mplayer rawvideo to ffmpeg
-		
-		echo -e "${red}# Resample video${NC}"
-		#COMMAND="${FFMPEG} -v 0 $DEINTERLACE -r   $FPS -f yuv4mpegpipe -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.yuv -b 900k $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT}   $VHOOK  -ss $SS  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv"
-		#[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-		#eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
-	else
+
 	
 		### create video_${FF_WIDTH}x${FF_HEIGHT}.h264
 		
@@ -186,7 +147,7 @@
 
 		[[ ! -z $SUB_FILE ]] && burn_subtitle	
 		
-		COMMAND="${FFMPEG} -threads $THREADS -i  ${INPUT_VIDEO} -an   -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1 -vcodec libx264 $FF_PRESET1  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP}   $VHOOK -r $FF_FPS -ss $SS  -f $FF_FORMAT -aspect 16:9  -y /dev/null "
+		COMMAND="${FFMPEG_WEBM} -threads $THREADS -i  ${INPUT_VIDEO} -an   -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1 -vcodec libx264 $FF_PRESET1 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}'   -r $FF_FPS -ss $SS  -f $FF_FORMAT -aspect 16:9  -y /dev/null "
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
 		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 		
@@ -194,11 +155,11 @@
 		
 		[[ ! -z $SUB_FILE ]] && burn_subtitle		
 		
-		COMMAND="${FFMPEG} -threads $THREADS -i  ${INPUT_VIDEO} -an  $DEINTERLACE -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2 -vcodec libx264 $FF_PRESET2 $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP}   $VHOOK  -r $FF_FPS -ss $SS  -f $FF_FORMAT -aspect 16:9  -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264"
+		COMMAND="${FFMPEG_WEBM} -threads $THREADS -i  ${INPUT_VIDEO} -an  $DEINTERLACE -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2 -vcodec libx264 $FF_PRESET2 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}' -r $FF_FPS -ss $SS  -f $FF_FORMAT -aspect 16:9  -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264"
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
 		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 	
-	fi
+	
 
 
 	

@@ -89,9 +89,7 @@ FPS=12000/1001
 		
 		MP4BOX=MP4Box
 
-    # ffmpip old version of ffmpeg with pip addon
 
-		FFMPEG="/usr/bin/ffmpip"
 
     # latest verion of ffmpeg with webm
 
@@ -99,7 +97,7 @@ FPS=12000/1001
 
     # old version of ffmpeg only for detection (crop detection)
 
-    MPLAYER_OLD="/usr/bin/mplayer-old"
+    MPLAYER_OLD="/usr/bin/mplayer"
 
     # latest version of mplayer
 

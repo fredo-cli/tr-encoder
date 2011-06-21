@@ -290,7 +290,7 @@ check_comp(){
 		### check if the video codec is supPorted by ffmpeg ###
 
 
-		FFMPEG_TEST=`${FFMPEG} -i "$INPUT" -sameq -vframes 1 -y "${DIRECTORY}/${SUBDIR}/test.jpg" 2>&1 `   
+		FFMPEG_TEST=`${FFMPEG_WEBM} -i "$INPUT" -sameq -vframes 1 -y "${DIRECTORY}/${SUBDIR}/test.jpg" 2>&1 `
 
 		FFMPEG_TAIL="`echo "$FFMPEG_TEST"|tail  -n 1   `"	
 		FFMPEG_HEAD="`echo "$FFMPEG_TEST"| head -25 `"
@@ -333,7 +333,7 @@ check_comp(){
 
 
 
-		FFMPEG_TEST=`${FFMPEG} -i "$INPUT" -t 1 -ac 2 -y "${DIRECTORY}/${SUBDIR}/test.mp3" 2>&1 `   
+		FFMPEG_TEST=`${FFMPEG_WEBM} -i "$INPUT" -t 1 -ac 2 -y "${DIRECTORY}/${SUBDIR}/test.mp3" 2>&1 `
 		#echo "$FFMPEG_TEST"
 
 		FFMPEG_TAIL="`echo "$FFMPEG_TEST"|tail  -n 1   `"	
@@ -933,7 +933,7 @@ cropdetection() {
 		 
 				###  Run mplayer to get somme parameters of the video.
 				
-				CROPDETECTION_CMD="${MPLAYER_OLD} \"$INPUT\" -ss $CROPSTART_TMP -frames $CROPFRAMES_TMP -vf cropdetect -ac dummy -quiet -vo null -ao null > ${DIRECTORY}/${SUBDIR}/crop.txt 2>&1"
+				CROPDETECTION_CMD="${MPLAYER_LATEST} \"$INPUT\" -ss $CROPSTART_TMP -frames $CROPFRAMES_TMP -vf cropdetect -ac dummy -quiet -vo null -ao null > ${DIRECTORY}/${SUBDIR}/crop.txt 2>&1"
 				eval $CROPDETECTION_CMD 
 				if [[  $DEBUG -gt 1 ]]
 				then
