@@ -33,7 +33,7 @@
 
   echo -e "${yellow}#Create audio_${FF_AB}_${FF_AC}_$FF_AR.amr ${NC}"
 
-  COMMAND="${FFMPEG_WEBM}  -i ${INPUT}  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec libopencore_amrnb  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.amr"
+  COMMAND="${FFMPEG_WEBM} -threads $THREADS   -i ${INPUT}  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec libopencore_amrnb  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.amr"
   [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
   eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 
@@ -57,7 +57,7 @@
   [[ ! -z $SUB_FILE ]] && burn_subtitle
 
 
-  COMMAND="${FFMPEG_WEBM} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1  -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM}'  -r $FF_FPS  -f $FF_FORMAT -y /dev/null "
+  COMMAND="${FFMPEG_WEBM} -threads $THREADS $DEINTERLACE -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1  -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM}'  -r $FF_FPS  -f $FF_FORMAT -y /dev/null "
   [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
   eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 
@@ -66,7 +66,7 @@
 
   [[ ! -z $SUB_FILE ]] && burn_subtitle
 
-  COMMAND="${FFMPEG_WEBM} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM}'  -r $FF_FPS   -f $FF_FORMAT -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263"
+  COMMAND="${FFMPEG_WEBM} -threads $THREADS $DEINTERLACE -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM}'  -r $FF_FPS   -f $FF_FORMAT -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263"
   [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
   eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 
@@ -81,7 +81,7 @@
 	
 	echo -e "${yellow}# Remux sound and video${NC}"
 
-	COMMAND="${FFMPEG_WEBM}  -i ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263 -i ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.amr  -ss  $SS  -r ${FF_FPS}   -acodec copy -vcodec copy  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}"
+	COMMAND="${FFMPEG_WEBM} -threads $THREADS  -i ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263 -i ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.amr  -ss  $SS  -r ${FF_FPS}   -acodec copy -vcodec copy  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}"
 	[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
 	eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
 

@@ -104,24 +104,7 @@ FPS=12000/1001
     MPLAYER_LATEST="/usr/bin/mplayer"
 
 
-      # older version
-      if [[ -f /home/fred/ffmpip/lib/vhook/pip.so ]]
-      then
-        VHOOK_PATH=/home/fred/ffmpip/lib/vhook/pip.so
 
-      # newer version
-      elif [[ -f /opt/pip/lib/vhook/pip.so ]]
-      then
-
-        VHOOK_PATH="/opt/pip/lib/vhook/pip.so"
-
-
-
-      else
-
-        echo -e "{RED}Can' find Vhookt{NC}"
-
-      fi
     
 
 
