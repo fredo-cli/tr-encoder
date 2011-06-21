@@ -47,19 +47,6 @@
 
 
 
-
-
-            ### remux the sound and the video ###
-
-            #echo -e "${yellow}# Remux sound and video${NC}"
-            #COMMAND="${FFMPEG_WEBM}  -i ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.vp8 -i ${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.ogg -acodec copy -vcodec copy  -r $FF_FPS -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}"
-            #[[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-            #eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
-
-
-
-
-
             ### clean up ###
 
             echo -e "${yellow}# clean up${NC}"
@@ -101,6 +88,10 @@
               echo -e "${RED}$FILE_INFOS${NC}"
               fi
 
+        ### Go back to the pwd ( to avoid the x264_2pass.log issue ) ###
+
+        cd $PWD
+
         else
 
         echo -e ${RED}File missing:"${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.mp4${NC}"
@@ -108,6 +99,4 @@
         fi
 
 	
-        ### Go back to the pwd ( to avoid the x264_2pass.log issue ) ###
-
-        cd $PWD
+   

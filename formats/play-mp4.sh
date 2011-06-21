@@ -23,144 +23,67 @@
 	### Calculate the padding for ffmpeg ###
 	
 	calculate_padding    
-		
-
-   ### Create audio.wav  ###
-	
-
-
-
 	   
+  ### check if 6 or 2 audio channels ###
 
-	   if [[ $CHANNELS == 6 && $FF_AC == 6 ]]
-	   then
-	   
-			 ### Create audio_ch6.wav
-			 
-		 
-	   
-			 echo -e "${yellow}# create audio_${FF_AC}.wav ${NC}"
-			 if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav" ]]
-			 then
+  if [[ $CHANNELS == 6 && $FF_AC == 6 ]]
+  then
 
-			 echo -e "${green}# This file already exit.We going to use it${NC}"
+  # keep the values
+  echo -e "${yellow}# 6 audio channels${NC}"
 
-			 else
+  else
 
-			 COMMAND="${MPLAYER_LATEST} -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -channels 6 -vc dummy -vo null  ${INPUT}"
-			 [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET=" >/dev/null  2>&1"
-			 eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
+  echo -e "${yellow}# 2 audio channels${NC}"
+  # change some values if the input video is not 6 channels
+  [[ $FF_AC == 6 ]] &&  FF_AC=2 && FF_AB=$(echo "$FF_AB / 3" |bc)
 
-
-
-
-
-			 fi
-
-	   else
-	   
-		    # change some values if the input video is not 6 channels 
-	         [[ $FF_AC == 6 ]] &&  FF_AC=2 && FF_AB=$(echo "$FF_AB / 3" |bc)
-		    
-	   
-			 ### Create audio.wav
-
-			 echo -e "${yellow}# Create audio_${FF_AC}.wav ${NC}"
-
-			 if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav" ]]
-			 then
-
-				echo -e "${green}# This file (audio.wav) already exit.We going to use it${NC}"
-
-			 else
-
-				COMMAND="${MPLAYER_LATEST} -ao pcm:fast:waveheader:file=${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -vc null -vo null ${INPUT}"
-				[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET=" > /dev/null  2>&1"
-				eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
-
-
-
-
-
-
-
-
-
-			 fi	
-	   fi	    
+  fi
 		   
 		
 
-		
-		
-		
-	### create audio_${FF_AB}_${FF_AC}_$FF_AR.aac
-	
-	echo -e "${yellow}# Create audio_${FF_AB}_${FF_AC}_$FF_AR.aac ${NC}"
-	if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.aac" ]]
-	then
-	
-		echo -e "${green}# This file already exit. We going to use it${NC}"		
+  ### Create Audio ###
 
-	else
-	
-	
-		### Resample Audio
+  ### create audio_${FF_AB}_${FF_AC}_$FF_AR.aac
 
-		# resample_audio
+  echo -e "${yellow}# Create audio_${FF_AB}_${FF_AC}_$FF_AR.aac ${NC}"
+  COMMAND="${FFMPEG_WEBM}  -i ${INPUT} -v 0 -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.aac"
+  [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
+  eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND $QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 
-		### Create Audio 
 
-		COMMAND="${FFMPEG_WEBM}  -i ${DIRECTORY}/$SUBDIR/audio_${FF_AC}.wav -v 0 -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.aac"
-		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND $QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
-	
-
-	fi
-	
-	
-	
-
-	
 	
 	### Change to the video directory  ( to avoid the x264_2pass.log issue ) ###
 
 	PWD=$(pwd)
 	cd ${DIRECTORY}/${SUBDIR}/
 	
-	
-	
-	
-	
+		
 	
 	### Create the video ###
 	
 
-	
-		### create video_${FF_WIDTH}x${FF_HEIGHT}.h264
-		
-		echo -e "${yellow}# Create the video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264 ${NC}"
-		
-		echo -e "${yellow}# pass 1 ${NC}"
-		
-		INPUT_VIDEO=$INPUT 
+  ### create video_${FF_WIDTH}x${FF_HEIGHT}.h264
 
-		[[ ! -z $SUB_FILE ]] && burn_subtitle	
-		
-		COMMAND="${FFMPEG_WEBM} -threads $THREADS -i  ${INPUT_VIDEO} -an   -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1 -vcodec libx264 $FF_PRESET1 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}'   -r $FF_FPS -ss $SS  -f $FF_FORMAT -aspect 16:9  -y /dev/null "
-		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
-		
-		echo -e "${yellow}# pass 2 ${NC}"
-		
-		[[ ! -z $SUB_FILE ]] && burn_subtitle		
-		
-		COMMAND="${FFMPEG_WEBM} -threads $THREADS -i  ${INPUT_VIDEO} -an  $DEINTERLACE -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2 -vcodec libx264 $FF_PRESET2 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}' -r $FF_FPS -ss $SS  -f $FF_FORMAT -aspect 16:9  -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264"
-		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
-	
-	
+  echo -e "${yellow}# Create the video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264 ${NC}"
 
+  echo -e "${yellow}# pass 1 ${NC}"
+
+
+
+  [[ ! -z $SUB_FILE ]] && burn_subtitle
+
+  COMMAND="${FFMPEG_WEBM} -threads $THREADS -i  ${INPUT} -an   -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1 -vcodec libx264 $FF_PRESET1 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}'   -r $FF_FPS -ss $SS  -f $FF_FORMAT -aspect 16:9  -y /dev/null "
+  [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
+  eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
+
+  echo -e "${yellow}# pass 2 ${NC}"
+
+  [[ ! -z $SUB_FILE ]] && burn_subtitle
+
+  COMMAND="${FFMPEG_WEBM} -threads $THREADS -i  ${INPUT} -an  $DEINTERLACE -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2 -vcodec libx264 $FF_PRESET2 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}' -r $FF_FPS -ss $SS  -f $FF_FORMAT -aspect 16:9  -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264"
+  [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
+  eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 
 	
 

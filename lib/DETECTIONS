@@ -393,16 +393,22 @@ check_comp(){
  		ID_AUDIO_NCH=0		
 								  
 	
-		
-		MPLAYER_TEST=`${MPLAYER_LATEST} -identify "$INPUT" -quiet -frames 1 -vo null -ao null  2>&1 /dev/null | grep - -e "ID_VIDEO" -e "ID_AUDIO_" -e "ID_LENGTH" -e "ID_DEMUXER" `
+		### get somme infos whith mplayer
+
+		MPLAYER_TEST=`${MPLAYER_LATEST} -identify "$INPUT" -quiet -frames 1 -vo null -ao null  2>&1 /dev/null | grep - -e "ID_VIDEO_" -e "ID_AUDIO_" -e "ID_LENGTH" -e "ID_DEMUXER" `
 		
 		if [[ $DEBUG > 1 ]]
 		then
 		echo "$MPLAYER_TEST"
-		fi 		
-		echo -e "${MPLAYER_TEST}" > ${DIRECTORY}/${SUBDIR}/mplayer.txt	
+		fi
+
+		echo -e "${MPLAYER_TEST}" > ${DIRECTORY}/${SUBDIR}/mplayer.txt
+
 		eval $MPLAYER_TEST
-		
+
+
+
+
 		### check if video can be read with mplayer  ###
 		
 		if [[ ! -z $ID_VIDEO_CODEC ]]
@@ -425,22 +431,7 @@ check_comp(){
 
 
 
-		### check if audio can be read with mplayer  ###
 
-
-
-		
-		if [[ ! -z $ID_AUDIO_CODEC ]]
-		then
-		MPLAYER_AUDIO=1
-		[[ $DEBUG > 0 ]] && echo -e "MPLAYER_AUDIO=${GREEN}$MPLAYER_AUDIO${NC}\\t\\t# $ID_AUDIO_CODEC"
-		save_info "MPLAYER_AUDIO=$MPLAYER_AUDIO"
-		else
-		MPLAYER_AUDIO_TEST=0
-		ERROR="MPLAYER_AUDIO=$MPLAYER_AUDIO"
-		echo -e "${RED}${ERROR}${NC}\\n"
-		save_info "$ERROR"
-		fi
 
 }
 

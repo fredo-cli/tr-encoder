@@ -438,7 +438,7 @@ FPS=12000/1001
 		fi
 				
 		    
-				if [[ $MPLAYER_VIDEO_TEST == 0 || $MPLAYER_AUDIO_TEST == 0 ]] 
+				if [[ $MPLAYER_VIDEO_TEST == 0 ]] 
 				then
 				ERROR="ERROR: This video is not supported!"
 				echo -e "\\n${RED}${ERROR}${NC}\\n"
