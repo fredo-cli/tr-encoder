@@ -23,82 +23,54 @@
 	### Calculate the padding for ffmpeg ###
 	
 	calculate_padding   
-		
 
-    ### Create audio.wav ###
+  ### create audio ###
 
-	dump_audio
-		
-		
-		
-		
-	### create audio_${FF_AB}_${FF_AC}_$FF_AR.wma
-	
-	echo -e "${yellow}# Create audio_${FF_AB}_${FF_AC}_$FF_AR.wma ${NC}"
-	if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.wma" ]]
-	then
-	
-		echo -e "${green}# This file already exit. We going to use it${NC}"		
+  ### create audio_${FF_AB}_${FF_AC}_$FF_AR.wma
+  echo -e "${yellow}# Create audio_${FF_AB}_${FF_AC}_$FF_AR.wma ${NC}"
+  COMMAND="${FFMPEG_WEBM}  -i ${INPUT} -v 0 -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec wmav2 -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.wma"
+  [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
+  eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 
-	else
-	
-		### check if resample 8bit to 16 is needed  (sox)
 
-		# resample_audio
-		
 
-		### create Audio
+  ### create the video ###
 
-		COMMAND="${FFMPEG_WEBM}  -i ${DIRECTORY}/$SUBDIR/audio.wav -v 0 -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec wmav2 -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.wma"
-		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
-	
+  ### create video_.h264 pass1
 
-	fi
-	
-	
-	
-	### create the video
-	
+  echo -e "${yellow}# Create the video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.asf ${NC}"
 
-	
-		### create video_.h264 pass1
-		
-		echo -e "${yellow}# Create the video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.asf ${NC}"
-		
-		echo -e "${yellow}# pass 1${NC}"
-		
-		INPUT_VIDEO=$INPUT 
-		[[ ! -z $SUB_FILE ]] && burn_subtitle		
-		
-		COMMAND="${FFMPEG_WEBM} -threads 1 -i  ${INPUT_VIDEO} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1  -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}' -r $FF_FPS   -ss $SS  -f asf -vcodec  msmpeg4 -y /dev/null "
-		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
+  echo -e "${yellow}# pass 1${NC}"
 
-		### create video_.h264 pass2	
+  [[ ! -z $SUB_FILE ]] && burn_subtitle
 
-		echo -e "${yellow}# pass 2 ${NC}"
-		
+  COMMAND="${FFMPEG_WEBM} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1  -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}' -r $FF_FPS   -ss $SS  -f asf -vcodec  msmpeg4 -y /dev/null "
+  [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
+  eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 
-		[[ ! -z $SUB_FILE ]] && burn_subtitle
-					
-		COMMAND="${FFMPEG_WEBM} -threads 1 -i  ${INPUT_VIDEO} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2  -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}'  -r $FF_FPS   -ss $SS  -f asf -vcodec  msmpeg4 -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.asf"
-		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
-	
+  ### create video_.h264 pass2
+
+  echo -e "${yellow}# pass 2 ${NC}"
+
+  [[ ! -z $SUB_FILE ]] && burn_subtitle
+
+  COMMAND="${FFMPEG_WEBM} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2  -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}'  -r $FF_FPS   -ss $SS  -f asf -vcodec  msmpeg4 -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.asf"
+  [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
+  eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
+
 
 
 
 	
 
-	### Remux the sound and the video
-	
-	echo -e "${yellow}# Remux sound and video${NC}"
-	COMMAND="${FFMPEG_WEBM}  -i ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.asf -i ${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.wma -acodec copy -vcodec copy -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}"
-	[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-	eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
-	
-	
+  ### Remux the sound and the video
+
+  echo -e "${yellow}# Remux sound and video${NC}"
+  COMMAND="${FFMPEG_WEBM}  -i ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.asf -i ${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.wma -acodec copy -vcodec copy -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}"
+  [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
+  eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
+
+
 
 	
 	### clean up

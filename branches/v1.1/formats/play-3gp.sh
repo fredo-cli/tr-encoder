@@ -25,71 +25,50 @@
 	calculate_padding  
 
 	
-	### Create audio.wav ###
-	
-	dump_audio
 
 	
-	### create audio
-	
-	if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.amr" ]]
-	then
-			echo -e "${yellow}# Create audio_${FF_AB}_${FF_AC}_$FF_AR.amr ${NC}"		
-			echo -e "${green}# This file (audio_${FF_AB}_${FF_AC}_$FF_AR.amr) already exit. We going to use it${NC}"	
+  ### create audio
 
-	else
+  ### create audio_${FF_AB}_${FF_AC}_$FF_AR.amr
+
+  echo -e "${yellow}#Create audio_${FF_AB}_${FF_AC}_$FF_AR.amr ${NC}"
+
+  COMMAND="${FFMPEG_WEBM}  -i ${INPUT}  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec libopencore_amrnb  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.amr"
+  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
+  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 
 
+  ### create the video
 
-			  ### check if resample 8bit to 16 is needed  (sox)
-			  # resample_audio
-			  
-			  ### create audio_${FF_AB}_${FF_AC}_$FF_AR.amr
+  ### create video_.h263
 
-			  echo -e "${yellow}#Create audio_${FF_AB}_${FF_AC}_$FF_AR.amr ${NC}"
+  echo -e "${yellow}# Create the video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263 ${NC}"
 
-			  COMMAND="${FFMPEG_WEBM}  -i ${DIRECTORY}/$SUBDIR/audio.wav  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec libopencore_amrnb  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.amr"
-			  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-			  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 
-	fi
+  PADTOP=$(echo "$PADTOP + 22"|bc)
+  PADBOTTOM=$(echo "$PADBOTTOM + 22"|bc)
+  FF_PAD="-padtop $PADTOP -padbottom $PADBOTTOM "
+  echo -e "${yellow}# Adding 2*22 px to the video: $FF_PAD ${NC}"
 
-	
-	
-	
-	### create the video
-	
 
-	
-		### create video_.h263
-		
-		echo -e "${yellow}# Create the video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263 ${NC}"
-		
+  echo -e "${yellow}# pass 1 ${NC}"
 
-		 PADTOP=$(echo "$PADTOP + 22"|bc)
-		 PADBOTTOM=$(echo "$PADBOTTOM + 22"|bc)
-	   FF_PAD="-padtop $PADTOP -padbottom $PADBOTTOM "
-		 echo -e "${yellow}# Adding 2*22 px to the video: $FF_PAD ${NC}"
-		
 
-		echo -e "${yellow}# pass 1 ${NC}"
-		
-		INPUT_VIDEO=$INPUT 
-		[[ ! -z $SUB_FILE ]] && burn_subtitle	
+  [[ ! -z $SUB_FILE ]] && burn_subtitle
 
-		
-		COMMAND="${FFMPEG_WEBM} -threads 1 -i  ${INPUT_VIDEO} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1  -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM}'  -r $FF_FPS  -f $FF_FORMAT -y /dev/null "
-		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
-		
-				
-		echo -e "${yellow}# pass 2 ${NC}"
 
-		[[ ! -z $SUB_FILE ]] && burn_subtitle			
-		
-		COMMAND="${FFMPEG_WEBM} -threads 1 -i  ${INPUT_VIDEO} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM}'  -r $FF_FPS   -f $FF_FORMAT -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263"
-		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
+  COMMAND="${FFMPEG_WEBM} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1  -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM}'  -r $FF_FPS  -f $FF_FORMAT -y /dev/null "
+  [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
+  eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
+
+
+  echo -e "${yellow}# pass 2 ${NC}"
+
+  [[ ! -z $SUB_FILE ]] && burn_subtitle
+
+  COMMAND="${FFMPEG_WEBM} -threads 1 -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM}'  -r $FF_FPS   -f $FF_FORMAT -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263"
+  [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
+  eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 
 
 	
