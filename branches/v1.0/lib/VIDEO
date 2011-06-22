@@ -1,0 +1,144 @@
+#!/usr/local/bin/bash
+
+
+		### calculate the padding (exept for subtitle )
+
+		function calculate_padding(){
+		
+			
+		   ### case padding and no subtitle
+		   	
+		   if [[ ! -z $FF_PAD &&  -z $SUB_FILE ]]
+		   then
+		
+	       PAD=`echo "scale=3;(($FF_WIDTH / ($FF_WIDTH / $FF_HEIGHT) ) - ($FF_WIDTH / $RATIO )) / 2"|bc`
+		 
+	
+		 
+	       PAD=`round2 $PAD`
+	       PADTOP=$PAD
+	       PADBOTTOM=$PAD
+	       FF_PAD=" -padtop $PAD -padbottom $PADBOTTOM "
+	       
+		   echo -e "${yellow}# Recalculate the padding  ${NC}"	
+		   echo -e "${green}# $FF_PAD ${NC}"
+			 	
+			 	
+			 	
+		   ### case padding and  subtitle
+		   	
+		   elif [[ ! -z $FF_PAD ]]
+		   then
+		
+		   PAD=0
+	       PADTOP=$PAD
+	       PADBOTTOM=$PAD
+	       FF_PAD=" -padtop $PAD -padbottom $PADBOTTOM "
+			   
+			echo -e "${yellow}# Recalculate the padding ( canceled due to the subtitle ) ${NC}"	
+			echo -e "${green}# $FF_PAD ${NC}"		 	
+			 	
+		
+		    fi   
+		
+		
+		### Recalculate the FF_HEIGHT_BP 
+		FF_HEIGHT_BP=$( echo "${FF_HEIGHT} - ( 2*${PAD} )"|bc)
+		echo -e "${yellow}# Recalculate the FF_HEIGHT_BP  ${NC}"	
+		echo -e "${green}# FF_HEIGHT_BP=$FF_HEIGHT_BP ${NC}"
+		
+		
+		
+		}
+
+
+
+
+
+
+
+
+
+		### resample_video
+		
+		resample_video(){
+		
+		echo -e "\\n${CYAN}# pipe mplayer to ffmpeg${NC}\\n"
+		rm -f ${DIRECTORY}/${SUBDIR}/${OUTPUT}.yuv
+		mkfifo ${DIRECTORY}/${SUBDIR}/${OUTPUT}.yuv
+		
+		${MPLAYER_LATEST} $INPUT -fps 24 -ass -embeddedfonts -sid 0 -aid 1 -vf eq2=0.9:1:0:1.02 -vo yuv4mpeg:file=${DIRECTORY}/${SUBDIR}/${OUTPUT}.yuv   -ao null -quiet < /dev/null &
+		 
+		}
+		
+		
+		
+		
+		
+		### calc_new_sizes	###	
+		
+		calc_new_sizes(){
+
+		# new width
+		
+		NEW_WIDTH=`echo "($WIDTH -  $CROPLEFT - $CROPRIGHT) *  ${DISTORTION} /1 "|bc`
+		
+		# new height before padding
+		
+		NEW_HEIGHT_BP=`echo "($HEIGHT -  $CROPTOP - $CROPBOTTOM )  "|bc`
+		
+		# new height (after padding)
+		
+		NEW_HEIGHT=`echo "( $NEW_HEIGHT_BP +  $PADTOP + $PADBOTTOM ) "|bc`
+
+		NEW_SIZE=${NEW_WIDTH}x${NEW_HEIGHT}
+
+		[[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Resize: $SIZE -> $NEW_SIZE${NC}"
+
+		}
+		
+		
+				
+				
+		### check_ouput_size ###
+				
+		check_ouput_size(){
+		
+		### empty-> take the default size
+		   
+		if [[ -z $FF_SIZE  ]]
+		then
+		   
+		FF_WIDTH=320
+		FF_HEIGHT=180
+		   
+		### format valide
+		   
+		elif [[ ! -z $(echo "$FF_SIZE"|grep -0 [0-9]*x[0-9*])  ]]
+		then
+		   
+		### parse the format
+			
+		FF_SIZE=$(echo "$FF_SIZE"|grep -0 [0-9]*x[0-9*])
+			
+		TMP_WIDTH=$(echo $FF_SIZE|awk -F 'x' '{print $1}')
+		TMP_HEIGHT=$(echo $FF_SIZE|awk -F 'x' '{print $2}')
+		echo "$TMP_WIDTH x $TMP_HEIGHT"
+		[[ ! -z $TMP_WIDTH && $TMP_WIDTH != 0 ]]
+		TMP_WIDTH=$(round8 $TMP_WIDTH )
+		TMP_HEIGHT=$(echo "$TMP_WIDTH/1.7777"|bc)
+		TMP_HEIGHT=$(round8 $TMP_HEIGHT)
+			
+		echo "$TMP_WIDTH x $TMP_HEIGHT $(echo "scale=2;$TMP_WIDTH / $TMP_HEIGHT"|bc)"
+		exit
+			
+		### other -> take the default size
+		   
+		else
+		   
+		FF_WIDTH=320
+		FF_HEIGHT=180
+		   
+		fi
+		}
+
