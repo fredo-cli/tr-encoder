@@ -24,18 +24,39 @@
 	
 	calculate_padding  
 
-	
 
-	
-  ### create audio
+  ### create audio ###
 
-  ### create audio_${FF_AB}_${FF_AC}_$FF_AR.amr
+		if [[  $FF_AC == 1 && $CHANNELS == 6 ]]
+		then
 
-  echo -e "${yellow}#Create audio_${FF_AB}_${FF_AC}_$FF_AR.amr ${NC}"
+        ### 6 to 1 resample not suported by ffmpeg
 
-  COMMAND="${FFMPEG_WEBM} -threads $THREADS   -i ${INPUT}  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec libopencore_amrnb  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.amr"
-  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
+        ### create audio_2.aac
+
+        echo -e "${yellow}# Create audio_2.aac (6 to 1 resample is not suported by ffmpeg) ${NC}"
+        COMMAND="${FFMPEG_WEBM} -y -threads $THREADS  -i ${INPUT} -v 0 -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac 2   ${DIRECTORY}/${SUBDIR}/audio_2.aac"
+        [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
+        eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
+
+
+        ### create audio_${FF_AB}_${FF_AC}_$FF_AR.amr
+        echo -e "${yellow}#Create audio_${FF_AB}_${FF_AC}_$FF_AR.amr ${NC}"
+        COMMAND="${FFMPEG_WEBM} -threads $THREADS -i ${DIRECTORY}/${SUBDIR}/audio_2.aac  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec libopencore_amrnb  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.amr"
+        [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
+        eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
+
+    else
+
+        ### create audio_${FF_AB}_${FF_AC}_$FF_AR.amr
+        echo -e "${yellow}#Create audio_${FF_AB}_${FF_AC}_$FF_AR.amr ${NC}"
+        COMMAND="${FFMPEG_WEBM} -threads $THREADS   -i ${INPUT}  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec libopencore_amrnb  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.amr"
+        [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
+        eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
+
+    fi
+
+
 
 
   ### create the video
