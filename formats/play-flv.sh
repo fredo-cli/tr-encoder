@@ -66,7 +66,7 @@
     [[ ! -z $SUB_FILE ]] && burn_subtitle
 
     [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-    COMMAND="${FFMPEG_WEBM} -threads $THREADS  -an $DEINTERLACE -i ${INPUT} -passlogfile /tmp/${OUTPUT}.log  -pass 1  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25 -i_qfactor 0.70  -g 500 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}' -r $FF_FPS   -ss $SS -f $FF_FORMAT -y /dev/null"
+    COMMAND="${FFMPEG_WEBM} -threads $THREADS  -an $DEINTERLACE -i ${INPUT} -passlogfile ${DIRECTORY}/${SUBDIR}/${OUTPUT}.log  -pass 1  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25 -i_qfactor 0.70  -g 500 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}' -r $FF_FPS   -ss $SS -f $FF_FORMAT -y /dev/null"
     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 
 
@@ -77,7 +77,7 @@
     [[ ! -z $SUB_FILE ]] && burn_subtitle
 
     [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-    COMMAND="${FFMPEG_WEBM} -threads $THREADS  -an $DEINTERLACE -i ${INPUT} -passlogfile /tmp/${OUTPUT}.log   -pass 2  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25 -i_qfactor 0.70  -g 500 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}' -r $FF_FPS   -ss $SS  -f $FF_FORMAT -y ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263"
+    COMMAND="${FFMPEG_WEBM} -threads $THREADS  -an $DEINTERLACE -i ${INPUT} -passlogfile ${DIRECTORY}/${SUBDIR}/tmp/${OUTPUT}.log   -pass 2  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25 -i_qfactor 0.70  -g 500 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}' -r $FF_FPS   -ss $SS  -f $FF_FORMAT -y ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263"
     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 
 
