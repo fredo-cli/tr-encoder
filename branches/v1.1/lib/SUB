@@ -25,7 +25,7 @@
 						if [[ -f  "${DIRECTORY}/${OUTPUT}.srt" && ( $SUB == "srt" || $SUB == "all" )  ]]
 						then
 						
-						[[ $DEBUG -gt 0 ]] && echo -e "${green}SubtiTle ${DIRECTORY}/${OUTPUT}.srt detected!${NC}"
+						[[ $DEBUG -gt 0 ]] && echo -e "${green}Subtitle ${DIRECTORY}/${OUTPUT}.srt detected!${NC}"
 						
 						SUB="${DIRECTORY}/${OUTPUT}.srt"
 						check_sub_is_supported
@@ -36,13 +36,13 @@
 						elif [[ -f  "${DIRECTORY}/${OUTPUT}.ass" && ( $SUB == "ass" || $SUB == "all" )  ]]
 						then
 						
-						[[ $DEBUG -gt 0 ]] && echo -e "${green}SubtiTle ${DIRECTORY}/${OUTPUT}.ass detected!${NC}"
+						[[ $DEBUG -gt 0 ]] && echo -e "${green}Subtitle ${DIRECTORY}/${OUTPUT}.ass detected!${NC}"
 						SUB="${DIRECTORY}/${OUTPUT}.ass"	
 						check_sub_is_supported
 						
 						else
 						
-						[[ $DEBUG -gt 0 ]] && echo -e "${red}SubtiTle ${DIRECTORY}/${OUTPUT}.[srt|ass] not detected!${NC}"
+						[[ $DEBUG -gt 0 ]] && echo -e "${yellow}Subtitle ${DIRECTORY}/${OUTPUT}.[srt|ass] not detected!${NC}"
 						
 						fi
 						
