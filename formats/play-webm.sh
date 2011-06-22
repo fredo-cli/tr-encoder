@@ -27,7 +27,7 @@
             echo -e "${yellow}# tanscode mp4 to webm ${NC}"
             echo -e "${yellow}# pass 1 ${NC}"
 
-            COMMAND="${FFMPEG_WEBM} -threads $THREADS -i  ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.mp4  $FF_PRESET1  -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1  \
+            COMMAND="${FFMPEG_WEBM} -threads $THREADS -i  ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.mp4  $FF_PRESET1 -passlogfile ${DIRECTORY}/${SUBDIR}/${OUTPUT}.log -pass 1  \
             -s ${FF_WIDTH}x${FF_HEIGHT}   -r $FF_FPS -ss $SS -y -f $FF_FORMAT \
             -y  /dev/null "
             [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
@@ -36,7 +36,7 @@
 
             echo -e "${yellow}# pass 2 ${NC}"
 
-            COMMAND="${FFMPEG_WEBM} -threads $THREADS -i  ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.mp4   $FF_PRESET2 -passlogfile /tmp/${OUTPUT}.log -pass 2 \
+            COMMAND="${FFMPEG_WEBM} -threads $THREADS -i  ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.mp4   $FF_PRESET2 -passlogfile ${DIRECTORY}/${SUBDIR}/${OUTPUT}.log -pass 2 \
             -s ${FF_WIDTH}x${FF_HEIGHT} -r $FF_FPS -ss $SS  -y -f $FF_FORMAT \
             -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT} "
 

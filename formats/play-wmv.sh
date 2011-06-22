@@ -26,11 +26,36 @@
 
   ### create audio ###
 
-  ### create audio_${FF_AB}_${FF_AC}_$FF_AR.wma
-  echo -e "${yellow}# Create audio_${FF_AB}_${FF_AC}_$FF_AR.wma ${NC}"
-  COMMAND="${FFMPEG_WEBM} -threads $THREADS  -i ${INPUT} -v 0 -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec wmav2 -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.wma"
-  [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-  eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
+		if [[  $FF_AC == 1 && $CHANNELS == 6 ]]
+		then
+
+        ### 6 to 1 resample not suported by ffmpeg
+
+        ### create audio_2.wma
+
+        echo -e "${yellow}# Create audio_2.wma (6 to 1 resample is not suported by ffmpeg) ${NC}"
+        COMMAND="${FFMPEG_WEBM} -y -threads $THREADS  -i ${INPUT} -v 0 -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac 2   ${DIRECTORY}/${SUBDIR}/audio_2.wma"
+        [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
+        eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
+
+
+        ### create audio_${FF_AB}_${FF_AC}_$FF_AR.wma
+        echo -e "${yellow}# Create audio_${FF_AB}_${FF_AC}_$FF_AR.wma ${NC}"
+        COMMAND="${FFMPEG_WEBM} -threads $THREADS  -i ${DIRECTORY}/${SUBDIR}/audio_2.wma -v 0 -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec wmav2 -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.wma"
+        [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
+        eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
+
+    else
+
+        ### create audio_${FF_AB}_${FF_AC}_$FF_AR.wma
+        echo -e "${yellow}# Create audio_${FF_AB}_${FF_AC}_$FF_AR.wma ${NC}"
+        COMMAND="${FFMPEG_WEBM} -threads $THREADS  -i ${INPUT} -v 0 -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC -acodec wmav2 -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.wma"
+        [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
+        eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
+
+    fi
+
+
 
 
 
@@ -44,7 +69,7 @@
 
   [[ ! -z $SUB_FILE ]] && burn_subtitle
 
-  COMMAND="${FFMPEG_WEBM} -threads $THREADS  $DEINTERLACE -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1  -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}' -r $FF_FPS   -ss $SS  -f asf -vcodec  msmpeg4 -y /dev/null "
+  COMMAND="${FFMPEG_WEBM} -threads $THREADS  $DEINTERLACE -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile ${DIRECTORY}/${SUBDIR}/${OUTPUT}.log -pass 1  -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}' -r $FF_FPS   -ss $SS  -f asf -vcodec  msmpeg4 -y /dev/null "
   [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
   eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 
@@ -54,7 +79,7 @@
 
   [[ ! -z $SUB_FILE ]] && burn_subtitle
 
-  COMMAND="${FFMPEG_WEBM} -threads $THREADS  $DEINTERLACE -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2  -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}'  -r $FF_FPS   -ss $SS  -f asf -vcodec  msmpeg4 -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.asf"
+  COMMAND="${FFMPEG_WEBM} -threads $THREADS  $DEINTERLACE -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile ${DIRECTORY}/${SUBDIR}/${OUTPUT}.log -pass 2  -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}'  -r $FF_FPS   -ss $SS  -f asf -vcodec  msmpeg4 -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.asf"
   [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
   eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 
