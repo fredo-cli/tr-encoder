@@ -19,6 +19,7 @@ FF_AR=8000
 
 MPLAYER_SUB=" -subfont-text-scale 5.0 -sub-bg-color 0 -sub-bg-alpha 150 -font ${SUB_DIRECTORY}/arial.ttf -utf8 "
 
+THREADS=1
 
 if [[ $EVALUTE == 1 && $EVALUATION == 0 ]]
 then
