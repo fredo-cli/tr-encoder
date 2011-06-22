@@ -31,7 +31,7 @@
 
         ### 6 to 1 resample not suported by ffmpeg
 
-        ### create audio_96ch2.mp3
+        ### create audio_2.mp3
 
         echo -e "${yellow}# Create audio_2.mp3 (6 to 1 resample is not suported by ffmpeg) ${NC}"
         COMMAND="${FFMPEG_WEBM} -y -threads $THREADS  -i ${INPUT} -v 0 -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac 2   ${DIRECTORY}/${SUBDIR}/audio_2.mp3"
