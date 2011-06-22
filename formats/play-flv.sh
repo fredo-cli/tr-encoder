@@ -34,13 +34,13 @@
     ### create audio_96ch2.mp3
 
     echo -e "${yellow}# Create audio_2.mp3 ${NC}"
-    COMMAND="${FFMPEG_WEBM} -threads $THREADS  -i ${INPUT} -v 0 -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac 2  -y ${DIRECTORY}/${SUBDIR}/audio_2.mp3"
+    COMMAND="${FFMPEG_WEBM} -y -threads $THREADS  -i ${INPUT} -v 0 -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac 2  -y ${DIRECTORY}/${SUBDIR}/audio_2.mp3"
     [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 
     ### create audio_96ch2.mp3
     echo -e "${yellow}# Create audio_${FF_AB}_${FF_AC}_$FF_AR.mp3 ${NC}"
-    COMMAND="${FFMPEG_WEBM} -threads $THREADS  ${DIRECTORY}/${SUBDIR}/audio_2.mp3 -v 0 -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac ${FF_AC}  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.mp3"
+    COMMAND="${FFMPEG_WEBM} -y -threads $THREADS  ${DIRECTORY}/${SUBDIR}/audio_2.mp3 -v 0 -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac ${FF_AC}  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.mp3"
     [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 
@@ -48,7 +48,7 @@
 
     ### create audio_96ch2.mp3
     echo -e "${yellow}# Create audio_${FF_AB}_${FF_AC}_$FF_AR.mp3 ${NC}"
-    COMMAND="${FFMPEG_WEBM} -threads $THREADS  -i ${INPUT} -v 0 -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac ${FF_AC}  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.mp3"
+    COMMAND="${FFMPEG_WEBM} -y -threads $THREADS  -i ${INPUT} -v 0 -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac ${FF_AC}  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.mp3"
     [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
 
