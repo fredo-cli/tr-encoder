@@ -5,8 +5,8 @@ FF_FORMAT="avi"
 PLAY_SIZE=""
 
 FF_WIDTH=400
-FF_HEIGHT=226 ### we add 2*22 just before the video encoding
-FF_HEIGHT_3D=240 ### 16/9 + 2+44-> 3g ratio
+FF_HEIGHT=226 ### we add 2*6+8 just before the video encoding
+FF_HEIGHT_3D=240 ### 16/9 + 6+8-> 3D ratio
 
 FF_FPS=24
 
@@ -39,9 +39,6 @@ else
 
 ### encode the video
 
-#. "$APP_DIR/formats/$PREFIX-${FF_FORMAT}.sh"
-
-          #!/usr/local/bin/bash
 
           ### display the format ###
 
@@ -86,7 +83,7 @@ else
           echo -e "${yellow}# Extract all the images from the input video${NC}"
           COMMAND="${FFMPEG_WEBM} -threads $THREADS  -i  ${INPUT} -an -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3D}:0:${PADBOTTOM}'  ${DIRECTORY}/${SUBDIR}/image-%d.png"
           [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-          eval "#$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
+          eval "#$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  fatal_error
 
 
 
@@ -100,48 +97,43 @@ else
 
 
 
-          ### Create montage with left and right images ###
+          ### Create montage with left and right images  and change the colorspace###
 
           echo -e "${yellow}# Create montage with left and right images${NC}"
           A=1
           while [ $A -lt $MONTAGE_NB ]
           do
+
             LEFT=$(echo "($A*2)-1" |bc)
             RIGHT=$(echo "$A*2" |bc)
 
-            COMMAND="montage ${DIRECTORY}/${SUBDIR}/image-$LEFT.png  ${DIRECTORY}/${SUBDIR}/image-$RIGHT.png -geometry 400x240+0+0 ${DIRECTORY}/${SUBDIR}/montage-${A}.jpg"
+            ###  Create montage with left and right images
+            COMMAND="montage $COLOR  ${DIRECTORY}/${SUBDIR}/image-$LEFT.png  ${DIRECTORY}/${SUBDIR}/image-$RIGHT.png -geometry 400x240+0+0 ${DIRECTORY}/${SUBDIR}/montage-${A}.jpg"
             [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-            #eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
+            eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  fatal_error
+
+
+
+            ### Change the colorspace
+            COMMAND="convert -alpha on -depth 8 -gamma 0.454545  -recolor '3.2404542 -1.5371385 -0.4985314 -0.9692660  1.8760108  0.0415560  0.0556434 -0.2040259  1.0572252' -gamma 2 -type truecolor ${DIRECTORY}/${SUBDIR}/montage-${A}.jpg ${DIRECTORY}/${SUBDIR}/frame-${A}.jpg "
+            [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
+            eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  fatal_error
+
             let A++
+
           done
 
 
           ### Create a avi video from all the montage  files ###
 
           echo -e "${yellow}# Create a avi video from all the montage  files${NC}"
-          COMMAND="${FFMPEG_WEBM} -y -threads $THREADS -i  ${DIRECTORY}/${SUBDIR}/montage-%d.jpg  -i ${DIRECTORY}/audio.mxf   -b 1200k -y -vcodec libx264  -acodec libmp3lame -ar 44100 -ac 2 -ab  128k -r 24  ${DIRECTORY}/${SUBDIR}/video.avi"
+          COMMAND="${FFMPEG_WEBM} -y -threads $THREADS  -i ${DIRECTORY}/audio.mxf   -r 24 -i  ${DIRECTORY}/${SUBDIR}/frame-%d.jpg   -b 1200k -y -vcodec libx264  -acodec libmp3lame -ar 44100 -ac 2 -ab  128k -r 24  ${DIRECTORY}/${SUBDIR}/video.avi"
           [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
           eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
 
 
 
 
-
-
-          ### Remux the sound and the video
-
-          #echo -e "${yellow}# Remux sound and video${NC}"
-
-          #COMMAND="${FFMPEG_WEBM} -threads $THREADS  -i ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263 -i ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.amr  -ss  $SS  -r ${FF_FPS}   -acodec copy -vcodec copy  -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}"
-          #[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-          #eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
-
-
-          ### clean up
-
-          [[ -f  ${DIRECTORY}/${SUBDIR}/test.jpg ]] && rm  ${DIRECTORY}/${SUBDIR}/test.jpg
-          [[ -f  ${DIRECTORY}/${SUBDIR}/test.mp3 ]] && rm  ${DIRECTORY}/${SUBDIR}/test.mp3
-          [[ ! -z $SUB_FILE && -f "$FIFO" ]] && rm  "$FIFO"
 
 
 
@@ -152,7 +144,7 @@ else
 
           if [[  $? == 0 ]]
           then
-          echo -e "${GREEN}${DIRECTORY}/$SUBDIR/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT} ${NC}"
+          echo -e "${GREEN}#${DIRECTORY}/$SUBDIR/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT} ${NC}"
           [[ $DEBUG -gt 1 ]] && echo -e "$FILE_INFOS" ||echo -e "$FILE_INFOS" >> "${DIRECTORY}/$SUBDIR/sample.up"
 
           ### stop timer

@@ -43,27 +43,33 @@ FF_PRESET2=" -f webm -aspect 16:9 -vcodec libvpx -g 120 \
 -vb ${FF_VBITRATE}k -ac ${FF_AC} -ar ${FF_AR} -ab ${FF_AB}k  -acodec libvorbis -aq 4 "
 
 
+    if [[ $NEW_WIDTH -ge  $FF_WIDTH ]]
+    then
 
 
-		if [[ $EVALUTE == 1 && $EVALUATION == 0 ]]
-		then
-		
-		### evalute only once or encode
-		
-		evaluation_ini
-		
-		### check the evolution of the encoding
-		
-		elif [[ $EVALUTE == 1 && $EVALUATION -gt 0 ]]
-		then
-		
-		evaluation_check
-		
-		else
-		
-		### encode the video
-		
-		. "$APP_DIR/formats/$PREFIX-$FF_FORMAT.sh" 
-		
-		fi
+        if [[ $EVALUTE == 1 && $EVALUATION == 0 ]]
+        then
+
+        ### evalute only once or encode
+
+        evaluation_ini
+
+        ### check the evolution of the encoding
+
+        elif [[ $EVALUTE == 1 && $EVALUATION -gt 0 ]]
+        then
+
+        evaluation_check
+
+        else
+
+        ### encode the video
+
+        . "$APP_DIR/formats/$PREFIX-$FF_FORMAT.sh"
+
+
+        fi
+
+
+    fi
 
