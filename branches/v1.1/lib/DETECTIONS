@@ -88,7 +88,7 @@ VIDEO_COUNT=0
 
 	      ### display the file name and the size
 
-	      [[ $DEBUG -gt 0 ]] && echo -e "FILE_PATH=${GREEN}\"$INPUT\"${NC}" || echo -e "${BLUE}$INPUT${NC}"
+	      [[ $DEBUG -gt 0 ]] && echo -e "FILE_PATH=${GREEN}\"$INPUT\"${NC}"
 	      save_info "FILE_PATH=\"$INPUT\""
 
 	      if [[ $FILE_SIZE -gt 1 ]]
@@ -290,44 +290,41 @@ check_comp(){
 		save_info "\n# Compatibility\n"
 
 
+
 		### check if the video codec is supPorted by ffmpeg ###
 
 
+
 		FFMPEG_TEST=`${FFMPEG_WEBM} -i "$INPUT" -sameq -vframes 1 -y "${DIRECTORY}/${SUBDIR}/test.jpg" 2>&1 `
-
 		FFMPEG_TAIL="`echo "$FFMPEG_TEST"|tail  -n 1   `"	
-		FFMPEG_HEAD="`echo "$FFMPEG_TEST"| head -25 `"
-		FFMPEG_VIDEO=`echo "$FFMPEG_TAIL"|grep -o "^video:[1-9][0-9]*kB" `
+		FFMPEG_ERROR=`echo "$FFMPEG_TAIL"|grep -1 "error" `
 
-		if [[ ! -z $FFMPEG_VIDEO ]]
+		if [ -z $FFMPEG_VIDEO ]
 		then
 
-		FFMPEG_VIDEO=1
-		[[ $DEBUG > 0 ]] && echo -e "FFMPEG_VIDEO=${GREEN}$FFMPEG_VIDEO${NC} "
-		save_info "FFMPEG_VIDEO=1"
+        # success
+        FFMPEG_VIDEO=1
+        save_info "FFMPEG_VIDEO=1"
+
+        [[ $DEBUG > 0 ]] && echo -e "FFMPEG_VIDEO=${GREEN}$FFMPEG_VIDEO${NC} "
+
 
 		else
 
-		FFMPEG_VIDEO=$FFMPEG_VIDEO
+        # error
+        FFMPEG_VIDEO=0
+        ERROR="FFMPEG_VIDEO=0"
+        echo -e "${RED}${ERROR}${NC}"
+        echo -e "${ERROR} ${FFMPEG_HEAD}"  >> ${DIRECTORY}/${OUTPUT}/error.txt
+        save_info "$ERROR"
 
-		ERROR="FFMPEG_VIDEO=$FFMPEG_VIDEO"
 
-		[[ $DEBUG > 1 ]] && echo "$FFMPEG_HEAD"
-			  
-
-		echo -e "${RED}${ERROR}${NC}"
-		save_info "$ERROR"
-
-		### Video codec supported by ffmpeg
-
-		[[ $DEBUG > 0 ]] && echo  ${FFMPEG_TAIL}  
-		echo -e "${ERROR} ${FFMPEG_HEAD}"  >> ${DIRECTORY}/${OUTPUT}/error.txt    
+        [[ $DEBUG > 0 ]] && echo  ${FFMPEG_TAIL}
+        [[ $DEBUG > 1 ]] && echo "$FFMPEG_HEAD"
+   
 		  
 		fi
-			
-			
-
-			
+		
 
 			
 
@@ -335,39 +332,36 @@ check_comp(){
 
 
 
-
 		FFMPEG_TEST=`${FFMPEG_WEBM} -i "$INPUT" -t 1 -ac 2 -y "${DIRECTORY}/${SUBDIR}/test.mp3" 2>&1 `
-		#echo "$FFMPEG_TEST"
+		FFMPEG_TAIL=$(echo "$FFMPEG_TEST"| tail  -1  )
+		FFMPEG_ERROR=$(echo "$FFMPEG_TAIL"|grep -i  "error")
 
-		FFMPEG_TAIL="`echo "$FFMPEG_TEST"|tail  -n 1   `"	
-		#echo $FFMPEG_TAIL
-		FFMPEG_HEAD="`echo "$FFMPEG_TEST"| head -25 `"
-		FFMPEG_AUDIO=`echo "$FFMPEG_TAIL"|grep -o " audio:[1-9][0-9]*kB" `
 
-		if [[ ! -z FFMPEG_AUDIO ]]
-		then 
+		if [ -z "$FFMPEG_ERROR" ]
+		then
 
-		FFMPEG_AUDIO=1
-		[[ $DEBUG > 0 ]] && echo -e "FFMPEG_AUDIO=${GREEN}$FFMPEG_AUDIO${NC} "
-		save_info "FFMPEG_AUDIO=$FFMPEG_AUDIO"
+        # success
+
+        FFMPEG_AUDIO=1
+        save_info "FFMPEG_AUDIO=$FFMPEG_AUDIO"
+
+        [[ $DEBUG > 0 ]] && echo -e "FFMPEG_AUDIO=${GREEN}$FFMPEG_AUDIO${NC} "
 
 		else
 
-		FFMPEG_AUDIO=1
-		ERROR="FFMPEG_AUDIO=$FFMPEG_AUDIO"
+        # error
 
-		[[ $DEBUG > 1 ]] && echo "$FFMPEG_HEAD"
+        FFMPEG_AUDIO=0
+        ERROR="FFMPEG_AUDIO=$FFMPEG_AUDIO"
+        save_info "$ERROR"
+        echo -e "${RED}${ERROR}${NC}"
+        echo -e "${ERROR} ${FFMPEG_TAIL}"  >> ${DIRECTORY}/${OUTPUT}/error.txt
 
-		save_info "$ERROR"
-
-		echo -e "${RED}${ERROR}${NC}"
-		[[ $DEBUG > 0 ]] && echo  ${FFMPEG_TAIL}
-
-
-		echo -e "${ERROR} ${FFMPEG_HEAD}"  >> ${DIRECTORY}/${OUTPUT}/error.txt    
+        [[ $DEBUG > 0 ]] && echo  ${FFMPEG_TAIL}
 
 		fi
-		  
+
+
 		  
 		ID_VIDEO_ID=0
 		ID_AUDIO_ID=0
@@ -413,21 +407,27 @@ check_comp(){
 
 
 		### check if video can be read with mplayer  ###
+
+
+
 		
-		if [[ ! -z $ID_VIDEO_CODEC ]]
+		if [ -z $ID_VIDEO_CODEC ]
 		then
 
-		MPLAYER_VIDEO=1
-		[[ $DEBUG > 0 ]] && echo -e "MPLAYER_VIDEO=${GREEN}$MPLAYER_VIDEO${NC}\\t\\t# $ID_VIDEO_CODEC"
-		save_info "MPLAYER_VIDEO=$MPLAYER_VIDEO"
+      MPLAYER_VIDEO=0
+      ERROR="MPLAYER_VIDEO=$MPLAYER_VIDEO"
+      save_info "$ERROR"
+      echo -e "${RED}${ERROR}${NC}\\n"
+      echo -e "${ERROR}"  >> ${DIRECTORY}/${OUTPUT}/error.txt
+
 
 		else
 
-		MPLAYER_VIDEO=0		
-		ERROR="MPLAYER_VIDEO=$MPLAYER_VIDEO"
-		save_info "$ERROR"
-		echo -e "${RED}${ERROR}${NC}\\n"
-		echo -e "${ERROR}"  >> ${DIRECTORY}/${OUTPUT}/error.txt 
+      MPLAYER_VIDEO=1
+      save_info "MPLAYER_VIDEO=$MPLAYER_VIDEO"
+      [[ $DEBUG > 0 ]] && echo -e "MPLAYER_VIDEO=${GREEN}$MPLAYER_VIDEO${NC}\\t\\t# $ID_VIDEO_CODEC"
+
+
 
 		fi
 
@@ -505,7 +505,7 @@ VCODEC=""
 	      then
 	      [[ $DEBUG -gt 0 ]] && echo -e "VFORMAT=${GREEN}$ID_VIDEO_FORMAT${NC}"
 	      else
-	      echo -e "VFORMAT=${YELLOW}$ID_VIDEO_FORMAT${NC}"
+	      [[ $DEBUG -gt 0 ]] && echo -e "VFORMAT=${YELLOW}$ID_VIDEO_FORMAT${NC}"
 	      fi
 	      save_info  "VFORMAT=\"$ID_VIDEO_FORMAT\""
 		 		 
@@ -525,8 +525,8 @@ VCODEC=""
 			   case $VCODEC_COMP in
 			   1)[[ $DEBUG -gt 0 ]] && echo -e  "VCODEC=${GREEN}${VCODEC} ${NC}\\t$VCODEC_TEXT";;
 			   2)[[ $DEBUG -gt 0 ]] && echo -e  "VCODEC=${YELLOW}${VCODEC} ${NC}\\t$VCODEC_TEXT";;
-			   3)echo -e  "VCODEC=${PINK}${VCODEC} ${NC}\\t$VCODEC_TEXT";;
-			   4)echo -e  "VCODEC=${RED}${VCODEC} ${NC}\\t$VCODEC_TEXT";;
+			   3)[[ $DEBUG -gt 0 ]] && echo -e  "VCODEC=${PINK}${VCODEC} ${NC}\\t$VCODEC_TEXT";;
+			   4)[[ $DEBUG -gt 0 ]] && echo -e  "VCODEC=${RED}${VCODEC} ${NC}\\t$VCODEC_TEXT";;
 			   esac
 		 
 	      
@@ -555,7 +555,7 @@ VCODEC=""
 	      SIZE_INFOS=`echo $SIZE_INFOS | awk  -F , '{ print $2"  "$3"  "$4  }'`
 	      [[ $DEBUG -gt 0 ]] &&  echo -e "SIZE=${GREEN}$SIZE${NC}\\t# $SIZE_INFOS"
 	      else
-	      echo -e "SIZE=${YELLOW}$SIZE${NC}"
+	      [[ $DEBUG -gt 0 ]] && echo -e "SIZE=${YELLOW}$SIZE${NC}"
 	      fi
 	      save_info  "WIDTH=$WIDTH"
 	      save_info  "HEIGHT=$HEIGHT"	      
@@ -572,7 +572,7 @@ VCODEC=""
 	      then
 	      [[ $DEBUG -gt 0 ]] && echo -e "RATIO=${GREEN}${RATIO%?}${NC}"
 	      else
- 	      echo -e "RATIO=${YELLOW}${RATIO%?pal}${NC}"
+ 	      [[ $DEBUG -gt 0 ]] && echo -e "RATIO=${YELLOW}${RATIO%?pal}${NC}"
 	      fi
 	      save_info  "RATIO=$RATIO"
 	      	     
@@ -599,9 +599,9 @@ VCODEC=""
 	      [[ $DEBUG -gt 0 ]] && echo -e "DAR=${GREEN}${DAR}${NC}"
 		 elif [[ $DAR == 2.21 ]]
 		 then
-	      echo -e "DAR=${YELLOW}${DAR}${NC}"		 
+	      [[ $DEBUG -gt 0 ]] && echo -e "DAR=${YELLOW}${DAR}${NC}"
 		 else
-	      echo -e "DAR=${RED}${DAR}${NC}"		 
+	      [[ $DEBUG -gt 0 ]] && echo -e "DAR=${RED}${DAR}${NC}"
 		 fi
 		 save_info  "DAR=$DAR"
 
@@ -710,7 +710,7 @@ VCODEC=""
 	      else
 	      DEINTERLACE=""
 	      INTERLACED=""
-	      [[ $DEBUG -gt 0 ]] && echo -e "INTERLACED=${GREEN}{NC}"
+	      [[ $DEBUG -gt 0 ]] && echo -e "INTERLACED=${GREEN}${NC}"
 	      save_info  "INTERLACED=$INTERLACED"
 	      fi
 	      
@@ -743,7 +743,7 @@ get_audio_infos() {
 	      then
 	      [[ $DEBUG -gt 0 ]] && echo -e "AFORMAT=${GREEN}$AFORMAT${NC}"
 	      else
-	      echo -e "AFORMAT=${YELLOW}$AFORMAT${NC}"
+	      [[ $DEBUG -gt 0 ]] && echo -e "AFORMAT=${YELLOW}$AFORMAT${NC}"
 	      fi
 	      save_info "AFORMAT=\"$AFORMAT\""
  
@@ -762,14 +762,14 @@ get_audio_infos() {
 			   case $ACODEC_COMP in
 			   1)[[ $DEBUG -gt 0 ]] && echo -e  "ACODEC=${GREEN}${ACODEC} ${NC}\\t$ACODEC_TEXT";;
 			   2)[[ $DEBUG -gt 0 ]] && echo -e  "ACODEC=${YELLOW}${ACODEC} ${NC}\\t$ACODEC_TEXT";;
-			   3)echo -e  "ACODEC=${PINK}${ACODEC} ${NC}\\t$ACODEC_TEXT";;
-			   4)echo -e  "ACODEC=${RED}${ACODEC} ${NC}\\t$ACODEC_TEXT";;
+			   3)[[ $DEBUG -gt 0 ]] && echo -e  "ACODEC=${PINK}${ACODEC} ${NC}\\t$ACODEC_TEXT";;
+			   4)[[ $DEBUG -gt 0 ]] && echo -e  "ACODEC=${RED}${ACODEC} ${NC}\\t$ACODEC_TEXT";;
 			   esac
 		 
 	      
 	      else
 	     # codec not defined
-	      echo -e "ACODEC=${YELLOW}${ACODEC}${NC}\\tCodec undefined!"
+	     [[ $DEBUG -gt 0 ]] && echo -e "ACODEC=${YELLOW}${ACODEC}${NC}\\tCodec undefined!"
 	      fi
 	      save_info "ACODEC=\"$ACODEC\""
 	      
@@ -833,7 +833,7 @@ get_audio_infos() {
 		  elif [[ $FF_ABITERATE -gt $MINIMUM_ABITERATE ]]
 		  then
 
-		  echo -e "ABITERATE=${YELLOW}$FF_ABITERATE${NC}\\t$ABITERATE\\t# $ABITERATE_NOTICE"
+		  [[ $DEBUG -gt 0 ]] && echo -e "ABITERATE=${YELLOW}$FF_ABITERATE${NC}\\t$ABITERATE\\t# $ABITERATE_NOTICE"
 
 		  else
 
@@ -868,7 +868,7 @@ get_audio_infos() {
 		then
 		[[ $DEBUG -gt 0 ]] && echo -e "CHANNELS=${GREEN}$CHANNELS${NC}"
 		else
-		echo -e "CHANNELS=${YELLOW}$CHANNELS${NC}"
+		[[ $DEBUG -gt 0 ]] && echo -e "CHANNELS=${YELLOW}$CHANNELS${NC}"
 		fi
 		save_info "CHANNELS=$CHANNELS"
 	      
@@ -880,7 +880,7 @@ get_audio_infos() {
 	      [[ $DEBUG -gt 0 ]] && echo -e "AR=${GREEN}$AR${NC}"
 	      elif [[ ${AR} == 32000 || ${AR} == 22050 ]]
 	      then
-	      echo -e "AR=${YELLOW}$AR${NC}"
+	      [[ $DEBUG -gt 0 ]] && echo -e "AR=${YELLOW}$AR${NC}"
 	      else
 	      echo -e "AR=${RED}$AR${NC}"
 	      fi

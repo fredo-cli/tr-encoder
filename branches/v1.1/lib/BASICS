@@ -40,8 +40,15 @@ if [[  $SCAN_TYPE == 2 ]]
 then
 continue
 else
-exit
+exit 1
 fi
+
+}
+
+function fatal_error(){
+
+echo -e ${red}$COMMAND${NC}
+exit 1
 
 }
 

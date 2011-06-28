@@ -201,7 +201,7 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 	      then
 		 
 		 DETECTED_FORMAT="1.25 - pal reencoded !"
-		 echo -e "${pink}# Format: $DETECTED_FORMAT ${NC}"
+		 [[ $DEBUG -gt 0 ]] && echo -e "${pink}# Format: $DETECTED_FORMAT ${NC}"
 	      
 	      # get a new cropdetection 
 	      cropdetection $CROP_FRAMES_L
@@ -324,7 +324,7 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 	      cropdetection $CROP_FRAMES_L
 		 
 		 DETECTED_FORMAT="PAL DAR 1.33"
-		 echo -e "${pink}# Format: $DETECTED_FORMAT${NC}"
+		 [[ $DEBUG -gt 0 ]] && echo -e "${pink}# Format: $DETECTED_FORMAT${NC}"
 		
 		 pal-dar133
 	      fi
@@ -339,7 +339,7 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 	      cropdetection $CROP_FRAMES_S
 		 
 		 DETECTED_FORMAT="PAL DAR 1.77"
-		 echo -e "${pink}# Format: $DETECTED_FORMAT${NC}"
+		 [[ $DEBUG -gt 0 ]] && echo -e "${pink}# Format: $DETECTED_FORMAT${NC}"
 
 		 pal-dar177	      
 	      fi
@@ -350,7 +350,7 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 	      then
 
 		 DETECTED_FORMAT="PAL DAR 2.21"
-		 echo -e "${red}# Format: $DETECTED_FORMAT${NC}"
+		 [[ $DEBUG -gt 0 ]] && echo -e "${red}# Format: $DETECTED_FORMAT${NC}"
 		 
 
 	      # padding
@@ -391,7 +391,7 @@ if [[ ( $RATIO_I  -ge 122 && $RATIO_I -le 128 ) && ( $DAR == 0 || $DAR  == 1.25 
 	      if [[ $RATIO_I == 150  && ( $DAR == 0 || $DAR  == 1.50 ) ]]
 	      then 
 		 DETECTED_FORMAT="1.50 - ntsc reencoded !"
-		 echo -e "${red}# Format: $DETECTED_FORMAT${NC}"
+		 [[ $DEBUG -gt 0 ]] && echo -e "${red}# Format: $DETECTED_FORMAT${NC}"
 		 # get a new cropdetection 
 	      cropdetection $CROP_FRAMES_L
 		 

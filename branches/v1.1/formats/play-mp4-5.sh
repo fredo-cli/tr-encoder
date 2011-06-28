@@ -25,8 +25,8 @@ FF_PRESET2="$DEFAULT -vpre ipod640"
 
 
 
-	if [[ $NEW_WIDTH -ge  $FF_WIDTH ]]
-		then
+    if [[ $NEW_WIDTH -ge  $FF_WIDTH ]]
+    then
 
 
         if [[ $EVALUTE == 1 && $EVALUATION == 0 ]]

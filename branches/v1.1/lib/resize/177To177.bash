@@ -6,7 +6,7 @@
 	      then
 	      
 		 	DETECTED_FORMAT="16/9"
-		 	echo -e "${green}# Format:$DETECTED_FORMAT ${NC}"
+      [[ $DEBUG -gt 0 ]] && 	echo -e "${green}# Format:$DETECTED_FORMAT ${NC}"
 
 
 		 
