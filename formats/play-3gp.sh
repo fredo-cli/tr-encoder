@@ -82,7 +82,7 @@
   [[ ! -z $SUB_FILE ]] && burn_subtitle
 
 
-  COMMAND="${FFMPEG_WEBM} -threads $THREADS $DEINTERLACE -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile  ${OUTPUT} -pass 1  -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM}'  -r $FF_FPS  -f $FF_FORMAT -y /dev/null "
+  COMMAND="${FFMPEG_WEBM} -threads $THREADS $DEINTERLACE -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile  ${OUTPUT} -pass 1  -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM}' -aspect 176:144  -r $FF_FPS  -f $FF_FORMAT -y /dev/null "
   [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
   eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||   fatal_error
 
@@ -91,7 +91,7 @@
 
   [[ ! -z $SUB_FILE ]] && burn_subtitle
 
-  COMMAND="${FFMPEG_WEBM} -threads $THREADS $DEINTERLACE -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile ${OUTPUT} -pass 2 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM}'  -r $FF_FPS   -f $FF_FORMAT -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263"
+  COMMAND="${FFMPEG_WEBM} -threads $THREADS $DEINTERLACE -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile ${OUTPUT} -pass 2 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM}' -aspect 176:144  -r $FF_FPS   -f $FF_FORMAT -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263"
   [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
   eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||   fatal_error
 
