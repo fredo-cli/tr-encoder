@@ -453,8 +453,8 @@ VFORMAT=""
 VCODEC=""
 
 	      
-	      VIDEO_INFOS=`mediainfo "--Inform=Video;FPS_MODE=%FrameRate_Mode% VCODEC='%Codec%' VDURATION=%Duration% VBITERATE=%BitRate% DELAY=%Delay%  INTERLACED=%ScanType%" ${INPUT}`
-	      #echo $VIDEO_INFOS
+	      VIDEO_INFOS=`mediainfo "--Inform=Video;FPS_MODE=%FrameRate_Mode% VCODEC='%Codec%' VDURATION=%Duration% VBITERATE=%BitRate% DELAY=%Delay%  INTERLACED=%ScanType% MEDIAINFO_WIDTH=%Width% MEDIAINFO_HEIGHT=%Height%" ${INPUT}`
+	      echo $VIDEO_INFOS
 	      eval $VIDEO_INFOS
 	      [[ $DEBUG -gt 0 ]] && echo -e "\\n${cyan}$(box "Video informations")${NC}"
 	      save_info "\n# Video informations\n"
@@ -543,10 +543,23 @@ VCODEC=""
 
 
 
-	      ### check the size (mplayer)
+	      ### check the size (mediainfo or mplayer)
+echo $MEDIAINFO_WIDTH 
+echo $MEDIAINFO_HEIGHT
 
+        if [[ $MEDIAINFO_WIDTH -gt 0 ]]  &&  [[ $MEDIAINFO_HEIGHT -gt 0 ]]
+        then
+
+        WIDTH=$MEDIAINFO_WIDTH
+        HEIGHT=$MEDIAINFO_HEIGHT
+echo media
+        else
+echo mplayer
         WIDTH=$ID_VIDEO_WIDTH
         HEIGHT=$ID_VIDEO_HEIGHT
+
+        fi
+
 	      SIZE="${WIDTH}x${HEIGHT}"
 	      SIZE_INFOS=`grep  "^${SIZE}," ${APP_DIR}/config/SIZES`
 	      #echo $SIZE_INFOS
