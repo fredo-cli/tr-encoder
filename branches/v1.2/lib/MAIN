@@ -1,0 +1,269 @@
+#!/usr/local/bin/bash
+
+#########################
+function encode(){
+#########################
+
+
+
+      if [[ -f ${DIRECTORY}/${OUTPUT}/error.txt  ]]
+      then
+
+      echo -e ${red}$(cat ${DIRECTORY}/${OUTPUT}/error.txt)${NC}
+      stop
+
+
+      else
+
+          ### check and evaluate the ouput size ###
+
+          check_ouput_size "$FF_SIZE"
+
+
+          if [[ $PAD != 0 ]]
+          then
+
+              FF_HEIGHT=`echo "$FF_WIDTH / $RATIO"|bc`
+              FF_HEIGHT=`round2 $FF_HEIGHT `
+              PAD=`echo "scale=3;(($FF_WIDTH / 1.777 ) - ($FF_WIDTH / $RATIO )) / 2"|bc`
+              PAD=`round2 $PAD`
+
+          fi
+
+
+
+
+
+          ### transcode the video to differents formats
+
+          for OUTPUT_FORMAT in $(echo $OUTPUT_FORMATS)
+          do
+
+          COMMAND=""
+
+            if [[ -f $APP_DIR/formats/$OUTPUT_FORMAT.sh ]]
+            then
+
+                . "$APP_DIR/formats/$OUTPUT_FORMAT.sh"
+
+            else
+
+                case "$OUTPUT_FORMAT" in
+
+                  screenshot) . "$APP_DIR/formats/screenshot.sh" ;;
+                  montage) . "$APP_DIR/formats/montage.sh" ;;
+                  sample). "$APP_DIR/formats/sample-flv.sh" ;;
+
+                esac
+
+            fi
+
+
+          done
+
+
+          ### output the evaluation (only once)
+
+          if [[ $EVALUTE == 1 && $EVALUATION == 0 ]]
+          then
+
+              ### lock for evaluation (call only once)
+              EVALUATION=1
+
+              [[ $DEBUG -gt 0 ]] && echo  EVALUATION=$EVALUATION
+              save_info "EVALUATION=$EVALUATION"
+
+              [[ $DEBUG -gt 0 ]] && echo  NB_FILE_TO_CREATE=$NB_FILE_TO_CREATE
+              save_info "NB_FILE_TO_CREATE=$NB_FILE_TO_CREATE"
+
+
+              [[ $DEBUG -gt 0 ]] && echo  TOTAL_TIME_EVALUATION=$TOTAL_TIME_EVALUATION
+              save_info "TOTAL_TIME_EVALUATION=$TOTAL_TIME_EVALUATION"
+
+          fi
+
+
+
+
+        ### Check evolution of the process
+
+        if [[ $EVALUTE == 1 && $EVALUATION == 1 ]]
+        then
+            ### Working
+
+            if [[  $NB_FILE_CREATED -lt $NB_FILE_TO_CREATE ]]
+            then
+
+            [[ -f ${DIRECTORY}/${SUBDIR}/timer.log ]] && TOTAL_TIME_REALISATION=$(cat ${DIRECTORY}/${SUBDIR}/timer.log |awk -F " " '{ n++;  S += $2  } END { print S } ')
+            [[ -z $TOTAL_TIME_REALISATION ]] && TOTAL_TIME_REALISATION=0
+            let "EVOLUTION_PERCENT=$TOTAL_TIME_REALISATION *100 / $TOTAL_TIME_EVALUATION"
+
+                    ### if TOTAL_TIME_REALISATION gt TOTAL_TIME_EVALUATION --> 99%
+
+            [[ $EVOLUTION_PERCENT -gt 99 ]] && EVOLUTION_PERCENT=99
+            [[ $EVOLUTION_PERCENT -eq 0 ]] && EVOLUTION_PERCENT=1
+
+            echo '{"statusID": 5 , "filesToCreateNB": '$NB_FILE_TO_CREATE' , "filesCreatedNB" : '$NB_FILE_CREATED' , "evolutionPC" : '$EVOLUTION_PERCENT' ,"realisationTime" : '$TOTAL_TIME_REALISATION' , "evaluationTime" : '$TOTAL_TIME_EVALUATION'}'
+
+
+
+
+
+
+
+
+            ### just finish
+
+            elif [[  $NB_FILE_CREATED == $NB_FILE_TO_CREATE &&  $TOTAL_TIME_REALISATION == 0  ]]
+            then
+
+
+            echo "finish"
+            echo  "NB_FILE_CREATED=$NB_FILE_CREATED"
+            save_info "NB_FILE_CREATED=$NB_FILE_CREATED"
+
+
+            ### calulate te total time of realistion and remove the millisecondes
+
+            ### version time
+
+            #TOTAL_TIME_REALISATION=$(cat ${DIRECTORY}/${SUBDIR}/timer.txt |awk -F : '{ n++; M += $2*60 ; S += $3  } END { print M+S/1 } ')
+
+            #save_info "TOTAL_TIME_REALISATION=${TOTAL_TIME_REALISATION%\.*}"
+
+            ### new version
+
+            TOTAL_TIME_REALISATION=$(cat ${DIRECTORY}/${SUBDIR}/timer.log |awk -F " " '{ n++;  S += $2  } END { print S } ')
+            save_info "TOTAL_TIME_REALISATION=${TOTAL_TIME_REALISATION%}"
+
+
+
+
+            ### completly done
+
+            else
+
+            echo   "done"
+            echo    "$NB_FILE_CREATED / $NB_FILE_TO_CREATE"
+            echo 100
+
+            fi
+
+             fi
+
+
+
+
+        ### create info.xml
+
+        echo -e "\\n<TR-ENCODER>\\n"$(sed  -e  s/^#.*// -e /^$/d  "${DIRECTORY}/${SUBDIR}/info.txt" | awk -F "=" '{print "<"$1">"$2"</"$1">\\n" }'|tr -d "\"")"</TR-ENCODER>" > "${DIRECTORY}/${SUBDIR}/info.xml"
+
+
+      fi
+}
+
+#########################
+function execute(){
+#########################
+
+	    INPUT=$1
+	    DIRECTORY=`dirname "$INPUT"`
+	    SUBDIR=`basename "$INPUT"`
+	    SUBDIR=${SUBDIR%%${EXTENTION}}
+	    OUTPUT=` basename $INPUT`
+	    OUTPUT=${OUTPUT%%.???}
+
+	    NOTICE=""
+	    WARNING=""
+	    ERROR=""
+
+
+	    ### create the SUBDIR
+	    [[ ! -d  "${DIRECTORY}/${SUBDIR}" ]] &&   mkdir  "${DIRECTORY}/${SUBDIR}"
+
+	    ### clean  info.txt if OVERWRITE  == Y
+	    [[ $OVERWRITE == 1 && -f ${DIRECTORY}/${OUTPUT}/info.txt ]] && rm ${DIRECTORY}/${OUTPUT}/info.txt
+
+
+
+          case "$OPERATION" in
+
+          compatible) check_comp; stop;;
+          general)    get_general_infos; stop;;
+          video)      get_video_infos; stop;;
+          audio)      get_audio_infos; stop;;
+          format)     get_video_infos; get_format ;stop;;
+          infos)
+                      ### Check if the video is compatible with ffmpeg or mplayer
+                      check_comp
+                      ### General informations
+                      get_general_infos
+                      ### Get general informations about  the video
+                      get_video_infos
+                      ### get audio informations
+                      get_audio_infos
+                      ### get the format
+                      get_format
+                      ### extra informations
+                      get_extra_infos
+                      stop;;
+            *)
+
+              ### check if the video is compatible with ffmpeg or mplayer
+
+              if  [[ $OVERWRITE == 1  || ! -f "${DIRECTORY}/${OUTPUT}/info.txt" ]]
+              then
+
+                  ### Check compatibility
+                  check_comp
+
+                  ### General informations
+
+                  get_general_infos
+
+                  ### Video informations
+
+                  get_video_infos
+
+                  ### Audio Informations
+
+                  get_audio_infos
+
+                  ### Get fornat infos: 1.77 pat ntsc ...
+
+                  get_format
+
+                  ### Get extra informations
+
+                  get_extra_infos
+
+              else
+
+                  [[ $DEBUG -gt 0 ]] && cat "${DIRECTORY}/${OUTPUT}/info.txt"
+                  eval "$(cat "${DIRECTORY}/${OUTPUT}/info.txt")"
+
+              fi
+
+
+
+
+
+
+
+
+
+                  ### Start encoding
+                  encode
+
+              
+
+              
+            ;;
+          esac
+
+
+
+
+}
+
+

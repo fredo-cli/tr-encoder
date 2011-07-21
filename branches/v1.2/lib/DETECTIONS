@@ -1,0 +1,952 @@
+#!/usr/bin/bash
+
+#########################
+function evaluation_ini(){
+#########################
+
+	  ### get number of file to create
+	  let "NB_FILE_TO_CREATE = $NB_FILE_TO_CREATE + 1" 
+ 
+	  ### get average time for this format
+	  TIME_EVALUATION=$(cat ${APP_DIR}/log/timer.log  |grep "${INPUT_SIZE_CATEGORY}TO$PREFIX-$FF_FORMAT-$PLAY_SIZE") 
+	  if [[ ! -z $TIME_EVALUATION ]] 
+	  then
+
+        TIME_EVALUATION=$(echo "$TIME_EVALUATION" |awk -F "\t" '{ n++; SUM += $2 } END { print SUM/n }')
+        TIME_EVALUATION=$(echo "$TIME_EVALUATION * $DURATION_S * $CPUS_AVERAGE/1000" |bc )
+        let "TOTAL_TIME_EVALUATION =$TOTAL_TIME_EVALUATION + $TIME_EVALUATION"
+
+	  else
+
+      TIME_EVALUATION=1
+      let "TOTAL_TIME_EVALUATION =$TOTAL_TIME_EVALUATION + $TIME_EVALUATION"
+
+	  fi
+
+}
+
+#########################
+evaluation_check(){
+#########################
+
+	  ### check if the output file is created ###
+	  get_file_infos "${DIRECTORY}/$SUBDIR/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}"
+	  let "NB_FILE_CREATED = $NB_FILE_CREATED + $FILE_INFOS_STATUS"
+
+}
+
+#########################
+get_file_infos(){
+#########################
+
+		if [[ -f $1 &&  $SYSTEM == "Linux" ]]
+		then
+		RESULTS_SIZE=`stat -c '%s' "$1"` 
+		elif [[ -f $1 && $SYSTEM == "FreeBSD" ]] 
+		then
+		RESULTS_SIZE=`stat -f '%z' "$1"`
+		else
+		RESULTS_SIZE=0
+		fi
+		 
+		if [ "$RESULTS_SIZE" -gt 1 ]
+		then
+
+        FILE_INFOS="$FILE_INFOS<file>\\n"
+        FILE_INFOS="$FILE_INFOS<path>$1</path>\\n"
+        FILE_INFOS="$FILE_INFOS<format>$FF_FORMAT</format>\\n"
+
+
+         [[ $SYSTEM == "Linux" ]] && FILE_INFOS="$FILE_INFOS<md5>$(md5sum -b $1|grep -o ".* "|tr -d " ")</md5>\\n"
+         [[ $SYSTEM == "FreeBSD" ]] && FILE_INFOS="$FILE_INFOS<md5>$(md5 -q $1)</md5>\\n"
+
+        FILE_INFOS="$FILE_INFOS<size>$RESULTS_SIZE</size>\\n"
+        FILE_INFOS="$FILE_INFOS</file>\\n"
+        FILE_INFOS_STATUS=1
+        return 0
+
+		else
+
+        FILE_INFOS_STATUS=0
+        FILE_INFOS="error: file not created ($1)"
+        return 1
+		fi 
+
+}
+
+#########################
+get_general_infos () {	     
+#########################
+
+      GENERAL_INFOS=""
+      FORMAT=""
+      FILE_SIZE=0
+      DURATION=0
+      BITERATE=0
+      VIDEO_COUNT=0
+      AUDIO_COUNT=0
+	      
+
+	      ### get some general info about the video
+	      GENERAL_INFOS=`mediainfo "--Inform=General;\
+                                  FORMAT='%Format%' \
+                                  FILE_SIZE=%FileSize% \
+                                  DURATION=%Duration% \
+                                  BITERATE=%OverallBitRate% \
+                                  VIDEO_COUNT=%VideoCount% \
+                                  AUDIO_COUNT=%AudioCount%" ${INPUT}`
+
+	      eval "$GENERAL_INFOS"
+
+	      [[ $DEBUG -gt 0 ]] 	 &&  echo -e "\\n${cyan}$(box "General informations")${NC}" 
+	      save_info "\n# General informations\n"
+
+
+
+	      ### display the file name and the size
+
+	      [[ $DEBUG -gt 0 ]] && echo -e "FILE_PATH=${green}\"$INPUT\"${NC}"
+	      save_info "FILE_PATH=\"$INPUT\""
+
+	      if [[ $FILE_SIZE -gt 1 ]]
+	      then
+
+            [[ $DEBUG -gt 0 ]] && echo -e "FILE_SIZE=${green}$FILE_SIZE${NC}\\t# `echo "$FILE_SIZE / 1024 /1024 "| bc `MB"
+
+	      else
+
+            echo -e "FILE_SIZE=${RED}$FILE_SIZE${NC}\\t#`echo "$FILE_SIZE / 1024 /1024 "| bc `MB"
+
+	      fi
+	      save_info "FILE_SIZE=$FILE_SIZE"
+
+
+
+
+	      ### check the container FORMAT ###
+
+	      if [[ ! -z ` grep  "^${FORMAT}$" ${APP_DIR}/conf/FORMATS ` ]]
+	      then
+
+            [[ $DEBUG -gt 0 ]] && echo -e "FORMAT=${green}$FORMAT${NC}"
+
+	      else
+
+    	      [[ $DEBUG -gt 0 ]] && echo -e "FORMAT=${yellow}$FORMAT${NC}"
+
+	      fi
+	      save_info "FORMAT=\"$FORMAT\""
+
+
+
+
+	      ### Check the duration of the video ###
+
+	      DURATION_S=`echo "$DURATION / 1000"|bc`
+		 
+	      if [[  $DURATION_S -lt  $MINIMUM_DURATION ]] 
+	      then
+
+            ERROR="ERROR: Duration of the video is ($DURATION_S seconds).The minimun duration for a video is ($MINIMUM_DURATION secondes)  \n"
+            echo -e "DURATION=${red}${DURATION_S} \t {NC}${RED}${ERROR}${NC}"
+            echo "$ERROR" >> ${DIRECTORY}/${OUTPUT}/error.txt
+
+	      else
+
+            [[ $DEBUG -gt 0 ]] && echo -e "DURATION=${green}$DURATION_S${NC}"
+
+
+	      fi
+	      save_info "DURATION=$DURATION"
+	      save_info "DURATION_S=$DURATION_S"
+
+	      
+
+		
+
+	      ### Chek the number of video stream
+
+
+	      ### 1 video detected     
+	      if [[ $VIDEO_COUNT == 1 ]] 
+	      then
+
+            [[ $DEBUG -gt 0 ]] && echo -e "VIDEO_COUNT=${green}$VIDEO_COUNT${NC}"
+            save_info "VIDEO_COUNT=$VIDEO_COUNT"
+
+	      ### more than 1 video      
+	      elif [[ $VIDEO_COUNT -gt 1 ]]
+	      then
+
+            WARNING="# WARNING: More than 1 video stream is detected ($VIDEO_COUNT)"
+            [[ $DEBUG -gt 0 ]] && echo -e "VIDEO_COUNT=${green}$VIDEO_COUNT${NC} \t ${PINK}${WARNING}${NC}"
+            echo $WARNING >> ${DIRECTORY}/${OUTPUT}/warning.txt
+            save_info "VIDEO_COUNT=$VIDEO_COUNT"
+
+	      ### video missing or not detected
+	      else
+
+            VIDEO_COUNT=0
+            ERROR="ERROR: No video stream is detected"
+            echo "$ERROR" >> ${DIRECTORY}/${OUTPUT}/error.txt
+            [[ $DEBUG -gt 0 ]] && echo -e "VIDEO_COUNT=${red}$VIDEO_COUNT${NC} \t ${RED}${ERROR}${NC}"
+            save_info "VIDEO_COUNT=$VIDEO_COUNT"
+
+	      fi
+
+
+
+
+	      ### Chek the number of audio stream	      
+
+	      ### 1 audio     
+	      if [[ $AUDIO_COUNT == 1 ]] 
+	      then
+
+            [[ $DEBUG -gt 0 ]] && echo -e "AUDIO_COUNT=${green}$AUDIO_COUNT${NC}"
+            save_info "AUDIO_COUNT=$AUDIO_COUNT"
+
+	      ### More than 1 audio
+	      elif [[ $AUDIO_COUNT -gt 1 ]]
+	      then
+
+            WARNING="# WARNING: More than 1 audio stream is detected ($AUDIO_COUNT)"
+            echo $WARNING >> ${DIRECTORY}/${OUTPUT}/warning.txt
+            [[ $DEBUG -gt 0 ]] && echo -e "AUDIO_COUNT=${green}$AUDIO_COUNT${NC} \t ${PINK}${WARNING}${NC}"
+            save_info "AUDIO_COUNT=$AUDIO_COUNT"
+
+	      ### audio missing or not detected
+	      else
+
+            AUDIO_COUNT=0
+            ERROR="ERROR: No audio stream is detected"
+            echo "$ERROR" >> ${DIRECTORY}/${OUTPUT}/error.txt
+            [[ $DEBUG -gt 0 ]] && echo -e "AUDIO_COUNT=${red}$AUDIO_COUNT${NC} \t ${RED}${ERROR}${NC}"
+            save_info "AUDIO_COUNT=$AUDIO_COUNT"
+
+	      fi
+
+
+}
+#########################
+check_comp(){
+#########################
+
+		[[ $DEBUG -gt 0 ]] &&  echo -e "\\n${BLUE}$(box "Compatibility")${NC}"
+
+		save_info "\n# Compatibility\n"
+
+
+
+		### check if the video codec is supPorted by ffmpeg ###
+
+		FFMPEG_TEST=`${FFMPEG_WEBM} -i "$INPUT" -sameq -vframes 1 -y "${DIRECTORY}/${SUBDIR}/test.jpg" 2>&1 `
+		FFMPEG_TAIL="`echo "$FFMPEG_TEST"|tail  -n 1   `"	
+		FFMPEG_ERROR=`echo "$FFMPEG_TAIL"|grep -1 "error" `
+
+		if [ -z $FFMPEG_VIDEO ]
+		then
+
+        # success
+        FFMPEG_VIDEO=1
+        save_info "FFMPEG_VIDEO=1"
+
+        [[ $DEBUG > 0 ]] && echo -e "FFMPEG_VIDEO=${GREEN}$FFMPEG_VIDEO${NC} "
+
+
+		else
+
+        # error
+        FFMPEG_VIDEO=0
+        ERROR="FFMPEG_VIDEO=0"
+        echo -e "${RED}${ERROR}${NC}"
+        echo -e "${ERROR} ${FFMPEG_HEAD}"  >> ${DIRECTORY}/${OUTPUT}/error.txt
+        save_info "$ERROR"
+
+
+        [[ $DEBUG > 0 ]] && echo  ${FFMPEG_TAIL}
+        [[ $DEBUG > 1 ]] && echo "$FFMPEG_HEAD"
+   
+		  
+		fi
+		
+
+			
+
+		### check if the AUDIO  codec is supported by ffmpeg ###
+
+		FFMPEG_TEST=`${FFMPEG_WEBM} -i "$INPUT" -t 1 -ac 2 -y "${DIRECTORY}/${SUBDIR}/test.mp3" 2>&1 `
+		FFMPEG_TAIL=$(echo "$FFMPEG_TEST"| tail  -1  )
+		FFMPEG_ERROR=$(echo "$FFMPEG_TAIL"|grep -i  "error")
+
+
+		if [ -z "$FFMPEG_ERROR" ]
+		then
+
+        # success
+
+        FFMPEG_AUDIO=1
+        save_info "FFMPEG_AUDIO=$FFMPEG_AUDIO"
+
+        [[ $DEBUG > 0 ]] && echo -e "FFMPEG_AUDIO=${GREEN}$FFMPEG_AUDIO${NC} "
+
+		else
+
+        # error
+
+        FFMPEG_AUDIO=0
+        ERROR="FFMPEG_AUDIO=$FFMPEG_AUDIO"
+        save_info "$ERROR"
+        echo -e "${RED}${ERROR}${NC}"
+        echo -e "${ERROR} ${FFMPEG_TAIL}"  >> ${DIRECTORY}/${OUTPUT}/error.txt
+
+        [[ $DEBUG > 0 ]] && echo  ${FFMPEG_TAIL}
+
+		fi
+
+}
+#########################
+function get_video_infos(){
+#########################
+
+        VIDEO_INFOS=""
+        FPS=0
+        FPS_MODE=""
+        INTERLACED=""
+        DEINTERLACE=""
+        DELAY=0
+        WIDTH=0
+        HEIGHT=0
+        ASPECT=0
+        VFORMAT=""
+        VCODEC=""
+        CROPSTART=0
+
+	      
+	      VIDEO_INFOS=`mediainfo "--Inform=Video;   \
+                                VFORMAT='%Format%' \
+                                FPS=%FrameRate% \
+                                VCODEC='%Codec%' \
+                                VDURATION=%Duration% \
+                                DAR=%DisplayAspectRatio% \
+                                PAR=%PixelAspectRatio% \
+                                VBITERATE=%BitRate%   \
+                                INTERLACED='%ScanType%' \
+                                WIDTH=%Width% \
+                                HEIGHT=%Height%" ${INPUT}`
+
+	      eval $VIDEO_INFOS
+
+	      [[ $DEBUG -gt 0 ]] && echo -e "\\n${cyan}$(box "Video informations")${NC}"
+	      save_info "\n# Video informations\n"
+	      
+ 				    
+				    ### Check the FPS (Frame Rate) ###
+
+            if [[ ! -z ` grep  "^${FPS}$" ${APP_DIR}/conf/FPS ` ]]
+            then
+                
+                [[ $DEBUG -gt 0 ]] && echo -e "FPS=${green}$FPS${NC}"
+
+            else
+
+                # round the FPS
+                FF_FPS=` echo $FPS | awk '{printf("%d\n",$1 + 0.5)}' `
+
+
+                    if [[ $FF_FPS == 24 ||  $FF_FPS == 25 || $FF_FPS == 30 ]]
+                    then
+
+                      # good
+                      [[ $DEBUG -gt 0 ]] && echo -e "FPS=${green}$FF_FPS${NC}"
+
+                    else
+
+                      # bad
+                      echo -e  "FPS=${yellow}$FF_FPS${NC}"
+
+                    fi
+
+            fi
+            save_info  "FPS=$FPS"
+	      	 
+
+
+        ### Check VFORMAT ###
+
+        if [[ ! -z ` grep  "^${VFORMAT}$" ${APP_DIR}/conf/VFORMATS ` ]]
+        then
+            [[ $DEBUG -gt 0 ]] && echo -e "VFORMAT=${green}$VFORMAT${NC}"
+        else
+            [[ $DEBUG -gt 0 ]] && echo -e "VFORMAT=${yellow}$VFORMAT${NC}"
+        fi
+        save_info  "VFORMAT=\"$ID_VIDEO_FORMAT\""
+
+
+		 
+	      ### check VCODEC ###
+		 
+        VCODEC_INFOS=`grep "^${VCODEC}|*" ${APP_DIR}/conf/VCODECS `
+
+	      if [[ ! -z $VCODEC_INFOS ]]
+	      then
+
+             # Checkc the codec compatibility
+             VCODEC_COMP=`echo "$VCODEC_INFOS" | awk -F "|" '{ print $2 }' `
+
+             VCODEC_TEXT=`echo "$VCODEC_INFOS" | awk -F "|" '{ print $3 }' `
+
+             case $VCODEC_COMP in
+                 1)[[ $DEBUG -gt 0 ]] && echo -e  "VCODEC=${green}${VCODEC} ${NC}\\t$VCODEC_TEXT";;
+                 2)[[ $DEBUG -gt 0 ]] && echo -e  "VCODEC=${yellow}${VCODEC} ${NC}\\t$VCODEC_TEXT";;
+                 3)[[ $DEBUG -gt 0 ]] && echo -e  "VCODEC=${PINK}${VCODEC} ${NC}\\t$VCODEC_TEXT";;
+                 4)[[ $DEBUG -gt 0 ]] && echo -e  "VCODEC=${red}${VCODEC} ${NC}\\t$VCODEC_TEXT";;
+             esac
+		 
+	      
+	      else
+            # codec not defined
+            [[ $DEBUG -gt 0 ]] && echo -e "VCODEC=${yellow}${VCODEC}${NC}\\tCodec undefined!"
+	      fi
+
+	      save_info  "VCODEC=\"$VCODEC\""
+		  
+
+
+	      ### check SIZE ###
+
+	      SIZE="${WIDTH}x${HEIGHT}"
+	      SIZE_INFOS=`grep  "^${SIZE}," ${APP_DIR}/conf/SIZES`
+
+	      if [[ ! -z $SIZE_INFOS  ]]
+	      then
+            SIZE_INFOS=`echo $SIZE_INFOS | awk  -F , '{ print $2"  "$3"  "$4  }'`
+            [[ $DEBUG -gt 0 ]] &&  echo -e "SIZE=${green}$SIZE${NC}\\t# $SIZE_INFOS"
+	      else
+            [[ $DEBUG -gt 0 ]] && echo -e "SIZE=${yellow}$SIZE${NC}"
+	      fi
+
+	      save_info  "WIDTH=$WIDTH"
+	      save_info  "HEIGHT=$HEIGHT"	      
+	      save_info  "SIZE=$SIZE"
+	      
+	      
+	      
+	     ### Check RATIO  ###
+	      
+	      RATIO=`echo "scale=3;${WIDTH}/${HEIGHT} "|bc`
+
+	      if [[ ! -z ` grep  "${RATIO%?}" ${APP_DIR}/conf/RATIOS ` ]]
+	      then
+	      [[ $DEBUG -gt 0 ]] && echo -e "RATIO=${green}${RATIO%?}${NC}"
+	      else
+ 	      [[ $DEBUG -gt 0 ]] && echo -e "RATIO=${yellow}${RATIO%?pal}${NC}"
+	      fi
+
+	      save_info  "RATIO=$RATIO"
+	      	     
+
+
+	      		 
+     ### Check DAR ###
+	      
+		 DAR=${DAR%?}
+
+		 ### Remove 1.75 execption
+
+	   if [[ $DAR == 1.75 ]] 
+		 then 
+       DAR=0
+		 fi
+		 
+	   [[ $DAR == 1.00 ]]  && DAR=0
+		 [[  $DAR == 0.00  ]] && DAR=0 
+		 [[  $DAR == ${RATIO%?}  ]] && DAR=0 
+		 
+		 if [[ $DAR == 1.77 || $DAR == 1.33 || $DAR == 0 ]]
+		 then
+
+	      [[ $DEBUG -gt 0 ]] && echo -e "DAR=${green}${DAR}${NC}"
+
+		 elif [[ $DAR == 2.21 ]]
+		 then
+
+	      [[ $DEBUG -gt 0 ]] && echo -e "DAR=${yellow}${DAR}${NC}"
+
+		 else
+
+	      [[ $DEBUG -gt 0 ]] && echo -e "DAR=${RED}${DAR}${NC}"
+
+		 fi
+
+		 save_info  "DAR=$DAR"
+
+
+
+
+	      ### Check PAR  ###
+		  	      
+        if [[  $PAR == 1.000 ]]
+        then
+
+            FF_PAR=1
+            PAR=1
+            [[ $DEBUG -gt 0 ]] && echo -e "PAR=${green}$PAR${NC}"
+
+        ### standard 1.77 1.33 etc...
+        elif [[ ! -z ` grep  "^${PAR}$" ${APP_DIR}/conf/PAR ` ]]
+        then
+
+            [[ $DEBUG -gt 0 ]] && echo -e "PAR=${green}$PAR${NC}"
+            FF_PAR=$PAR
+
+        else
+
+             FF_PAR=$PAR
+            echo -e "PAR=${RED}$PAR${NC}"
+
+        fi
+
+	      save_info  "PAR=$PAR"
+
+
+	      
+	      ### Check the VBITERATE ###
+	     
+       if [[   $VBITERATE -gt $MINIMUM_VBITERATE ]] ### good
+       then
+
+            FF_VBITERATE=$(echo "$VBITERATE / 1000 "|bc)
+            FF_VBITERATE=${FF_VBITERATE%.*}k
+            [[ $DEBUG -gt 0 ]] && echo -e "VBITERATE=${green}$VBITERATE${NC}\\t# $FF_VBITERATE"
+	
+	      else ### too small
+
+            
+            FF_VBITERATE=$(echo "$VBITERATE / 1000 "|bc)
+            FF_VBITERATE=${FF_VBITERATE%.*}k
+            [[ $DEBUG -gt 0 ]] && echo -e "VBITERATE=${yellow}$VBITERATE${NC}\\t# $FF_VBITERATE"
+
+	      fi
+
+	      save_info  "VBITERATE=$VBITERATE"
+	      
+
+
+
+	      ### check the VDURATION ###
+		 	      
+	      VDURATION_S=`echo "$VDURATION / 1000"|bc`
+
+	      if [[  $VDURATION_S -lt $MINIMUM_DURATION ]] 
+	      then
+
+            ERROR="Error: Duration of the video is ($VDURATION_S secondes).The minimun duration for a video is ($MINIMUM_DURATION secondes)  "
+            echo -e ${RED}${ERROR}${NC}
+            echo "$ERROR" >> ${DIRECTORY}/${OUTPUT}/error.txt
+
+	      else
+
+            [[ $DEBUG -gt 0 ]] && echo -e "VDURATION=${green}$VDURATION_S${NC}"
+            CROPSTART=`echo ${VDURATION_S} / 2|bc`
+
+	      fi
+
+	      save_info  "VDURATION=$VDURATION"
+
+	     	      
+	      
+	      ### Check interlaced ###
+	      
+	      if [[ $INTERLACED == "Interlaced" ]]
+	      then
+
+            DEINTERLACE=" -deinterlace "
+            [[ $DEBUG -gt 0 ]] && echo -e "INTERLACED=${green}$INTERLACED${NC}"
+            save_info  "INTERLACED=$INTERLACED"
+
+	      else
+
+            DEINTERLACE=""
+            INTERLACED=""
+            [[ $DEBUG -gt 0 ]] && echo -e "INTERLACED=${green}${NC}"
+            save_info  "INTERLACED=$INTERLACED"
+
+	      fi     
+	      
+}
+
+#########################
+get_audio_infos(){
+#########################
+
+        if [[ $AUDIO_COUNT == 0 ]]
+        then
+
+                [[ $DEBUG -gt 0 ]] && echo -e "\\n${cyan}$(box "NO Audio informations")${NC}"
+                save_info "\n# No Audio informations\n"
+
+        else
+
+
+            AUDIO_INFOS=""
+            AFORMAT=""
+            ABITERATE=0
+            ABITERATE2=0
+            FF_ABITERATE=0
+            ADURATION=0
+            AR=0
+            CHANNELS=0
+
+            [[ $DEBUG -gt 0 ]] && echo -e "\\n${cyan}$(box "Audio informations")${NC}"
+            save_info "\n# Audio informations\n"
+
+            AUDIO_INFOS=`mediainfo "--Inform=Audio;ACODEC='%Codec%' \
+                                    AR=%SamplingRate% \
+                                    ABITERATE2=%BitRate_Nominal% \
+                                    ADURATION=%Duration% \
+                                    CHANNELS=%Channel(s)% \
+                                    AFORMAT='%Format%' \
+                                    ABITERATE=%BitRate% " ${INPUT}`
+
+            eval $AUDIO_INFOS
+
+
+                ### Check AFORMAT ###
+
+                if [[ ! -z ` grep  "^${AFORMAT}$" ${APP_DIR}/conf/AFORMATS ` ]]
+                then
+
+                    [[ $DEBUG -gt 0 ]] && echo -e "AFORMAT=${green}$AFORMAT${NC}"
+
+                else
+
+                    [[ $DEBUG -gt 0 ]] && echo -e "AFORMAT=${yellow}$AFORMAT${NC}"
+
+                fi
+
+                save_info "AFORMAT=\"$AFORMAT\""
+
+
+
+                ### Check ACODEC ###
+
+                ACODEC_INFOS=`grep "^${ACODEC}|*" ${APP_DIR}/conf/ACODECS `
+
+                if [[ ! -z $ACODEC_INFOS ]]
+                then
+
+                     # Checkc the codec compatibility
+                     ACODEC_COMP=`echo "$ACODEC_INFOS" | awk -F "|" '{ print $2 }' `
+                     ACODEC_TEXT=`echo "$ACODEC_INFOS" | awk -F "|" '{ print $3 }' `
+
+                 case $ACODEC_COMP in
+
+                     1)[[ $DEBUG -gt 0 ]] && echo -e  "ACODEC=${green}${ACODEC} ${NC}\\t$ACODEC_TEXT";;
+                     2)[[ $DEBUG -gt 0 ]] && echo -e  "ACODEC=${yellow}${ACODEC} ${NC}\\t$ACODEC_TEXT";;
+                     3)[[ $DEBUG -gt 0 ]] && echo -e  "ACODEC=${PINK}${ACODEC} ${NC}\\t$ACODEC_TEXT";;
+                     4)[[ $DEBUG -gt 0 ]] && echo -e  "ACODEC=${RED}${ACODEC} ${NC}\\t$ACODEC_TEXT";;
+
+                 esac
+
+
+               else
+
+                 [[ $DEBUG -gt 0 ]] && echo -e "ACODEC=${YELLOW}${ACODEC}${NC}"
+
+               fi
+
+               save_info "ACODEC=\"$ACODEC\""
+
+
+
+
+              ### Check  ABITERATE ###
+
+              # PCM exeption
+              if [[ $AFORMAT == "PCM" ]]
+              then
+
+                  TMP_ABITERATE=`echo "$ABITERATE / 1000"|bc `
+                  PCM[1411]=128000
+                  PCM[1536]=192000
+                  FF_ABITERATE=${PCM[TMP_ABITERATE]}
+
+                  # if not a pcm standart send ABITERATE as value
+                  [[ -z $FF_ABITERATE ]] && FF_ABITERATE=$ABITERATE
+
+              else
+
+                  FF_ABITERATE=`echo "($ABITERATE + 16000 ) / 32000 * 32000" |bc`
+
+              fi
+
+
+
+              # standart
+              if [[ ! -z ` grep  "^${FF_ABITERATE}$" ${APP_DIR}/conf/ABITRATES ` ]]
+              then
+
+                  [[ $DEBUG -gt 0 ]] && echo -e "ABITERATE=${green}$FF_ABITERATE${NC}\\t# $ABITERATE"
+
+              # too small
+              elif [[ $FF_ABITERATE -gt $MINIMUM_ABITERATE ]]
+              then
+
+                  [[ $DEBUG -gt 0 ]] && echo -e "ABITERATE=${yellow}$FF_ABITERATE${NC}\\t# $ABITERATE"
+
+              else
+
+                  [[ $DEBUG -gt 0 ]] && echo -e "ABITERATE=${yellow}$FF_ABITERATE${NC}\\t# $ABITERATE"
+
+              fi
+
+              save_info "ABITERATE=$ABITERATE"
+
+
+
+
+            ### Check ADURATION ###
+
+            ADURATION_S=`echo "$ADURATION / 1000"|bc`
+
+            if [[  $ADURATION_S -gt $MINIMUM_DURATION ]]
+            then
+
+                [[ $DEBUG -gt 0 ]] && echo -e "ADURATION=${green}$ADURATION_S${NC}"
+
+            else
+
+                ERROR="Error: Duration of the audio is ($ADURATION_S secondes).The minimun duration for a audio is ($MINIMUM_DURATION secondes)  "
+                echo -e ${RED}${ERROR}${NC}
+                echo "$ERROR" >> ${DIRECTORY}/${OUTPUT}/error.txt
+
+            fi
+
+            save_info "ADURATION=$ADURATION"
+
+
+
+
+            ### Check CHANNELS ###
+
+            if [[ ${CHANNELS} == 2 || ${CHANNELS} == 6 ]]
+            then
+
+                [[ $DEBUG -gt 0 ]] && echo -e "CHANNELS=${green}$CHANNELS${NC}"
+
+            else
+
+                [[ $DEBUG -gt 0 ]] && echo -e "CHANNELS=${yellow}$CHANNELS${NC}"
+
+            fi
+
+            save_info "CHANNELS=$CHANNELS"
+
+
+
+
+            ### Check AR ###
+
+            if [[ ${AR} == 48000 || ${AR} == 44100 ]]
+            then
+
+                [[ $DEBUG -gt 0 ]] && echo -e "AR=${green}$AR${NC}"
+
+            elif [[ ${AR} == 32000 || ${AR} == 22050 ]]
+            then
+
+                [[ $DEBUG -gt 0 ]] && echo -e "AR=${yellow}$AR${NC}"
+
+            else
+            echo -e "AR=${RED}$AR${NC}"
+            fi
+            save_info "AR=$AR"
+
+        fi
+}
+
+#########################
+function cropdetection(){
+#########################
+         # Y or null
+         if [[ $OVERWRITE != 1  ]]
+         then
+
+              CROPFRAMES=$1
+
+              [[ $DEBUG -gt 1 ]] && echo -e "\\n${yellow}# Cropdetection on $CROPFRAMES frames, starting on $CROPSTART seconds ${NC}"
+
+
+                ###  cropdetect from ffmpeg ###
+                COMMAND="${FFMPEG_WEBM} -y -ss $CROPSTART -i \"$INPUT\"  -vf cropdetect=24:16:0 -vframes 100        -f rawvideo -an /dev/null 2>${DIRECTORY}/${SUBDIR}/crop.txt "
+                eval  "$COMMAND"  ||   ( fatal_error  && cat "${DIRECTORY}/${SUBDIR}/crop.txt" |tail -n 10 )
+                [[  $DEBUG -gt 1 ]] && echo -e ${green}$COMMAND${NC}
+
+
+        fi
+
+
+
+
+
+	      
+		### read crop.txt
+
+		CROP=`cat "${DIRECTORY}/${SUBDIR}/crop.txt" | grep crop | tail -1`
+		CROP=${CROP#* crop=}
+	      
+        if [[ ! -z $CROP ]]
+        then
+	
+				
+            ### Get CROPLEFT
+            CROPLEFT=`echo $CROP|awk -F ':' '{print $3 }'`
+ 				
+            ### Get CROPRIGHT
+            CROPRIGHT=`echo $CROP|awk -F ':' '{print  $1 }'`
+            CROPRIGHT=`echo "$WIDTH - $CROPRIGHT - $CROPLEFT"|bc`
+
+            ### Get CROPTOP
+            CROPTOP=`echo $CROP|awk -F ':' '{print $4 }'`
+
+
+            ### Get CROPBOTTOM
+            CROPBOTTOM=`echo $CROP|awk -F ':' '{print  $2 }'`
+            CROPBOTTOM=`echo "$HEIGHT - $CROPBOTTOM - $CROPTOP"|bc`
+
+		 
+            ### Get CROP_RATIO = DAR of the video after cropping
+            CROP_RATIO=`echo "scale=3;($WIDTH - $CROPLEFT - $CROPRIGHT)/($HEIGHT - $CROPTOP - $CROPBOTTOM)"|bc`
+
+				
+				
+						 
+
+            CROPHEIGHT=`echo "$CROPTOP+$CROPBOTTOM"|bc`
+            #echo "CROPHEIGHT=$CROPHEIGHT"
+            CROPHEIGHT_AV=`echo "$CROPHEIGHT / 2"|bc`
+
+            CROPWIDTH=`echo "$CROPLEFT+$CROPRIGHT"|bc`
+            #echo "CROPWIDTH=$CROPWIDTH"
+            CROPWIDTH_AV=`echo "$CROPWIDTH / 2"|bc`
+
+				
+            if [[ $DEBUG -gt 1 ]]
+            then
+
+                echo -e "CROP=${CROP}\\nCROPLEFT=${cyan}$CROPLEFT${NC}\\nCROPRIGHT=${cyan}$CROPRIGHT${NC}\\nCROPTOP=${cyan}$CROPTOP${NC}\\nCROPBOTTOM=${cyan}$CROPBOTTOM${NC}"
+                echo -e "CROP_RATIO=${cyan}$CROP_RATIO${NC}"
+                echo -e "CROPWIDTH_AV=${cyan}$CROPWIDTH_AV${NC}"
+                echo -e "CROPHEIGHT_AV=${cyan}$CROPHEIGHT_AV${NC}"
+
+            fi
+				
+	   else
+
+        ERROR="Crop detection failled!"
+        ERROR=${ERROR}$CROPDETECTION_CMD
+        ERROR=${ERROR}`cat "${DIRECTORY}/${SUBDIR}/crop.txt" |tail -n 10`
+
+        echo "$ERROR" >> ${DIRECTORY}/${OUTPUT}/error.txt
+        echo -e "${RED}${ERROR}${NC}\\n"
+
+	   fi
+	      
+	     }
+
+#########################
+function get_extra_infos(){
+#########################
+	      
+	      [[ $DEBUG -gt 0 ]] && echo -e "\\n${cyan}$(box "extra infos")${NC}"
+	      save_info "\n# extra infos\n"
+
+	      ### Get the INPUT_SIZE_CATEGORY 1 to 8
+
+	      [[ $NEW_WIDTH -lt 120 ]] && INPUT_SIZE_CATEGORY=1
+	      [[ $NEW_WIDTH -ge 120 ]] && INPUT_SIZE_CATEGORY=2
+	      [[ $NEW_WIDTH -ge 240 ]] && INPUT_SIZE_CATEGORY=3
+	      [[ $NEW_WIDTH -ge 320 ]] && INPUT_SIZE_CATEGORY=4
+	      [[ $NEW_WIDTH -ge 480 ]] && INPUT_SIZE_CATEGORY=5
+	      [[ $NEW_WIDTH -ge 640 ]] && INPUT_SIZE_CATEGORY=6
+	      [[ $NEW_WIDTH -ge 848 ]] && INPUT_SIZE_CATEGORY=7
+	      [[ $NEW_WIDTH -ge 1280 ]] && INPUT_SIZE_CATEGORY=8
+	      [[ $NEW_WIDTH -ge 1920 ]] && INPUT_SIZE_CATEGORY=9
+
+	      [[ $DEBUG -gt 0 ]] &&  echo -e  "INPUT_SIZE_CATEGORY=${green}$INPUT_SIZE_CATEGORY${NC}"
+
+	      save_info "INPUT_SIZE_CATEGORY=$INPUT_SIZE_CATEGORY"
+
+}
+
+#########################
+function get_format(){
+#########################
+
+    PAD=0
+    PADTOP=0
+    PADBOTTOM=0
+
+    CROP=""
+    CROPTOP=0
+    CROPRIGHT=0
+    CROPBOTTOM=0
+    CROPLEFT=0
+
+    DISTORTION="1"
+
+		DETECTED_FORMAT=""
+		RATIO_I=`echo "($RATIO * 100) /1"|bc `
+		DAR_I=$(echo "$DAR*100/1" |bc )
+
+		[[ $DEBUG -gt 0 ]] && echo -e "\\n${cyan}$(box "Format detection")${NC}"
+
+
+		. "$APP_DIR/lib/resize/palTo177.bash"
+		. "$APP_DIR/lib/resize/ntscTo177.bash"
+		. "$APP_DIR/lib/resize/133To177.bash"
+		. "$APP_DIR/lib/resize/177To177.bash"
+		. "$APP_DIR/lib/resize/221To177.bash"
+
+    save_info "\\n# Format infos\\n"
+    save_info "DETECTED_FORMAT=\"$DETECTED_FORMAT\""
+
+    save_info "PADTOP=\"$PADTOP\""
+    save_info "PADBOTTOM=\"$PADBOTTOM\""
+
+    save_info "CROPTOP=\"$CROPTOP\""
+    save_info "CROPBOTTOM=\"$CROPBOTTOM\""
+    save_info "CROPLEFT=\"$CROPLEFT\""
+    save_info "CROPRIGHT=\"$CROPRIGHT\""
+
+    save_info "DISTORTION=\"$DISTORTION\""
+
+    if [[ $DEBUG -gt 0 ]]
+    then
+
+        echo -e "PADTOP=${green}$PADTOP ${NC}"
+        echo -e "PADBOTTOM=${green}$PADBOTTOM ${NC}"
+
+        echo -e "CROPTOP=${green}$CROPTOP ${NC}"
+        echo -e "CROPBOTTOM=${green}$CROPBOTTOM ${NC}"
+        echo -e "CROPLEFT=${green}$CROPLEFT ${NC}"
+        echo -e "CROPRIGHT=${green}$CROPRIGHT ${NC}"
+
+        echo -e "DISTORTION=${green}$DISTORTION ${NC}"
+
+    fi
+
+
+
+    ### check if the format is detected (pal 1.77 2.35 etc)
+
+    if [[ -z $DETECTED_FORMAT  ]]
+    then
+
+        ERROR="ERROR: This video format is not supported!"
+        echo -e "\\n${RED}${ERROR}${NC}\\n"
+        echo $ERROR >> ${DIRECTORY}/${OUTPUT}/error.txt
+    fi
+
+		}  

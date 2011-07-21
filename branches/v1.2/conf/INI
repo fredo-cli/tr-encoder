@@ -1,0 +1,60 @@
+#!/usr/local/bin/bash
+
+
+		### Path to mp4box  ffmpeg ###
+
+		# MP4Box
+		MP4BOX="/usr/bin/MP4Box"
+
+    # latest verion of ffmpeg with webm
+    FFMPEG_WEBM="/usr/bin/ffmpeg-webm"
+
+    # latest version of mplayer
+    MPLAYER_LATEST="/usr/bin/mplayer"
+
+
+
+DEBUG=0
+DISPLAY=0
+OVERWRITE=0
+CROPDETECTION=1
+LOGOS_ADD=""
+FF_SIZE=""
+SS=0
+SUB=""
+EXTENTION=".org"
+EVALUTE=0
+EVALUATION=0
+NB_FILE_TO_CREATE=0
+NB_FILE_CREATED=0
+
+
+
+
+### in  Mhz
+CPUS_AVERAGE=12
+
+
+### defaut.ini ###
+
+### minimum duration of the video
+
+MINIMUM_DURATION=8
+
+### minimum general biterate accepted
+
+MINIMUM_BITERATE=500000
+
+### minimum video biterate accepted
+
+MINIMUM_VBITERATE=446000
+
+### minimum Audio biterate accepted
+
+MINIMUM_ABITERATE=64000
+
+
+### qualite minimun de l'image
+
+MINIMUM_BPF=0.06
+
