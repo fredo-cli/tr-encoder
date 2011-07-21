@@ -14,6 +14,7 @@ ulaw|1|
 alaw|1|
 ima4|1|
 .mp3|1|
+AAC LC|1|
 
 in24 |3|ffmpeg: pcm_s24le error: Audio resampler only works with 16 bits per sample, patch welcome
 

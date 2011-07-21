@@ -1,108 +1,86 @@
 #!/usr/local/bin/bash
 
-
-		### calculate the padding (exept for subtitle )
-
-		function calculate_padding(){
-		
-			
+#########################
+function calculate_padding(){
+#########################
+				
 		   ### case padding and no subtitle
 		   	
-		   if [[ ! -z $FF_PAD &&  -z $SUB_FILE ]]
+		   if [[ ! -z $PADTOP &&  -z $SUB_FILE ]]
 		   then
 		
-	       PAD=`echo "scale=3;(($FF_WIDTH / ($FF_WIDTH / $FF_HEIGHT) ) - ($FF_WIDTH / $RATIO )) / 2"|bc`
+	       PAD1=`echo "scale=3;(($FF_WIDTH / ($FF_WIDTH / $FF_HEIGHT) ) - ($FF_WIDTH / $RATIO )) / 2"|bc` 
 		 
-	
-		 
-	       PAD=`round2 $PAD`
+	       PAD=`round2 $PAD1`
 	       PADTOP=$PAD
 	       PADBOTTOM=$PAD
-	       FF_PAD=" -padtop $PAD -padbottom $PADBOTTOM "
 	       
-		   echo -e "${yellow}# Recalculate the padding  ${NC}"	
-		   echo -e "${green}# $FF_PAD ${NC}"
+         echo -e "${yellow}# Recalculate the padding ${PAD1} ${NC}"
+         echo -e "${green}# PADTOP=$PADTOP PADBOTTOM=$PADBOTTOM ${NC}"
 			 	
 			 	
 			 	
 		   ### case padding and  subtitle
 		   	
-		   elif [[ ! -z $FF_PAD ]]
+		   elif [[ ! -z $PADTOP ]]
 		   then
 		
-		   PAD=0
-	       PADTOP=$PAD
-	       PADBOTTOM=$PAD
-	       FF_PAD=" -padtop $PAD -padbottom $PADBOTTOM "
-			   
-			echo -e "${yellow}# Recalculate the padding ( canceled due to the subtitle ) ${NC}"	
-			echo -e "${green}# $FF_PAD ${NC}"		 	
+          PAD=0
+          PADTOP=$PAD
+          PADBOTTOM=$PAD
+
+          echo -e "${yellow}# Recalculate the padding ( canceled due to the subtitle ) ${NC}"
+          echo -e "${green}# PADTOP=$PADTOP PADBOTTOM=$PADBOTTOM ${NC}"
 			 	
 		
 		    fi   
 		
 		
-		### Recalculate the FF_HEIGHT_BP 
-		FF_HEIGHT_BP=$( echo "${FF_HEIGHT} - ( 2*${PAD} )"|bc)
-		echo -e "${yellow}# Recalculate the FF_HEIGHT_BP  ${NC}"	
-		echo -e "${green}# FF_HEIGHT_BP=$FF_HEIGHT_BP ${NC}"
+      ### Recalculate the FF_HEIGHT_BP
+
+      FF_HEIGHT_BP=$( echo "${FF_HEIGHT} - ( 2*${PAD} )"|bc)
+      echo -e "${yellow}# Recalculate the FF_HEIGHT_BP  ${NC}"
+      echo -e "${green}# FF_HEIGHT_BP=$FF_HEIGHT_BP ${NC}"
 		
 		
 		
-		}
+}
 
+#########################
+function resample_video(){
+#########################
 
-
-
-
-
-
-
-
-		### resample_video
-		
-		resample_video(){
-		
 		echo -e "\\n${CYAN}# pipe mplayer to ffmpeg${NC}\\n"
 		rm -f ${DIRECTORY}/${SUBDIR}/${OUTPUT}.yuv
 		mkfifo ${DIRECTORY}/${SUBDIR}/${OUTPUT}.yuv
 		
 		${MPLAYER_LATEST} $INPUT -fps 24 -ass -embeddedfonts -sid 0 -aid 1 -vf eq2=0.9:1:0:1.02 -vo yuv4mpeg:file=${DIRECTORY}/${SUBDIR}/${OUTPUT}.yuv   -ao null -quiet < /dev/null &
 		 
-		}
-		
-		
-		
-		
-		
-		### calc_new_sizes	###	
-		
+}
+
+#########################
 		calc_new_sizes(){
+#########################
 
-		# new width
-		
-		NEW_WIDTH=`echo "($WIDTH -  $CROPLEFT - $CROPRIGHT) *  ${DISTORTION} /1 "|bc`
-		
-		# new height before padding
-		
-		NEW_HEIGHT_BP=`echo "($HEIGHT -  $CROPTOP - $CROPBOTTOM )  "|bc`
-		
-		# new height (after padding)
-		
-		NEW_HEIGHT=`echo "( $NEW_HEIGHT_BP +  $PADTOP + $PADBOTTOM ) "|bc`
+      ### NEW_WIDTH
+      NEW_WIDTH=`echo "($WIDTH -  $CROPLEFT - $CROPRIGHT) *  ${DISTORTION} /1 "|bc`
+      [[ $DEBUG -gt 0 ]] && echo -e "NEW_WIDTH=${green}$NEW_WIDTH${NC}"
 
-		NEW_SIZE=${NEW_WIDTH}x${NEW_HEIGHT}
+      ### NEW_HEIGHT (before padding)
+      NEW_HEIGHT_BP=`echo "($HEIGHT -  $CROPTOP - $CROPBOTTOM )  "|bc`
 
-		[[ $DEBUG -gt 0 ]] && echo -e "${cyan}# Resize: $SIZE -> $NEW_SIZE${NC}"
+      ### NEW_HEIGHT (after padding)
+      NEW_HEIGHT=`echo "( $NEW_HEIGHT_BP +  $PADTOP + $PADBOTTOM ) "|bc`
+      [[ $DEBUG -gt 0 ]] && echo -e "NEW_HEIGHT=${green}$NEW_HEIGHT${NC}"
 
-		}
-		
-		
-				
-				
-		### check_ouput_size ###
-				
-		check_ouput_size(){
+       save_info  "NEW_WIDTH=$NEW_WIDTH"
+       save_info  "NEW_HEIGHT=$NEW_HEIGHT"
+
+}
+
+#########################
+function check_ouput_size(){
+#########################
 		
 		### empty-> take the default size
 		   

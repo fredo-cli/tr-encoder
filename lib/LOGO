@@ -8,11 +8,11 @@
 		    
 	  ### get the preset from LOGOS + SIZE file if possible
 
-	  LOGOS_PRESET=$(grep  "^LOGO_RESIZED=$LOGO_ADD${PLAY_SIZE} .*" ${APP_DIR}/config/LOGOS)
+	  LOGOS_PRESET=$(grep  "^LOGO_RESIZED=$LOGO_ADD${PLAY_SIZE} .*" ${APP_DIR}/conf/LOGOS)
 
 	  ### get the preset from LOGOS  file if possible
 
-	  [[ -z $LOGOS_PRESET ]] && LOGOS_PRESET=$(grep  "^LOGO_RESIZED=$LOGO_ADD .*" ${APP_DIR}/config/LOGOS )
+	  [[ -z $LOGOS_PRESET ]] && LOGOS_PRESET=$(grep  "^LOGO_RESIZED=$LOGO_ADD .*" ${APP_DIR}/conf/LOGOS )
 
 
 			

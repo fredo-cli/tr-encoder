@@ -46,8 +46,8 @@ FF_PRESET2=" -f webm -aspect 16:9 -vcodec libvpx -g 120 \
 
 
 
-	if [[ $NEW_WIDTH -ge  $FF_WIDTH ]]
-		then
+    if [[ $NEW_WIDTH -ge  $FF_WIDTH ]]
+    then
 
 
         if [[ $EVALUTE == 1 && $EVALUATION == 0 ]]
@@ -71,7 +71,6 @@ FF_PRESET2=" -f webm -aspect 16:9 -vcodec libvpx -g 120 \
         . "$APP_DIR/formats/$PREFIX-$FF_FORMAT.sh"
 
         fi
-
 
     fi
 
