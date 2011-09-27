@@ -4,7 +4,7 @@
   if [[ ( $RATIO_I  -gt 127 && $RATIO_I -lt 160  && $RATIO_I != 150 ) && ($DAR == 0 || $DAR == 1.33 ) ]]
   then
  DETECTED_FORMAT="1.33"
- echo -e "${pink}# Format: $DETECTED_FORMAT${NC}"
+ [[ $DEBUG -gt 0 ]] && echo -e "${pink}# Format: $DETECTED_FORMAT${NC}"
 
   # Cut the top and the bottom 
  
@@ -28,7 +28,7 @@
 		 DETECTED_FORMAT="4/3 DAR 16/9"
 		 NOTICE="${NOTICE}This format($DETECTED_FORMAT) is not a video standart, please follow your recommendation."
 		 
-		 echo -e "${red}# Format: $DETECTED_FORMAT${NC}"
+		 [[ $DEBUG -gt 0 ]] && echo -e "${red}# Format: $DETECTED_FORMAT${NC}"
 		 
 	      # Cropping: no
 		 

@@ -11,16 +11,16 @@
 		   if [[ ! -z $FF_PAD &&  -z $SUB_FILE ]]
 		   then
 		
-	       PAD=`echo "scale=3;(($FF_WIDTH / ($FF_WIDTH / $FF_HEIGHT) ) - ($FF_WIDTH / $RATIO )) / 2"|bc`
+	       PAD1=`echo "scale=3;(($FF_WIDTH / ($FF_WIDTH / $FF_HEIGHT) ) - ($FF_WIDTH / $RATIO )) / 2"|bc`
 		 
 	
 		 
-	       PAD=`round2 $PAD`
+	       PAD=`round2 $PAD1`
 	       PADTOP=$PAD
 	       PADBOTTOM=$PAD
 	       FF_PAD=" -padtop $PAD -padbottom $PADBOTTOM "
 	       
-		   echo -e "${yellow}# Recalculate the padding  ${NC}"	
+		   echo -e "${yellow}# Recalculate the padding ${PAD1}  ${NC}"
 		   echo -e "${green}# $FF_PAD ${NC}"
 			 	
 			 	

@@ -4,7 +4,7 @@
 	      if [[ $RATIO_I -ge  199 && $RATIO_I -le 255 ]]
 	      then
 		 DETECTED_FORMAT="2.35"
-		 echo -e "${green}# Format: $DETECTED_FORMAT${NC}"
+		 [[ $DEBUG -gt 0 ]] && echo -e "${green}# Format: $DETECTED_FORMAT${NC}"
 
 	      
 	      # padding

@@ -89,9 +89,7 @@ FPS=12000/1001
 		
 		MP4BOX=MP4Box
 
-    # ffmpip old version of ffmpeg with pip addon
 
-		FFMPEG="/usr/bin/ffmpip"
 
     # latest verion of ffmpeg with webm
 
@@ -99,31 +97,14 @@ FPS=12000/1001
 
     # old version of ffmpeg only for detection (crop detection)
 
-    MPLAYER_OLD="/usr/bin/mplayer-old"
+    MPLAYER_OLD="/usr/bin/mplayer"
 
     # latest version of mplayer
 
     MPLAYER_LATEST="/usr/bin/mplayer"
 
 
-      # older version
-      if [[ -f /home/fred/ffmpip/lib/vhook/pip.so ]]
-      then
-        VHOOK_PATH=/home/fred/ffmpip/lib/vhook/pip.so
 
-      # newer version
-      elif [[ -f /opt/pip/lib/vhook/pip.so ]]
-      then
-
-        VHOOK_PATH="/opt/pip/lib/vhook/pip.so"
-
-
-
-      else
-
-        echo -e "{RED}Can' find Vhookt{NC}"
-
-      fi
     
 
 
@@ -233,14 +214,14 @@ FPS=12000/1001
 			### lock for evaluation (call only once)
 			EVALUATION=1
 	
-			echo  EVALUATION=$EVALUATION
+			[[ $DEBUG -gt 0 ]] && echo  EVALUATION=$EVALUATION
 			save_info "EVALUATION=$EVALUATION"
 	
-			echo  NB_FILE_TO_CREATE=$NB_FILE_TO_CREATE
+			[[ $DEBUG -gt 0 ]] && echo  NB_FILE_TO_CREATE=$NB_FILE_TO_CREATE
 			save_info "NB_FILE_TO_CREATE=$NB_FILE_TO_CREATE"
 	
 	
-			echo  TOTAL_TIME_EVALUATION=$TOTAL_TIME_EVALUATION
+			[[ $DEBUG -gt 0 ]] && echo  TOTAL_TIME_EVALUATION=$TOTAL_TIME_EVALUATION
 			save_info "TOTAL_TIME_EVALUATION=$TOTAL_TIME_EVALUATION"
 	
 			fi
@@ -266,7 +247,7 @@ FPS=12000/1001
 				[[ $EVOLUTION_PERCENT -gt 99 ]] && EVOLUTION_PERCENT=99
 				[[ $EVOLUTION_PERCENT -eq 0 ]] && EVOLUTION_PERCENT=1
 
-				echo "{'statusID': 5 , 'filesToCreateNB': $NB_FILE_TO_CREATE , 'filesCreatedNB' : $NB_FILE_CREATED , 'evolutionPC' : $EVOLUTION_PERCENT ,'realisationTime' : $TOTAL_TIME_REALISATION , 'evaluationTime' : $TOTAL_TIME_EVALUATION}"
+				echo '{"statusID": 5 , "filesToCreateNB": '$NB_FILE_TO_CREATE' , "filesCreatedNB" : '$NB_FILE_CREATED' , "evolutionPC" : '$EVOLUTION_PERCENT' ,"realisationTime" : '$TOTAL_TIME_REALISATION' , "evaluationTime" : '$TOTAL_TIME_EVALUATION'}'
 
 
 
@@ -440,7 +421,7 @@ FPS=12000/1001
 		fi
 				
 		    
-				if [[ $MPLAYER_VIDEO_TEST == 0 || $MPLAYER_AUDIO_TEST == 0 ]] 
+				if [[ $MPLAYER_VIDEO_TEST == 0 ]] 
 				then
 				ERROR="ERROR: This video is not supported!"
 				echo -e "\\n${RED}${ERROR}${NC}\\n"
