@@ -12,12 +12,12 @@
 
 	### Create the logo or logos ###
 
-    add_logo 
+        add_logo
     
 
 	### Check the sub ###
         
-    check_sub
+        check_sub
 
 
 	### Calculate the padding for ffmpeg ###
@@ -26,7 +26,7 @@
 
 	### Change to the video directory  ( to avoid the pass.log issue ) ###
 
-  cd ${DIRECTORY}/${SUBDIR}/
+        cd ${DIRECTORY}/${SUBDIR}/
 
 
 
@@ -38,13 +38,13 @@
         ### create audio_2.mp3
 
         echo -e "${yellow}# Create audio_2.mp3 (6 to 1 resample is not suported by ffmpeg) ${NC}"
-        COMMAND="${FFMPEG_WEBM} -y -threads $THREADS  -i ${INPUT} -v 0 -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac 2   ${DIRECTORY}/${SUBDIR}/audio_2.mp3"
+        COMMAND="${FFMPEG_WEBM} -y -threads $THREADS  -i ${INPUT} -vn -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac 2   ${DIRECTORY}/${SUBDIR}/audio_2.mp3"
         [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
         eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} || fatal_error
 
         ### create audio_96ch2.mp3
         echo -e "${yellow}# Create audio_${FF_AB}_${FF_AC}_$FF_AR.mp3 ${NC}"
-        COMMAND="${FFMPEG_WEBM} -y -threads $THREADS  -i ${DIRECTORY}/${SUBDIR}/audio_2.mp3 -v 0 -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac ${FF_AC}  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.mp3"
+        COMMAND="${FFMPEG_WEBM} -y -threads $THREADS  -i ${DIRECTORY}/${SUBDIR}/audio_2.mp3 -vn -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac ${FF_AC}  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.mp3"
         [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
         eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  fatal_error
 
@@ -52,7 +52,7 @@
 
         ### create audio_96ch2.mp3
         echo -e "${yellow}# Create audio_${FF_AB}_${FF_AC}_$FF_AR.mp3 ${NC}"
-        COMMAND="${FFMPEG_WEBM} -y -threads $THREADS  -i ${INPUT} -v 0 -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac ${FF_AC}  ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.mp3"
+        COMMAND="${FFMPEG_WEBM} -y -threads $THREADS  -i ${INPUT} -vn -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac ${FF_AC}  ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.mp3"
         [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
         eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  fatal_error
 
@@ -70,7 +70,7 @@
     [[ ! -z $SUB_FILE ]] && burn_subtitle
 
     [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-    COMMAND="${FFMPEG_WEBM} -threads $THREADS  -an $DEINTERLACE -i ${INPUT} -passlogfile  ${OUTPUT} -pass 1  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25 -i_qfactor 0.70  -g 500 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}' -r $FF_FPS   -ss $SS -f $FF_FORMAT -y /dev/null"
+    COMMAND="${FFMPEG_WEBM} -threads $THREADS   $DEINTERLACE -i ${INPUT} -passlogfile  ${OUTPUT} -pass 1  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25 -i_qfactor 0.70  -g 500 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM} $VF_MOVIE '  -r $FF_FPS   -ss $SS -f $FF_FORMAT -an -y /dev/null"
     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} || fatal_error
 
 
@@ -81,7 +81,7 @@
     [[ ! -z $SUB_FILE ]] && burn_subtitle
 
     [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-    COMMAND="${FFMPEG_WEBM} -threads $THREADS  -an $DEINTERLACE -i ${INPUT} -passlogfile ${OUTPUT}   -pass 2  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25 -i_qfactor 0.70  -g 500 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM}' -r $FF_FPS   -ss $SS  -f $FF_FORMAT -y ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263"
+    COMMAND="${FFMPEG_WEBM} -threads $THREADS   $DEINTERLACE -i ${INPUT} -passlogfile ${OUTPUT}   -pass 2  -b ${FF_VBITRATE}k  -bt ${FF_VBITRATE}k  -me_range 25 -i_qfactor 0.70  -g 500 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT}:0:${PADBOTTOM} $VF_MOVIE ' -r $FF_FPS   -ss $SS  -f $FF_FORMAT -an -y ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263"
     eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} || fatal_error
 
 
