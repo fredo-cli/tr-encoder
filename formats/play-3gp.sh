@@ -39,7 +39,7 @@
         ### create audio_2.aac
 
         echo -e "${yellow}# Create audio_2.aac (6 to 1 resample is not suported by ffmpeg) ${NC}"
-        COMMAND="${FFMPEG_WEBM} -y -threads $THREADS  -i ${INPUT} -v 0 -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac 2   ${DIRECTORY}/${SUBDIR}/audio_2.aac"
+        COMMAND="${FFMPEG_WEBM} -y -threads $THREADS  -i ${INPUT} -vn  -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac 2   ${DIRECTORY}/${SUBDIR}/audio_2.aac"
         [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
         eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||   fatal_error
 
@@ -82,7 +82,7 @@
   [[ ! -z $SUB_FILE ]] && burn_subtitle
 
 
-  COMMAND="${FFMPEG_WEBM} -threads $THREADS $DEINTERLACE -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile  ${OUTPUT} -pass 1  -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM}' -aspect 176:144  -r $FF_FPS  -f $FF_FORMAT -y /dev/null "
+  COMMAND="${FFMPEG_WEBM} -threads $THREADS $DEINTERLACE -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile  ${OUTPUT} -pass 1  -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM} $VF_MOVIE ' -aspect 176:144  -r $FF_FPS  -f $FF_FORMAT -y /dev/null "
   [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
   eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||   fatal_error
 
@@ -91,7 +91,7 @@
 
   [[ ! -z $SUB_FILE ]] && burn_subtitle
 
-  COMMAND="${FFMPEG_WEBM} -threads $THREADS $DEINTERLACE -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile ${OUTPUT} -pass 2 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM}' -aspect 176:144  -r $FF_FPS   -f $FF_FORMAT -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263"
+  COMMAND="${FFMPEG_WEBM} -threads $THREADS $DEINTERLACE -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile ${OUTPUT} -pass 2 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM} $VF_MOVIE ' -aspect 176:144  -r $FF_FPS   -f $FF_FORMAT -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h263"
   [[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
   eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||   fatal_error
 
