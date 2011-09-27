@@ -13,6 +13,7 @@ FF_AB=96
 FF_AC=2
 FF_AR=44100
 
+THREADS=1
 FF_PASS=2
 MPLAYER_SUB=" -subfont-text-scale 2 -sub-bg-color 0 -sub-bg-alpha 150 -font ${SUB_DIRECTORY}/arial.ttf -utf8 "
 

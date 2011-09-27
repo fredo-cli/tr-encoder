@@ -22,72 +22,68 @@
 
 	### Calculate the padding for ffmpeg ###
 	
-	calculate_padding  
+	calculate_padding
 
 
-	### Create audio.wav ###
-	
-	dump_audio
+	### Change to the video directory  ( to avoid the pass.log issue ) ###
 
-	
-	### create audio ###
-	
-	if [[ $OVERWRITE == 0 && -f "${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.aac" ]]
-	then
-			echo -e "${yellow}# Create audio_${FF_AB}_${FF_AC}_$FF_AR.aac ${NC}"		
-			echo -e "${green}# This file (audio_${FF_AB}_${FF_AC}_$FF_AR.aac) already exit. We going to use it${NC}"	
-
-	else
-
-
-
-			  ### check if resample 8bit to 16 is needed  (sox)
-			  # resample_audio
-			  
-			  ### create audio_${FF_AB}_${FF_AC}_$FF_AR.amr
-
-			  echo -e "${yellow}#Create audio_${FF_AB}_${FF_AC}_$FF_AR.aac ${NC}"
-			  COMMAND="${FFMPEG}  -i ${DIRECTORY}/$SUBDIR/audio.wav -v 0 -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.aac"
-			  [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
-			  eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  echo -e ${red}$COMMAND${NC}
-
-	fi
-	
-	
-	
-
-	
-	
-	### Change to the video directory  ( to avoid the x264_2pass.log issue ) ###
-
-	PWD=$(pwd)
 	cd ${DIRECTORY}/${SUBDIR}/
+
+  ### create audio ###
+
+		if [[  $FF_AC == 1 && $CHANNELS == 6 ]]
+		then
+
+        ### 6 to 1 resample not suported by ffmpeg
+
+        ### create audio_2.aac
+
+        echo -e "${yellow}# Create audio_2.aac (6 to 1 resample is not suported by ffmpeg) ${NC}"
+        COMMAND="${FFMPEG_WEBM} -y -threads $THREADS  -i ${INPUT} -vn -ss  $SS   -ar ${FF_AR} -ab ${FF_AB}k -ac 2   ${DIRECTORY}/${SUBDIR}/audio_2.aac"
+        [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
+        eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||   fatal_error
+
+
+        ### create audio_${FF_AB}_${FF_AC}_$FF_AR.aac
+        echo -e "${yellow}#Create audio_${FF_AB}_${FF_AC}_$FF_AR.aac ${NC}"
+        COMMAND="${FFMPEG_WEBM} -threads $THREADS   -i ${DIRECTORY}/${SUBDIR}/audio_2.aac -vn -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.aac"
+        [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
+        eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||   fatal_error
+
+    else
+
+        ### create audio_${FF_AB}_${FF_AC}_$FF_AR.aac
+        echo -e "${yellow}#Create audio_${FF_AB}_${FF_AC}_$FF_AR.aac ${NC}"
+        COMMAND="${FFMPEG_WEBM} -threads $THREADS   -i ${INPUT} -vn -ss  $SS  -ar $FF_AR -ab ${FF_AB}k -ac $FF_AC  -y ${DIRECTORY}/${SUBDIR}/audio_${FF_AB}_${FF_AC}_$FF_AR.aac"
+        [[ $DEBUG -gt 1 ]] && QUEIT=""  || QUEIT="  2>/dev/null"
+        eval "$COMMAND $QUEIT" && echo -e ${green}$COMMAND$QUEIT${NC} ||  fatal_error
+
+    fi
+
+
+
+
+
+
+
+
 	
-	
-	
+
+
 	
 	
 	
 	### Create the video ###
 	
-	if [[  $FFMPEG_VIDEO == 0 ]]
-	then
-		### pipe mplayer rawvideo to ffmpeg
-		
-		echo -e "${red}# Resample video${NC}"
-		#COMMAND="${FFMPEG} -v 0 $DEINTERLACE -r   $FPS -f yuv4mpegpipe -i ${DIRECTORY}/$SUBDIR/${OUTPUT}.yuv -b 900k $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT} -r 24  $VHOOK    -y ${DIRECTORY}/${SUBDIR}/${OUTPUT}.flv"
-		#[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
- 		#eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
-	else
+
 	
 		 PADTOP=$(echo "$PADTOP + 22"|bc)
 		 PADBOTTOM=$(echo "$PADBOTTOM + 22"|bc)
-	     FF_PAD="-padtop $PADTOP -padbottom $PADBOTTOM "
+	   FF_PAD="-padtop $PADTOP -padbottom $PADBOTTOM "
 		 echo -e "${yellow}# Adding 2*22 px to the video: $FF_PAD ${NC}"
 
 		
-		if [[ $FF_PASS == 2 ]]
-		then
+	
 		
 
 		
@@ -97,35 +93,23 @@
 		
 		echo -e "${yellow}# pass 1 ${NC}"
 		
-		INPUT_VIDEO=$INPUT 
+	
 		[[ ! -z $SUB_FILE ]] && burn_subtitle		
 
-		COMMAND="${FFMPEG} -threads $THREAD -i  ${INPUT_VIDEO} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 1 -vcodec libx264 $FF_PRESET1  $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP}   $VHOOK  -r $FF_FPS  -ss $SS  -f $FF_FORMAT -aspect 16:9  -y /dev/null "
+		COMMAND="${FFMPEG_WEBM} -threads $THREADS $DEINTERLACE -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile ${OUTPUT} -pass 1 -vcodec libx264 $FF_PRESET1  -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM} $VF_MOVIE '   -r $FF_FPS  -ss $SS  -aspect 176:144  -f $FF_FORMAT -aspect 16:9  -y /dev/null "
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
+		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||   fatal_error
 		
 		echo -e "${yellow}# pass 2 ${NC}"
 		
 
 		[[ ! -z $SUB_FILE ]] && burn_subtitle		
 
-		COMMAND="${FFMPEG} -threads $THREAD -i  ${INPUT_VIDEO} -an -b ${FF_VBITRATE}k -passlogfile /tmp/${OUTPUT}.log -pass 2 -vcodec libx264 $FF_PRESET2 $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP}   $VHOOK  -r $FF_FPS -ss $SS  -f $FF_FORMAT -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264"
+		COMMAND="${FFMPEG_WEBM} -threads $THREADS $DEINTERLACE -i  ${INPUT} -an -b ${FF_VBITRATE}k -passlogfile ${OUTPUT} -pass 2 -vcodec libx264 $FF_PRESET2 -vf 'crop=$(echo "${WIDTH}-${CROPLEFT}"|bc):`echo "${HEIGHT}-${CROPTOP}"|bc`:${CROPRIGHT}:${CROPBOTTOM},scale=${FF_WIDTH}:${FF_HEIGHT_BP},pad=${FF_WIDTH}:${FF_HEIGHT_3G}:0:${PADBOTTOM} $VF_MOVIE '  -r $FF_FPS -ss $SS -aspect 176:144  -f $FF_FORMAT -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264"
 		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
+		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||   fatal_error
 
-		else 
-		
-		echo -e "${yellow}# Only one pass ${NC}"
-		
-		INPUT_VIDEO=$INPUT 
-		[[ ! -z $SUB_FILE ]] && burn_subtitle
 
-		COMMAND="${FFMPEG} -threads $THREADS -i  ${INPUT_VIDEO} -an -b ${FF_VBITRATE}k -vcodec libx264 $FF_PRESET2 $FF_CROP_WIDTH $FF_CROP_HEIGHT $FF_PAD -s ${FF_WIDTH}x${FF_HEIGHT_BP}   $VHOOK  -r $FPS -ss $SS  -f $FF_FORMAT -y  ${DIRECTORY}/${SUBDIR}/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264"
-		[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  2>/dev/null"
-		eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC}
-		fi
-	
-	fi
 
 
 	
@@ -135,7 +119,7 @@
 	echo -e "${yellow}# Remux sound and video with MP4Box${NC}"
 	COMMAND="${MP4BOX} -fps $FF_FPS  -add ${DIRECTORY}/$SUBDIR/video_${FF_WIDTH}x${FF_HEIGHT}_${FF_FPS}_${FF_VBITRATE}.h264 -add ${DIRECTORY}/$SUBDIR/audio_${FF_AB}_${FF_AC}_$FF_AR.aac -3gp -new ${DIRECTORY}/${SUBDIR}/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT}"
 	[[ $DEBUG -gt 1 ]] && QUIET=""  || QUIET="  >/dev/null"
-	eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||  echo -e ${red}$COMMAND${NC} 
+	eval "$COMMAND $QUIET" && echo -e ${green}$COMMAND$QUIET${NC} ||   fatal_error
 
 	
 	### clean up
@@ -152,8 +136,8 @@
 
 	if [[  $? == 0 ]]
 	then 
-	echo -e "${GREEN}${DIRECTORY}/$SUBDIR/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT} ${NC}"
-	[[ $DEBUG -gt 1 ]] && echo -e "$FILE_INFOS" ||echo -e "$FILE_INFOS" >  "${DIRECTORY}/$SUBDIR/sample.up"
+	echo -e "${GREEN}#${DIRECTORY}/$SUBDIR/${OUTPUT}${PLAY_SIZE}.${FF_FORMAT} ${NC}"
+	[[ $DEBUG -gt 1 ]] && echo -e "$FILE_INFOS" ||echo -e "$FILE_INFOS" >>  "${DIRECTORY}/$SUBDIR/sample.up"
 
 	### stop timer
 
@@ -170,6 +154,3 @@
 	else
 	echo -e "${RED}$FILE_INFOS${NC}"		
 	fi
-	
-	# Go back to the pwd ( to avoid the x264_2pass.log issue ) ###
-	cd $PWD

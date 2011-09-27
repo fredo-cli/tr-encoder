@@ -6,6 +6,7 @@ PLAY_SIZE="_9"
 
 FF_WIDTH=176
 FF_HEIGHT=100 ### we add 2*22 just before the video encoding
+FF_HEIGHT_3G=144 ### 16/9 + 2+44-> 3g ratio
  
 FF_FPS=15
 
@@ -15,10 +16,10 @@ FF_AB=12.2
 FF_AC=1
 FF_AR=8000
 
-FF_PASS=2
 
 MPLAYER_SUB=" -subfont-text-scale 5.0 -sub-bg-color 0 -sub-bg-alpha 150 -font ${SUB_DIRECTORY}/arial.ttf -utf8 "
 
+THREADS=1
 
 if [[ $EVALUTE == 1 && $EVALUATION == 0 ]]
 then
