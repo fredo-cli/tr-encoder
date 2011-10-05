@@ -40,9 +40,9 @@
 
   fi
 
-	### Change to the video directory  ( to avoid the pass.log issue ) ###
+### Change to the video directory  ( to avoid the pass.log issue ) ###
 
-	cd ${DIRECTORY}/${SUBDIR}/
+cd ${DIRECTORY}/${SUBDIR}/
 		   
 		
 
