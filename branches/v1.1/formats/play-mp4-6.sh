@@ -22,8 +22,8 @@ THREADS=1
 #FF_PRESET1="$DEFAULT -flags2 -dct8x8 -level 30 -refs 2 "
 #FF_PRESET2="$DEFAULT -flags2 -dct8x8 -level 30 -refs 2 "
 
-FF_PRESET1=" -vpre ipod640"
-FF_PRESET2=" -vpre ipod640"
+FF_PRESET1=" -vpre ipod640 -level 30 -refs 2"
+FF_PRESET2=" -vpre ipod640 -level 30 -refs 2"
 
 	if [[ $NEW_WIDTH -ge  $FF_WIDTH ]]
 		then
