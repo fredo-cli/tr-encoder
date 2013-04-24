@@ -22,8 +22,8 @@ THREADS=1
 #FF_PRESET1="$DEFAULT -flags2 -dct8x8 -level 40 -refs 3 "
 #FF_PRESET2="$DEFAULT -flags2 -dct8x8 -level 40 -refs 3 "
 
-FF_PRESET1=" -vpre 1080p"
-FF_PRESET2=" -vpre 1080p"
+FF_PRESET1=" -vpre ipod640 -level 40 -refs 3"
+FF_PRESET2=" -vpre ipod640 -level 40 -refs 3"
 
 
 
