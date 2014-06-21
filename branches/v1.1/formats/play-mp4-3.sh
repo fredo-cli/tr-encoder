@@ -7,13 +7,13 @@ PLAY_SIZE="_3"
 FF_WIDTH=320
 FF_HEIGHT=176
 FF_FPS=24
-FF_VBITRATE=200
+FF_VBITRATE=240
 
 FF_AB=128
 FF_AC=2
 FF_AR=44100
 
-FF_PASS=2
+FF_PASS=1
 MPLAYER_SUB=" -subfont-text-scale 2.5 -sub-bg-color 0 -sub-bg-alpha 150 -font ${SUB_DIRECTORY}/arial.ttf -utf8 "
 
 THREADS=1
